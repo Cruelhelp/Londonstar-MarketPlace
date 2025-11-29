@@ -1,0 +1,28 @@
+{
+  "name": "london-star-marketplace",
+  "version": "1.0.0",
+  "description": "A premium, full-featured e-commerce marketplace built with vanilla JavaScript",
+  "main": "index.html",
+  "scripts": {
+    "start": "python3 -m http.server 8000 || python -m SimpleHTTPServer 8000",
+    "dev": "python3 -m http.server 3000",
+    "open": "open http://localhost:8000/home.html || xdg-open http://localhost:8000/home.html || start http://localhost:8000/home.html",
+    "browse": "python3 -m http.server 8000 && open http://localhost:8000/home.html"
+  },
+  "keywords": [
+    "marketplace",
+    "ecommerce",
+    "supabase",
+    "vanilla-javascript",
+    "shopping-cart",
+    "seller-platform"
+  ],
+  "author": "Ruel McNeil",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/london-star-marketplace.git"
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}

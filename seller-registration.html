@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Become a Seller - London Star Marketplace</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+        }
+
+        .registration-container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .registration-card {
+            background: white;
+            border-radius: 16px;
+            padding: 50px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        .registration-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .registration-header img {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+        }
+
+        .registration-header h1 {
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+        }
+
+        .registration-header p {
+            font-size: 16px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .form-section {
+            margin-bottom: 35px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--accent-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-grid-full {
+            grid-column: 1 / -1;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #374151;
+            font-size: 14px;
+        }
+
+        .form-group label .required {
+            color: #dc2626;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-top: 4px;
+        }
+
+        .checkbox-group label {
+            font-weight: 400;
+            font-size: 14px;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+
+        .checkbox-group label a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .checkbox-group label a:hover {
+            text-decoration: underline;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #fb923c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .info-box {
+            background: #eff6ff;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-box h3 {
+            margin: 0 0 10px 0;
+            color: #1e40af;
+            font-size: 16px;
+        }
+
+        .info-box ul {
+            margin: 10px 0 0 20px;
+            color: #1e40af;
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        .already-member {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 15px;
+            color: #6b7280;
+        }
+
+        .already-member a {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .already-member a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .registration-card {
+                padding: 30px 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .registration-header h1 {
+                font-size: 28px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <img src="images/logo-new.svg" alt="London Marketplace" class="loading-logo">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-main">
+            <div class="logo-container" onclick="window.location.href='home.html'">
+                <img src="images/logo-icon-new.svg" alt="London Marketplace">
+            </div>
+            <nav class="header-nav">
+                <a href="home.html" class="nav-link">Home</a>
+                <a href="marketplace.html" class="nav-link">Browse Products</a>
+                <a href="index.html" class="nav-link">Sign In</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="registration-container">
+        <div class="registration-card">
+            <div class="registration-header">
+                <img src="images/logo-icon-new.svg" alt="London Star">
+                <h1>Become a Seller</h1>
+                <p>Join thousands of sellers on London Star Marketplace and reach customers worldwide. Complete the form below to start your journey.</p>
+            </div>
+
+            <div class="info-box">
+                <h3>Benefits of Selling on London Star:</h3>
+                <ul>
+                    <li>Reach millions of customers globally</li>
+                    <li>Easy-to-use seller dashboard</li>
+                    <li>Secure payment processing</li>
+                    <li>Marketing and promotional tools</li>
+                    <li>Dedicated seller support team</li>
+                </ul>
+            </div>
+
+            <form id="sellerRegistrationForm" onsubmit="handleRegistration(event)">
+                <!-- Personal Information -->
+                <div class="form-section">
+                    <h2 class="section-title">Personal Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Full Name <span class="required">*</span></label>
+                            <input type="text" id="fullName" required placeholder="John Doe">
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address <span class="required">*</span></label>
+                            <input type="email" id="email" required placeholder="john@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number <span class="required">*</span></label>
+                            <input type="tel" id="phone" required placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label>Password <span class="required">*</span></label>
+                            <input type="password" id="password" required minlength="8" placeholder="Minimum 8 characters">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Business Information -->
+                <div class="form-section">
+                    <h2 class="section-title">Business Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group form-grid-full">
+                            <label>Business Name <span class="required">*</span></label>
+                            <input type="text" id="businessName" required placeholder="Your Company Ltd.">
+                        </div>
+                        <div class="form-group">
+                            <label>Business Type <span class="required">*</span></label>
+                            <select id="businessType" required>
+                                <option value="">Select business type</option>
+                                <option value="individual">Individual/Sole Proprietor</option>
+                                <option value="partnership">Partnership</option>
+                                <option value="corporation">Corporation</option>
+                                <option value="llc">LLC</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Tax ID / Business Registration Number</label>
+                            <input type="text" id="taxId" placeholder="123-45-6789">
+                        </div>
+                        <div class="form-group form-grid-full">
+                            <label>Business Address <span class="required">*</span></label>
+                            <input type="text" id="businessAddress" required placeholder="123 Main Street">
+                        </div>
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" id="city" required placeholder="Kingston">
+                        </div>
+                        <div class="form-group">
+                            <label>State/Province</label>
+                            <input type="text" id="state" placeholder="Jamaica">
+                        </div>
+                        <div class="form-group">
+                            <label>Postal Code <span class="required">*</span></label>
+                            <input type="text" id="postalCode" required placeholder="12345">
+                        </div>
+                        <div class="form-group">
+                            <label>Country <span class="required">*</span></label>
+                            <select id="country" required>
+                                <option value="">Select country</option>
+                                <option value="JM">Jamaica</option>
+                                <option value="US">United States</option>
+                                <option value="CA">Canada</option>
+                                <option value="GB">United Kingdom</option>
+                                <option value="AU">Australia</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Categories -->
+                <div class="form-section">
+                    <h2 class="section-title">Selling Information</h2>
+                    <div class="form-grid">
+                        <div class="form-group form-grid-full">
+                            <label>Primary Product Category <span class="required">*</span></label>
+                            <select id="primaryCategory" required>
+                                <option value="">Select category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fashion">Fashion & Apparel</option>
+                                <option value="home">Home & Garden</option>
+                                <option value="beauty">Beauty & Personal Care</option>
+                                <option value="sports">Sports & Outdoors</option>
+                                <option value="toys">Toys & Games</option>
+                                <option value="books">Books & Media</option>
+                                <option value="automotive">Automotive</option>
+                                <option value="food">Food & Beverages</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group form-grid-full">
+                            <label>Brief Description of Your Products/Services <span class="required">*</span></label>
+                            <textarea id="businessDescription" required placeholder="Tell us about what you plan to sell on our platform..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Expected Monthly Sales Volume</label>
+                            <select id="salesVolume">
+                                <option value="">Select range</option>
+                                <option value="0-1000">$0 - $1,000</option>
+                                <option value="1000-5000">$1,000 - $5,000</option>
+                                <option value="5000-10000">$5,000 - $10,000</option>
+                                <option value="10000+">$10,000+</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Website (if any)</label>
+                            <input type="url" id="website" placeholder="https://www.yourwebsite.com">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terms and Conditions -->
+                <div class="form-section">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="agreeTerms" required>
+                        <label for="agreeTerms">
+                            I agree to the <a href="#">Seller Terms of Service</a> and <a href="#">Privacy Policy</a> <span class="required">*</span>
+                        </label>
+                    </div>
+                    <div class="checkbox-group" style="margin-top: 15px;">
+                        <input type="checkbox" id="agreeMarketing">
+                        <label for="agreeMarketing">
+                            I agree to receive marketing emails and seller updates from London Star Marketplace
+                        </label>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn" id="submitBtn">Submit Application</button>
+            </form>
+
+            <div class="already-member">
+                Already have an account? <a href="index.html">Sign in here</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-init.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        async function handleRegistration(e) {
+            e.preventDefault();
+
+            const submitBtn = document.getElementById('submitBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Processing...';
+
+            try {
+                // Collect form data
+                const formData = {
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value,
+                    fullName: document.getElementById('fullName').value,
+                    phone: document.getElementById('phone').value,
+                    businessName: document.getElementById('businessName').value,
+                    businessType: document.getElementById('businessType').value,
+                    taxId: document.getElementById('taxId').value,
+                    businessAddress: document.getElementById('businessAddress').value,
+                    city: document.getElementById('city').value,
+                    state: document.getElementById('state').value,
+                    postalCode: document.getElementById('postalCode').value,
+                    country: document.getElementById('country').value,
+                    primaryCategory: document.getElementById('primaryCategory').value,
+                    businessDescription: document.getElementById('businessDescription').value,
+                    salesVolume: document.getElementById('salesVolume').value,
+                    website: document.getElementById('website').value,
+                    agreeMarketing: document.getElementById('agreeMarketing').checked
+                };
+
+                // Create auth user
+                const { data: authData, error: authError } = await supabase.auth.signUp({
+                    email: formData.email,
+                    password: formData.password
+                });
+
+                if (authError) throw authError;
+
+                // Create user profile with seller role and pending status
+                const { error: profileError } = await supabase
+                    .from('users')
+                    .insert({
+                        id: authData.user.id,
+                        email: formData.email,
+                        full_name: formData.fullName,
+                        role: 'seller',
+                        status: 'pending',
+                        phone: formData.phone,
+                        metadata: {
+                            businessName: formData.businessName,
+                            businessType: formData.businessType,
+                            taxId: formData.taxId,
+                            businessAddress: formData.businessAddress,
+                            city: formData.city,
+                            state: formData.state,
+                            postalCode: formData.postalCode,
+                            country: formData.country,
+                            primaryCategory: formData.primaryCategory,
+                            businessDescription: formData.businessDescription,
+                            salesVolume: formData.salesVolume,
+                            website: formData.website,
+                            agreeMarketing: formData.agreeMarketing,
+                            applicationDate: new Date().toISOString()
+                        }
+                    });
+
+                if (profileError) throw profileError;
+
+                // Show success message
+                alert('Application Submitted Successfully!\n\nYour seller application has been submitted and is pending admin approval. You will receive an email notification once your account has been reviewed.\n\nThank you for choosing London Star Marketplace!');
+
+                // Redirect to home
+                window.location.href = 'home.html';
+
+            } catch (error) {
+                console.error('Registration error:', error);
+                alert('Error submitting application: ' + error.message);
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Application';
+            }
+        }
+
+        // Hide loading screen
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1000);
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="global-footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-column">
+                    <h3>Shop</h3>
+                    <ul>
+                        <li><a href="marketplace.html">All Products</a></li>
+                        <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                        <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                        <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                        <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
+                        <li><a href="marketplace.html?category=books">Books</a></li>
+                        <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
+                        <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Sell</h3>
+                    <ul>
+                        <li><a href="seller.html">Seller Dashboard</a></li>
+                        <li><a href="seller-registration.html">Start Selling</a></li>
+                        <li><a href="#">Seller Tools</a></li>
+                        <li><a href="#">Seller University</a></li>
+                        <li><a href="#">Advertising</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Resources</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Track Your Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Payment Methods</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Report an Issue</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">About London Marketplace</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press Center</a></li>
+                        <li><a href="#">Investor Relations</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                        <li><a href="#">Community Impact</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Success Stories</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li><a href="index.html">Sign In</a></li>
+                        <li><a href="index.html">Create Account</a></li>
+                        <li><a href="#">My Orders</a></li>
+                        <li><a href="#">Wishlist</a></li>
+                        <li><a href="#">Account Settings</a></li>
+                        <li><a href="#">Gift Cards</a></li>
+                        <li><a href="#">Subscriptions</a></li>
+                        <li><a href="#">Notifications</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Buyer Protection</a></li>
+                        <li><a href="#">Trust & Safety</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Accessibility</a></li>
+                        <li><a href="#">Sitemap</a></li>
+                        <li><a href="#">Mobile App</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Marketplace">
+                </div>
+
+                <div class="footer-links">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Cookie Policy</a>
+                    <a href="#">Accessibility</a>
+                    <a href="#">Do Not Sell My Personal Information</a>
+                    <a href="#">Interest-Based Ads</a>
+                </div>
+
+                <div class="footer-copyright">
+                    &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

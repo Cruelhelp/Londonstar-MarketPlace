@@ -1,0 +1,815 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - London Star Marketplace</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        body {
+            background: #f5f5f5;
+        }
+
+        .cart-container {
+            max-width: 1400px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .cart-main {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+
+        .cart-header {
+            border-bottom: 2px solid #e5e7eb;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .cart-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0 0 10px 0;
+        }
+
+        .cart-subtotal {
+            font-size: 21px;
+            font-weight: 600;
+            color: #111827;
+            margin: 15px 0;
+        }
+
+        .cart-item {
+            display: grid;
+            grid-template-columns: 180px 1fr auto;
+            gap: 20px;
+            padding: 25px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .cart-item:last-child {
+            border-bottom: none;
+        }
+
+        .item-image {
+            width: 180px;
+            height: 180px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid #e5e7eb;
+        }
+
+        .item-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .item-details {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .item-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #111827;
+            line-height: 1.4;
+        }
+
+        .item-seller {
+            font-size: 14px;
+            color: #6b7280;
+        }
+
+        .item-stock {
+            font-size: 14px;
+            font-weight: 600;
+            color: #059669;
+        }
+
+        .item-stock.out-of-stock {
+            color: #dc2626;
+        }
+
+        .item-actions {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            margin-top: 10px;
+        }
+
+        .qty-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .qty-selector select {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .qty-selector select:focus {
+            outline: none;
+            border-color: var(--accent-color);
+        }
+
+        .action-link {
+            color: var(--accent-color);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            background: none;
+            padding: 0;
+        }
+
+        .action-link:hover {
+            text-decoration: underline;
+        }
+
+        .item-price {
+            font-size: 24px;
+            font-weight: 700;
+            color: #111827;
+            white-space: nowrap;
+        }
+
+        /* Sidebar */
+        .cart-sidebar {
+            position: sticky;
+            top: 90px;
+            height: fit-content;
+        }
+
+        .order-summary {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 16px;
+        }
+
+        .summary-total {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e5e7eb;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .checkout-btn {
+            width: 100%;
+            padding: 14px 20px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, #fb923c 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .checkout-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
+        }
+
+        .checkout-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6b7280;
+        }
+
+        .empty-cart svg {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 20px;
+            opacity: 0.3;
+        }
+
+        .empty-cart h2 {
+            font-size: 24px;
+            color: #111827;
+            margin: 20px 0 10px;
+        }
+
+        .empty-cart p {
+            font-size: 16px;
+            margin-bottom: 30px;
+        }
+
+        .continue-shopping {
+            display: inline-block;
+            padding: 12px 30px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 8px;
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .continue-shopping:hover {
+            background: var(--accent-hover);
+            text-decoration: none;
+        }
+
+        .shipping-note {
+            background: #f9fafb;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #6b7280;
+            line-height: 1.6;
+        }
+
+        .shipping-note strong {
+            color: #111827;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        @media (max-width: 1024px) {
+            .cart-container {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-sidebar {
+                position: static;
+            }
+
+            .cart-item {
+                grid-template-columns: 120px 1fr;
+            }
+
+            .item-price {
+                grid-column: 2;
+                text-align: right;
+                margin-top: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loadingScreen">
+        <img src="images/logo-new.svg" alt="London Marketplace" class="loading-logo">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-main">
+            <div class="logo-container" onclick="window.location.href='home.html'">
+                <img src="images/logo-icon-new.svg" alt="London Marketplace">
+            </div>
+            <div class="search-bar">
+                <input type="text" id="globalSearchInput" placeholder="Search for products...">
+                <button onclick="handleGlobalSearch()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+            </div>
+            <nav class="header-nav">
+                <a href="marketplace.html" class="nav-link">Browse Products</a>
+                <a href="cart.html" class="nav-link" style="font-weight: 600; color: var(--accent-color);">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 5px;">
+                        <circle cx="9" cy="21" r="1"/>
+                        <circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
+                    Cart (<span id="cartCount">0</span>)
+                </a>
+                <a href="index.html" class="nav-link" onclick="handleLogout()">Sign Out</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="cart-container">
+        <!-- Main Cart -->
+        <div class="cart-main">
+            <div class="cart-header">
+                <h1>Shopping Cart</h1>
+                <div class="cart-subtotal">
+                    Subtotal (<span id="itemCount">0</span> items): <strong>$<span id="subtotalAmount">0.00</span></strong>
+                </div>
+            </div>
+
+            <!-- Cart Items Container -->
+            <div id="cartItemsContainer">
+                <!-- Items will be loaded here -->
+            </div>
+
+            <!-- Empty Cart State -->
+            <div id="emptyCart" class="empty-cart" style="display: none;">
+                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <circle cx="9" cy="21" r="1"/>
+                    <circle cx="20" cy="21" r="1"/>
+                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                </svg>
+                <h2>Your cart is empty</h2>
+                <p>Add some products to get started!</p>
+                <a href="marketplace.html" class="continue-shopping">Continue Shopping</a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="cart-sidebar">
+            <div class="order-summary">
+                <h3 style="font-size: 20px; margin: 0 0 20px 0; color: var(--primary-color);">Order Summary</h3>
+
+                <div class="summary-row">
+                    <span>Items (<span id="sidebarItemCount">0</span>):</span>
+                    <span>$<span id="sidebarSubtotal">0.00</span></span>
+                </div>
+
+                <div class="summary-row">
+                    <span>Shipping:</span>
+                    <span style="color: #059669; font-weight: 600;">FREE</span>
+                </div>
+
+                <div class="summary-total">
+                    <span>Total:</span>
+                    <span>$<span id="sidebarTotal">0.00</span></span>
+                </div>
+
+                <button class="checkout-btn" id="checkoutBtn" onclick="proceedToCheckout()">
+                    Proceed to Checkout
+                </button>
+            </div>
+
+            <div class="shipping-note">
+                <strong>Free Shipping Worldwide</strong>
+                All orders ship free of charge. Estimated delivery time is 5-10 business days depending on your location.
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script>
+        let currentUserId = null;
+        let cartItems = [];
+
+        // Global search handler
+        function handleGlobalSearch() {
+            const searchInput = document.getElementById('globalSearchInput');
+            const query = searchInput?.value.trim();
+            if (query) {
+                window.location.href = `marketplace.html?search=${encodeURIComponent(query)}`;
+            }
+        }
+
+        // Handle logout
+        function handleLogout() {
+            sessionManager.clearSession();
+            localStorage.clear();
+            window.location.href = 'index.html';
+        }
+
+        // Check authentication (optional for cart)
+        function checkAuth() {
+            currentUserId = sessionManager.getUserId();
+            return currentUserId !== null;
+        }
+
+        // Load cart items
+        async function loadCart() {
+            const isLoggedIn = checkAuth();
+
+            try {
+                if (isLoggedIn) {
+                    // Registered user - load from Supabase
+                    const { data: items, error } = await supabase
+                        .from('cart_items')
+                        .select(`
+                            id,
+                            quantity,
+                            products (
+                                id,
+                                name,
+                                price,
+                                images,
+                                stock,
+                                category,
+                                users!products_seller_id_fkey (
+                                    full_name,
+                                    email
+                                )
+                            )
+                        `)
+                        .eq('buyer_id', currentUserId);
+
+                    if (error) throw error;
+                    cartItems = items || [];
+                } else {
+                    // Guest user - load from localStorage
+                    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+
+                    // For guest users, we need to fetch product details
+                    if (guestCart.length > 0) {
+                        const productIds = guestCart.map(item => item.id);
+                        const { data: products, error } = await supabase
+                            .from('products')
+                            .select(`
+                                id,
+                                name,
+                                price,
+                                images,
+                                stock,
+                                category,
+                                users!products_seller_id_fkey (
+                                    full_name,
+                                    email
+                                )
+                            `)
+                            .in('id', productIds);
+
+                        if (!error && products) {
+                            // Merge guest cart quantities with product data
+                            cartItems = guestCart.map(guestItem => {
+                                const product = products.find(p => p.id === guestItem.id);
+                                if (product) {
+                                    return {
+                                        id: `guest-${product.id}`, // Prefix for guest items
+                                        quantity: guestItem.quantity,
+                                        products: product
+                                    };
+                                }
+                                return null;
+                            }).filter(item => item !== null);
+                        }
+                    } else {
+                        cartItems = [];
+                    }
+                }
+
+                renderCart();
+
+            } catch (error) {
+                console.error('Error loading cart:', error);
+                showAlert('Error loading cart items', 'error');
+            }
+        }
+
+        // Render cart
+        function renderCart() {
+            const container = document.getElementById('cartItemsContainer');
+            const emptyCart = document.getElementById('emptyCart');
+
+            if (cartItems.length === 0) {
+                container.style.display = 'none';
+                emptyCart.style.display = 'block';
+                updateSummary();
+                return;
+            }
+
+            container.style.display = 'block';
+            emptyCart.style.display = 'none';
+
+            container.innerHTML = cartItems.map(item => {
+                const product = item.products;
+                const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+                const imageUrl = images && images.length > 0 ? images[0] : 'images/placeholder.png';
+                const seller = product.users;
+                const totalPrice = (product.price * item.quantity).toFixed(2);
+                const inStock = product.stock > 0;
+
+                return `
+                    <div class="cart-item" data-item-id="${item.id}">
+                        <div class="item-image">
+                            <img src="${imageUrl}" alt="${product.name}">
+                        </div>
+                        <div class="item-details">
+                            <div class="item-title">${product.name}</div>
+                            <div class="item-seller">Sold by: ${seller?.full_name || 'Unknown Seller'}</div>
+                            <div class="item-stock ${inStock ? '' : 'out-of-stock'}">
+                                ${inStock ? 'In Stock' : 'Out of Stock'}
+                            </div>
+                            <div class="item-actions">
+                                <div class="qty-selector">
+                                    <label>Qty:</label>
+                                    <select onchange="updateQuantity('${item.id}', this.value)" ${!inStock ? 'disabled' : ''}>
+                                        ${[...Array(Math.min(product.stock, 10))].map((_, i) =>
+                                            `<option value="${i + 1}" ${item.quantity === i + 1 ? 'selected' : ''}>${i + 1}</option>`
+                                        ).join('')}
+                                    </select>
+                                </div>
+                                <button class="action-link" onclick="removeItem('${item.id}')">Delete</button>
+                                <button class="action-link" onclick="saveForLater('${item.id}')">Save for later</button>
+                            </div>
+                        </div>
+                        <div class="item-price">$${totalPrice}</div>
+                    </div>
+                `;
+            }).join('');
+
+            updateSummary();
+        }
+
+        // Update summary
+        function updateSummary() {
+            const itemCount = cartItems.length;
+            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            const subtotal = cartItems.reduce((sum, item) => {
+                return sum + (item.products.price * item.quantity);
+            }, 0).toFixed(2);
+
+            // Update all summary elements
+            document.getElementById('itemCount').textContent = totalItems;
+            document.getElementById('subtotalAmount').textContent = subtotal;
+            document.getElementById('cartCount').textContent = totalItems;
+            document.getElementById('sidebarItemCount').textContent = totalItems;
+            document.getElementById('sidebarSubtotal').textContent = subtotal;
+            document.getElementById('sidebarTotal').textContent = subtotal;
+
+            // Enable/disable checkout button
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            checkoutBtn.disabled = cartItems.length === 0;
+        }
+
+        // Update quantity
+        async function updateQuantity(itemId, newQuantity) {
+            try {
+                const isLoggedIn = currentUserId !== null;
+
+                if (isLoggedIn) {
+                    // Registered user - update in Supabase
+                    const { error } = await supabase
+                        .from('cart_items')
+                        .update({ quantity: parseInt(newQuantity) })
+                        .eq('id', itemId);
+
+                    if (error) throw error;
+
+                    // Update local cart
+                    const item = cartItems.find(i => i.id === itemId);
+                    if (item) {
+                        item.quantity = parseInt(newQuantity);
+                        renderCart();
+                    }
+                } else {
+                    // Guest user - update localStorage
+                    const productId = itemId.replace('guest-', '');
+                    const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+                    const item = guestCart.find(i => i.id === productId);
+
+                    if (item) {
+                        item.quantity = parseInt(newQuantity);
+                        localStorage.setItem('guestCart', JSON.stringify(guestCart));
+
+                        // Update local cart display
+                        const cartItem = cartItems.find(i => i.id === itemId);
+                        if (cartItem) {
+                            cartItem.quantity = parseInt(newQuantity);
+                            renderCart();
+                        }
+                    }
+                }
+
+            } catch (error) {
+                console.error('Error updating quantity:', error);
+                showAlert('Error updating quantity', 'error');
+            }
+        }
+
+        // Remove item
+        async function removeItem(itemId) {
+            if (!confirm('Remove this item from your cart?')) return;
+
+            try {
+                const isLoggedIn = currentUserId !== null;
+
+                if (isLoggedIn) {
+                    // Registered user - remove from Supabase
+                    const { error } = await supabase
+                        .from('cart_items')
+                        .delete()
+                        .eq('id', itemId);
+
+                    if (error) throw error;
+
+                    // Remove from local cart
+                    cartItems = cartItems.filter(i => i.id !== itemId);
+                    renderCart();
+                    showAlert('Item removed from cart', 'success');
+                } else {
+                    // Guest user - remove from localStorage
+                    const productId = itemId.replace('guest-', '');
+                    let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
+                    guestCart = guestCart.filter(i => i.id !== productId);
+                    localStorage.setItem('guestCart', JSON.stringify(guestCart));
+
+                    // Remove from local cart display
+                    cartItems = cartItems.filter(i => i.id !== itemId);
+                    renderCart();
+                    showAlert('Item removed from cart', 'success');
+                }
+
+            } catch (error) {
+                console.error('Error removing item:', error);
+                showAlert('Error removing item', 'error');
+            }
+        }
+
+        // Save for later (placeholder)
+        function saveForLater(itemId) {
+            alert('Save for later feature coming soon!');
+        }
+
+        // Proceed to checkout
+        function proceedToCheckout() {
+            if (cartItems.length === 0) {
+                alert('Your cart is empty');
+                return;
+            }
+
+            // Check if all items are in stock
+            const outOfStock = cartItems.filter(item => item.products.stock < item.quantity);
+            if (outOfStock.length > 0) {
+                alert('Some items in your cart are out of stock. Please remove them before proceeding.');
+                return;
+            }
+
+            // Redirect to checkout page
+            window.location.href = 'checkout.html';
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.textContent = message;
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 90px;
+                right: 20px;
+                padding: 15px 20px;
+                background: ${type === 'success' ? '#d1fae5' : '#fee2e2'};
+                color: ${type === 'success' ? '#065f46' : '#991b1b'};
+                border: 1px solid ${type === 'success' ? '#6ee7b7' : '#fca5a5'};
+                border-radius: 8px;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+                z-index: 10000;
+                font-weight: 500;
+            `;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        // Initialize
+        window.addEventListener('load', async () => {
+            checkAuth(); // Sets currentUserId if logged in
+            await loadCart(); // Works for both guest and registered users
+
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 1000);
+        });
+    </script>
+
+    <!-- Footer -->
+    <footer class="global-footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-column">
+                    <h3>Shop</h3>
+                    <ul>
+                        <li><a href="marketplace.html">All Products</a></li>
+                        <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                        <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                        <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                        <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
+                        <li><a href="marketplace.html?category=books">Books</a></li>
+                        <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
+                        <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Sell</h3>
+                    <ul>
+                        <li><a href="seller.html">Seller Dashboard</a></li>
+                        <li><a href="seller-registration.html">Start Selling</a></li>
+                        <li><a href="#">Seller Tools</a></li>
+                        <li><a href="#">Seller University</a></li>
+                        <li><a href="#">Advertising</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Resources</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Track Your Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Payment Methods</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Report an Issue</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">About London Marketplace</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press Center</a></li>
+                        <li><a href="#">Investor Relations</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                        <li><a href="#">Community Impact</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Success Stories</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li><a href="index.html">Sign In</a></li>
+                        <li><a href="index.html">Create Account</a></li>
+                        <li><a href="#">My Orders</a></li>
+                        <li><a href="#">Wishlist</a></li>
+                        <li><a href="#">Account Settings</a></li>
+                        <li><a href="#">Gift Cards</a></li>
+                        <li><a href="#">Subscriptions</a></li>
+                        <li><a href="#">Notifications</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Buyer Protection</a></li>
+                        <li><a href="#">Trust & Safety</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Accessibility</a></li>
+                        <li><a href="#">Sitemap</a></li>
+                        <li><a href="#">Mobile App</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Marketplace">
+                </div>
+
+                <div class="footer-links">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Cookie Policy</a>
+                    <a href="#">Accessibility</a>
+                    <a href="#">Do Not Sell My Personal Information</a>
+                    <a href="#">Interest-Based Ads</a>
+                </div>
+
+                <div class="footer-copyright">
+                    &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+                </div>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

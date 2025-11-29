@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seller Profile - London Marketplace</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="css/main.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-main">
+            <div class="logo-container" onclick="window.location.href='seller.html'">
+                <img src="images/logo-icon-new.svg" alt="London Marketplace" style="width: 60px; height: 60px;">
+            </div>
+            <div style="flex: 1;"></div>
+            <nav class="header-nav">
+                <a href="seller.html" class="nav-link">Dashboard</a>
+                <span class="nav-link">Profile Settings</span>
+                <a href="index.html" class="nav-link" onclick="handleLogout()">Sign Out</a>
+            </nav>
+        </div>
+    </header>
+
+    <div class="container">
+        <h1 style="margin-bottom: 30px;">Seller Profile Settings</h1>
+
+        <div id="alertContainer"></div>
+
+        <div class="grid grid-2" style="gap: 30px;">
+            <!-- Profile Picture -->
+            <div class="card">
+                <h2 style="margin-bottom: 20px;">Profile Picture</h2>
+                <div style="text-align: center;">
+                    <div style="width: 150px; height: 150px; margin: 0 auto 20px; border-radius: 50%; overflow: hidden; border: 4px solid var(--border-color); background: var(--bg-light);">
+                        <img id="profilePicture" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='50' fill='%23ddd'/%3E%3Cpath d='M50 50 m-20 0 a20 20 0 1 0 40 0 a20 20 0 1 0 -40 0 M50 55 a25 25 0 0 0 -25 25 h50 a25 25 0 0 0 -25 -25' fill='%23999'/%3E%3C/svg%3E" style="width: 100%; height: 100%; object-fit: cover;" alt="Profile">
+                    </div>
+                    <input type="file" id="profilePictureInput" accept="image/*" style="display: none;" onchange="handleProfilePictureUpload(event)">
+                    <button class="btn btn-primary" onclick="document.getElementById('profilePictureInput').click()">Change Picture</button>
+                </div>
+            </div>
+
+            <!-- Basic Information -->
+            <div class="card">
+                <h2 style="margin-bottom: 20px;">Basic Information</h2>
+                <form id="basicInfoForm" onsubmit="saveBasicInfo(event)">
+                    <div class="form-group">
+                        <label>Full Name</label>
+                        <input type="text" id="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email</label>
+                        <input type="email" id="email" readonly style="background: var(--bg-light);">
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number</label>
+                        <input type="tel" id="phone" placeholder="+1 (555) 123-4567">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Business Information -->
+        <div class="card mt-20">
+            <h2 style="margin-bottom: 20px;">Business Information</h2>
+            <form id="businessInfoForm" onsubmit="saveBusinessInfo(event)">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Business Name</label>
+                        <input type="text" id="businessName" placeholder="Your Business LLC">
+                    </div>
+                    <div class="form-group">
+                        <label>Business Type</label>
+                        <select id="businessType">
+                            <option value="">Select type</option>
+                            <option value="individual">Individual</option>
+                            <option value="llc">LLC</option>
+                            <option value="corporation">Corporation</option>
+                            <option value="partnership">Partnership</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Tax ID / EIN</label>
+                        <input type="text" id="taxId" placeholder="XX-XXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Business Phone</label>
+                        <input type="tel" id="businessPhone" placeholder="+1 (555) 123-4567">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Business Address</label>
+                    <input type="text" id="businessAddress" placeholder="123 Main St, City, State ZIP">
+                </div>
+                <div class="form-group">
+                    <label>Business Description</label>
+                    <textarea id="businessDescription" rows="4" placeholder="Tell customers about your business..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Business Info</button>
+            </form>
+        </div>
+
+        <!-- Payment Information -->
+        <div class="card mt-20">
+            <h2 style="margin-bottom: 20px;">Payment Information</h2>
+            <div class="alert alert-info mb-20">
+                This information is used to process payments for your sales. All data is encrypted and secure.
+            </div>
+            <form id="paymentInfoForm" onsubmit="savePaymentInfo(event)">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Payment Method</label>
+                        <select id="paymentMethod" required>
+                            <option value="">Select method</option>
+                            <option value="stripe">Stripe</option>
+                            <option value="paypal">PayPal</option>
+                            <option value="bank">Bank Transfer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Email</label>
+                        <input type="email" id="paymentEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Account ID / Number</label>
+                        <input type="text" id="paymentAccountId" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Holder Name</label>
+                        <input type="text" id="paymentAccountName" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-success">Save Payment Info</button>
+            </form>
+        </div>
+
+        <!-- Store Settings -->
+        <div class="card mt-20">
+            <h2 style="margin-bottom: 20px;">Store Settings</h2>
+            <form id="storeSettingsForm" onsubmit="saveStoreSettings(event)">
+                <div class="grid grid-2">
+                    <div class="form-group">
+                        <label>Store Name</label>
+                        <input type="text" id="storeName" placeholder="My Awesome Store">
+                    </div>
+                    <div class="form-group">
+                        <label>Store URL Slug</label>
+                        <input type="text" id="storeSlug" placeholder="my-store">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Store Banner (URL)</label>
+                    <input type="url" id="storeBanner" placeholder="https://example.com/banner.jpg">
+                </div>
+                <div class="form-group">
+                    <label>Return Policy</label>
+                    <textarea id="returnPolicy" rows="4" placeholder="Describe your return policy..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Shipping Policy</label>
+                    <textarea id="shippingPolicy" rows="4" placeholder="Describe your shipping policy..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Store Settings</button>
+            </form>
+        </div>
+
+        <!-- Danger Zone -->
+        <div class="card mt-20" style="border: 2px solid var(--error-color);">
+            <h2 style="margin-bottom: 20px; color: var(--error-color);">Danger Zone</h2>
+            <div class="alert alert-error mb-20">
+                Dangerous actions. These cannot be undone!
+            </div>
+            <div class="flex gap-20">
+                <button class="btn btn-danger" onclick="deactivateAccount()">Deactivate Account</button>
+                <button class="btn btn-danger" onclick="deleteAccount()">Delete Account</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-init.js"></script>
+    <script src="js/session-manager.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Check authentication on page load
+        if (!sessionManager.requireAuth()) {
+            // Will redirect automatically
+        }
+        if (sessionManager.checkLoggedOut()) {
+            // Prevents back button glitch
+        }
+
+        let currentUser = null;
+        let userProfile = null;
+
+        // Load user data
+        async function loadUserData() {
+            try {
+                currentUser = await authHandler.getCurrentUser();
+
+                if (!currentUser) {
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                // Get user profile
+                const profileResult = await authHandler.getUserProfile(currentUser.id);
+
+                if (profileResult.success) {
+                    userProfile = profileResult.data;
+                    populateForm();
+                }
+
+                // Load payment info
+                loadPaymentInfo();
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Populate form with existing data
+        function populateForm() {
+            if (!userProfile) return;
+
+            document.getElementById('fullName').value = userProfile.full_name || '';
+            document.getElementById('email').value = userProfile.email || '';
+            document.getElementById('phone').value = userProfile.phone || '';
+
+            if (userProfile.avatar_url) {
+                document.getElementById('profilePicture').src = userProfile.avatar_url;
+            }
+
+            // Load from user_meta_data if available
+            const metadata = currentUser.user_metadata || {};
+            document.getElementById('businessName').value = metadata.business_name || '';
+            document.getElementById('businessType').value = metadata.business_type || '';
+            document.getElementById('taxId').value = metadata.tax_id || '';
+            document.getElementById('businessPhone').value = metadata.business_phone || '';
+            document.getElementById('businessAddress').value = metadata.business_address || '';
+            document.getElementById('businessDescription').value = metadata.business_description || '';
+            document.getElementById('storeName').value = metadata.store_name || '';
+            document.getElementById('storeSlug').value = metadata.store_slug || '';
+            document.getElementById('storeBanner').value = metadata.store_banner || '';
+            document.getElementById('returnPolicy').value = metadata.return_policy || '';
+            document.getElementById('shippingPolicy').value = metadata.shipping_policy || '';
+        }
+
+        // Load payment info
+        async function loadPaymentInfo() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('payment_info')
+                    .select('*')
+                    .eq('seller_id', currentUser.id)
+                    .single();
+
+                if (data) {
+                    document.getElementById('paymentMethod').value = data.payment_method || '';
+                    document.getElementById('paymentEmail').value = data.account_email || '';
+                    document.getElementById('paymentAccountId').value = data.account_id || '';
+                    document.getElementById('paymentAccountName').value = data.account_name || '';
+                }
+            } catch (error) {
+                console.log('No payment info found yet');
+            }
+        }
+
+        // Handle profile picture upload
+        async function handleProfilePictureUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                document.getElementById('profilePicture').src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            // Upload to Supabase
+            showAlert('Uploading profile picture...', 'info');
+
+            const result = await authHandler.uploadProfilePicture(file, currentUser.id);
+
+            if (result.success) {
+                showAlert('Profile picture updated successfully!', 'success');
+            } else {
+                showAlert('Error uploading picture: ' + result.error, 'error');
+            }
+        }
+
+        // Save basic info
+        async function saveBasicInfo(e) {
+            e.preventDefault();
+
+            const data = {
+                full_name: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value
+            };
+
+            const result = await authHandler.updateUserProfile(currentUser.id, data);
+
+            if (result.success) {
+                showAlert('Basic information saved!', 'success');
+            } else {
+                showAlert('Error saving: ' + result.error, 'error');
+            }
+        }
+
+        // Save business info
+        async function saveBusinessInfo(e) {
+            e.preventDefault();
+
+            const metadata = {
+                business_name: document.getElementById('businessName').value,
+                business_type: document.getElementById('businessType').value,
+                tax_id: document.getElementById('taxId').value,
+                business_phone: document.getElementById('businessPhone').value,
+                business_address: document.getElementById('businessAddress').value,
+                business_description: document.getElementById('businessDescription').value
+            };
+
+            // Update user metadata
+            const { error } = await supabaseClient.auth.updateUser({
+                data: metadata
+            });
+
+            if (!error) {
+                showAlert('Business information saved!', 'success');
+            } else {
+                showAlert('Error saving: ' + error.message, 'error');
+            }
+        }
+
+        // Save payment info
+        async function savePaymentInfo(e) {
+            e.preventDefault();
+
+            const paymentData = {
+                seller_id: currentUser.id,
+                payment_method: document.getElementById('paymentMethod').value,
+                account_email: document.getElementById('paymentEmail').value,
+                account_id: document.getElementById('paymentAccountId').value,
+                account_name: document.getElementById('paymentAccountName').value
+            };
+
+            const { error } = await supabaseClient
+                .from('payment_info')
+                .upsert(paymentData);
+
+            if (!error) {
+                showAlert('Payment information saved!', 'success');
+            } else {
+                showAlert('Error saving: ' + error.message, 'error');
+            }
+        }
+
+        // Save store settings
+        async function saveStoreSettings(e) {
+            e.preventDefault();
+
+            const metadata = {
+                store_name: document.getElementById('storeName').value,
+                store_slug: document.getElementById('storeSlug').value,
+                store_banner: document.getElementById('storeBanner').value,
+                return_policy: document.getElementById('returnPolicy').value,
+                shipping_policy: document.getElementById('shippingPolicy').value
+            };
+
+            const { error } = await supabaseClient.auth.updateUser({
+                data: metadata
+            });
+
+            if (!error) {
+                showAlert('Store settings saved!', 'success');
+            } else {
+                showAlert('Error saving: ' + error.message, 'error');
+            }
+        }
+
+        // Deactivate account
+        function deactivateAccount() {
+            if (confirm('Are you sure you want to deactivate your account? You can reactivate it later.')) {
+                showAlert('Account deactivation feature coming soon!', 'info');
+            }
+        }
+
+        // Delete account
+        async function deleteAccount() {
+            const confirmation = prompt('Type "DELETE" to permanently delete your account:');
+
+            if (confirmation === 'DELETE') {
+                showAlert('Account deletion feature coming soon! Please contact support.', 'error');
+            }
+        }
+
+        // Show alert
+        function showAlert(message, type = 'info') {
+            const container = document.getElementById('alertContainer');
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.textContent = message;
+            container.innerHTML = '';
+            container.appendChild(alert);
+            setTimeout(() => alert.remove(), 5000);
+        }
+
+        // Logout
+        async function handleLogout() {
+            await authHandler.signOut();
+            sessionManager.clearSession();
+            window.location.replace('index.html');
+            return false;
+        }
+
+        // Initialize
+        window.addEventListener('load', () => {
+            loadUserData();
+        });
+    </script>
+
+    <!-- Global Footer -->
+<footer class="global-footer">
+    <div class="footer-container">
+        <div class="footer-main">
+            <div class="footer-column">
+                <h3>Shop</h3>
+                <ul>
+                    <li><a href="marketplace.html">All Products</a></li>
+                    <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                    <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                    <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                    <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
+                    <li><a href="marketplace.html?category=books">Books</a></li>
+                    <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
+                    <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Sell</h3>
+                <ul>
+                    <li><a href="seller.html">Seller Dashboard</a></li>
+                    <li><a href="index.html">Start Selling</a></li>
+                    <li><a href="seller-profile.html">Seller Profile</a></li>
+                    <li><a href="#">Seller Tools</a></li>
+                    <li><a href="#">Seller University</a></li>
+                    <li><a href="#">Advertising</a></li>
+                    <li><a href="#">Pricing</a></li>
+                    <li><a href="#">Resources</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Customer Service</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Track Your Order</a></li>
+                    <li><a href="#">Returns & Refunds</a></li>
+                    <li><a href="#">Shipping Info</a></li>
+                    <li><a href="#">Payment Methods</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                    <li><a href="#">FAQs</a></li>
+                    <li><a href="#">Report an Issue</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>About Us</h3>
+                <ul>
+                    <li><a href="#">About London Marketplace</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Press Center</a></li>
+                    <li><a href="#">Investor Relations</a></li>
+                    <li><a href="#">Sustainability</a></li>
+                    <li><a href="#">Community Impact</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Success Stories</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="index.html">Sign In</a></li>
+                    <li><a href="index.html">Create Account</a></li>
+                    <li><a href="#">My Orders</a></li>
+                    <li><a href="#">Wishlist</a></li>
+                    <li><a href="#">Account Settings</a></li>
+                    <li><a href="#">Gift Cards</a></li>
+                    <li><a href="#">Subscriptions</a></li>
+                    <li><a href="#">Notifications</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-column">
+                <h3>Resources</h3>
+                <ul>
+                    <li><a href="#">Buyer Protection</a></li>
+                    <li><a href="#">Trust & Safety</a></li>
+                    <li><a href="#">Privacy Policy</a></li>
+                    <li><a href="#">Terms of Service</a></li>
+                    <li><a href="#">Cookie Policy</a></li>
+                    <li><a href="#">Accessibility</a></li>
+                    <li><a href="#">Sitemap</a></li>
+                    <li><a href="#">Mobile App</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <div class="footer-logo">
+                <img src="images/logo-new.svg" alt="London Marketplace">
+            </div>
+
+            <div class="footer-links">
+                <a href="#">Privacy</a>
+                <a href="#">Terms</a>
+                <a href="#">Cookie Policy</a>
+                <a href="#">Accessibility</a>
+                <a href="#">Do Not Sell My Personal Information</a>
+                <a href="#">Interest-Based Ads</a>
+            </div>
+
+            <div class="footer-copyright">
+                &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+            </div>
+        </div>
+    </div>
+</footer>
+
+</body>
+</html>
