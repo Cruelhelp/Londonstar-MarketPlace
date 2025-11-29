@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200">
+  <!-- Concentric circles -->
+  <circle cx="100" cy="100" r="85" fill="none" stroke="#ff9900" stroke-width="2.5"/>
+  <circle cx="100" cy="100" r="75" fill="none" stroke="#ff9900" stroke-width="3"/>
+  <circle cx="100" cy="100" r="65" fill="none" stroke="#ff9900" stroke-width="3.5"/>
+
+  <!-- Star -->
+  <path d="M 100 40 L 115 75 L 152 80 L 126 105 L 132 142 L 100 125 L 68 142 L 74 105 L 48 80 L 85 75 Z" fill="#ff9900"/>
+
+  <!-- LONDON text -->
+  <text x="100" y="68" font-family="Arial, sans-serif" font-size="14" font-weight="700" fill="#131921" text-anchor="middle" letter-spacing="1">LONDON</text>
+
+  <!-- marketplace text -->
+  <text x="240" y="115" font-family="Arial, sans-serif" font-size="68" font-weight="700" fill="#131921">marketplace</text>
+</svg>

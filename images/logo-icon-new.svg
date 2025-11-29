@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg"
+     viewBox="0 0 180 180">
+
+  <!-- Circle badge -->
+  <circle cx="90" cy="90" r="60" fill="#111827"/>
+
+  <!-- Aerodynamic motion lines (curved) -->
+  <path d="M55 76 Q64 73 74 76"
+        fill="none"
+        stroke="#f97316"
+        stroke-width="4"
+        stroke-linecap="round"/>
+
+  <path d="M50 90 Q62 87 74 90"
+        fill="none"
+        stroke="#f97316"
+        stroke-width="3"
+        stroke-linecap="round"/>
+
+  <!-- Cart outline (orange, centered in circle) -->
+  <path d="
+    M75 80
+    H125
+    Q132 80 134 86
+    L142 112
+    Q144 119 137 119
+    H90
+    Q83 119 81 112
+    L74 88
+    Q72 82 75 80
+    Z"
+    fill="none"
+    stroke="#f97316"
+    stroke-width="4"
+    stroke-linejoin="round"/>
+
+  <!-- Cart handle -->
+  <path d="M75 80
+           V70
+           Q75 62 83 62
+           H108"
+        fill="none"
+        stroke="#f97316"
+        stroke-width="4"
+        stroke-linecap="round"/>
+
+  <!-- Wheels -->
+  <circle cx="98" cy="126" r="8" fill="#f97316"/>
+  <circle cx="127" cy="126" r="8" fill="#f97316"/>
+
+  <!-- Ground swoosh under wheels for extra smooth / aerodynamic feel -->
+  <path d="M80 134 Q112 142 144 134"
+        fill="none"
+        stroke="#f97316"
+        stroke-width="3"
+        stroke-linecap="round"
+        opacity="0.9"/>
+
+  <!-- Centered star inside the cart -->
+  <polygon
+    points="
+      105,88
+      109,97
+      119,97
+      111,103
+      114,113
+      105,107
+      96,113
+      99,103
+      91,97
+      101,97
+    "
+    fill="#f97316"/>
+
+</svg>
