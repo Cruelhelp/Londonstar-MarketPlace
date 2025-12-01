@@ -14,6 +14,9 @@
             margin-bottom: 40px;
             position: relative;
             overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
         .hero-section::before {
@@ -257,7 +260,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-main">
-            <div class="logo-container" onclick="window.location.href='home.html'">
+            <div class="logo-container" onclick="window.location.href='index.html'">
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
             <div class="search-bar">
@@ -346,7 +349,7 @@
         <div class="cart-footer">
             <div class="flex-between mb-20">
                 <span style="font-size: 18px; font-weight: 600;">Total:</span>
-                <span style="font-size: 24px; font-weight: 700; color: var(--accent-color);">$<span id="cartTotal">0.00</span></span>
+                <span style="font-size: 24px; font-weight: 700; color: var(--accent-color);">J$<span id="cartTotal">0.00</span></span>
             </div>
             <button class="btn btn-primary" style="width: 100%;" onclick="checkout()">Proceed to Checkout</button>
         </div>
@@ -363,18 +366,37 @@
         </div>
     </div>
 
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/session-manager.js"></script>
+
     <script>
         let allProducts = [];
         let filteredProducts = [];
         let cart = [];
         let currentCategory = 'all';
 
-        // Load products
-        function loadProducts() {
-            const stored = localStorage.getItem('sellerProducts');
-            allProducts = stored ? JSON.parse(stored) : [];
-            filteredProducts = [...allProducts];
-            renderProducts();
+        // Load products from Supabase
+        async function loadProducts() {
+            try {
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                allProducts = products || [];
+                filteredProducts = [...allProducts];
+                renderProducts();
+            } catch (error) {
+                console.error('Error loading products:', error);
+                allProducts = [];
+                filteredProducts = [];
+                renderProducts();
+            }
         }
 
         // Render products
@@ -394,17 +416,22 @@
             grid.style.display = 'grid';
             emptyState.style.display = 'none';
 
-            grid.innerHTML = filteredProducts.map(product => `
+            grid.innerHTML = filteredProducts.map(product => {
+                const images = Array.isArray(product.images) ? product.images : [];
+                const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+
+                return `
                 <div class="product-card" onclick="viewProduct('${product.id}')">
-                    <img src="${product.images[0]}" alt="${product.name}" class="product-image">
+                    <img src="${firstImage}" alt="${product.name}" class="product-image">
                     <div class="product-title">${product.name}</div>
-                    <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+                    <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
                     <div class="product-description">${product.description}</div>
                     <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="event.stopPropagation(); addToCart('${product.id}')">
                         Add to Cart
                     </button>
                 </div>
-            `).join('');
+                `;
+            }).join('');
         }
 
         // Filter by category
@@ -466,19 +493,22 @@
             const product = allProducts.find(p => p.id === id);
             if (!product) return;
 
+            const images = Array.isArray(product.images) ? product.images : [];
+            const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+
             document.getElementById('modalProductName').textContent = product.name;
             document.getElementById('productDetails').innerHTML = `
                 <div class="grid grid-2" style="gap: 30px;">
                     <div>
-                        <img src="${product.images[0]}" style="width: 100%; border-radius: 8px;">
-                        ${product.images.length > 1 ? `
+                        <img src="${firstImage}" style="width: 100%; border-radius: 8px;">
+                        ${images.length > 1 ? `
                             <div class="grid grid-4 mt-10" style="gap: 10px;">
-                                ${product.images.slice(1).map(img => `<img src="${img}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer;">`).join('')}
+                                ${images.slice(1).map(img => `<img src="${img}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer;">`).join('')}
                             </div>
                         ` : ''}
                     </div>
                     <div>
-                        <div class="product-price" style="font-size: 32px; margin-bottom: 15px;">$${parseFloat(product.price).toFixed(2)}</div>
+                        <div class="product-price" style="font-size: 32px; margin-bottom: 15px;">J$${parseFloat(product.price).toFixed(2)}</div>
                         <div style="margin-bottom: 15px;">
                             <span class="badge ${product.stock > 0 ? 'badge-success' : 'badge-danger'}">
                                 ${product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
@@ -507,7 +537,9 @@
 
         // Cart functions
         function loadCart() {
-            const stored = localStorage.getItem('cart');
+            const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            const cartKey = userId ? `cart_${userId}` : 'cart_guest';
+            const stored = localStorage.getItem(cartKey);
             cart = stored ? JSON.parse(stored) : [];
             updateCartUI();
         }
@@ -517,71 +549,28 @@
             if (!product) return;
 
             const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            const cartKey = userId ? `cart_${userId}` : 'cart_guest';
 
             try {
-                if (userId) {
-                    // Registered user - save to Supabase
-                    const { data: existingItem, error: checkError } = await supabase
-                        .from('cart_items')
-                        .select('*')
-                        .eq('buyer_id', userId)
-                        .eq('product_id', productId)
-                        .single();
+                // Get user-specific cart
+                let userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+                const existingItem = userCart.find(item => item.id === productId);
 
-                    if (existingItem) {
-                        // Item already in cart - increment quantity
-                        await supabase
-                            .from('cart_items')
-                            .update({ quantity: existingItem.quantity + 1 })
-                            .eq('id', existingItem.id);
-                    } else {
-                        // Add new item to cart
-                        await supabase
-                            .from('cart_items')
-                            .insert({
-                                buyer_id: userId,
-                                product_id: productId,
-                                quantity: 1
-                            });
-                    }
-
-                    // Update local cart for UI
-                    const existingLocalItem = cart.find(item => item.id === productId);
-                    if (existingLocalItem) {
-                        existingLocalItem.quantity++;
-                    } else {
-                        cart.push({ ...product, quantity: 1 });
-                    }
+                if (existingItem) {
+                    existingItem.quantity++;
                 } else {
-                    // Guest user - save to localStorage
-                    let guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-                    const existingItem = guestCart.find(item => item.id === productId);
-
-                    if (existingItem) {
-                        existingItem.quantity++;
-                    } else {
-                        guestCart.push({
-                            id: productId,
-                            name: product.name,
-                            price: product.price,
-                            images: product.images,
-                            stock: product.stock,
-                            quantity: 1
-                        });
-                    }
-
-                    localStorage.setItem('guestCart', JSON.stringify(guestCart));
-
-                    // Also update old cart for backward compatibility
-                    const existingLocalItem = cart.find(item => item.id === productId);
-                    if (existingLocalItem) {
-                        existingLocalItem.quantity++;
-                    } else {
-                        cart.push({ ...product, quantity: 1 });
-                    }
+                    userCart.push({
+                        id: productId,
+                        name: product.name,
+                        price: product.price,
+                        images: product.images,
+                        stock: product.stock,
+                        quantity: 1
+                    });
                 }
 
-                localStorage.setItem('cart', JSON.stringify(cart));
+                localStorage.setItem(cartKey, JSON.stringify(userCart));
+                cart = userCart;
                 updateCartUI();
 
                 // Show feedback
@@ -595,12 +584,16 @@
         }
 
         function removeFromCart(productId) {
+            const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            const cartKey = userId ? `cart_${userId}` : 'cart_guest';
             cart = cart.filter(item => item.id !== productId);
-            localStorage.setItem('cart', JSON.stringify(cart));
+            localStorage.setItem(cartKey, JSON.stringify(cart));
             updateCartUI();
         }
 
         function updateQuantity(productId, change) {
+            const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            const cartKey = userId ? `cart_${userId}` : 'cart_guest';
             const item = cart.find(i => i.id === productId);
             if (!item) return;
 
@@ -609,7 +602,7 @@
             if (item.quantity <= 0) {
                 removeFromCart(productId);
             } else {
-                localStorage.setItem('cart', JSON.stringify(cart));
+                localStorage.setItem(cartKey, JSON.stringify(cart));
                 updateCartUI();
             }
         }
@@ -620,7 +613,14 @@
             const cartTotal = document.getElementById('cartTotal');
 
             const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-            badge.textContent = totalItems;
+
+            // Update badge if it exists
+            if (badge) {
+                badge.textContent = totalItems;
+            }
+
+            // If cart panel elements don't exist (not on cart page), skip UI update
+            if (!cartItems || !cartTotal) return;
 
             if (cart.length === 0) {
                 cartItems.innerHTML = `
@@ -645,7 +645,7 @@
                     <img src="${item.images[0]}" alt="${item.name}">
                     <div style="flex: 1;">
                         <div style="font-weight: 600; margin-bottom: 5px;">${item.name}</div>
-                        <div style="color: var(--accent-color); font-weight: 700; margin-bottom: 8px;">$${parseFloat(item.price).toFixed(2)}</div>
+                        <div style="color: var(--accent-color); font-weight: 700; margin-bottom: 8px;">J$${parseFloat(item.price).toFixed(2)}</div>
                         <div class="flex gap-10" style="align-items: center;">
                             <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="updateQuantity('${item.id}', -1)">-</button>
                             <span style="font-weight: 600;">${item.quantity}</span>
@@ -671,9 +671,11 @@
             document.querySelector('#loadingScreen .loading-text').textContent = 'Processing checkout...';
 
             setTimeout(() => {
-                alert(`Order placed successfully!\nTotal: $${document.getElementById('cartTotal').textContent}\n\nThank you for shopping at London Star Marketplace!`);
+                const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+                const cartKey = userId ? `cart_${userId}` : 'cart_guest';
+                alert(`Order placed successfully!\nTotal: J$${document.getElementById('cartTotal').textContent}\n\nThank you for shopping at London Star Marketplace!`);
                 cart = [];
-                localStorage.setItem('cart', JSON.stringify(cart));
+                localStorage.setItem(cartKey, JSON.stringify(cart));
                 updateCartUI();
                 toggleCart();
                 hideLoading();
@@ -735,18 +737,31 @@
         function loadHeaderNav() {
             const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
             const userRole = localStorage.getItem('userRole');
+            const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+            const userName = localStorage.getItem('userName') || sessionStorage.getItem('userName');
             const headerNav = document.getElementById('headerNav');
 
             if (userId) {
+                const displayName = userName || userEmail?.split('@')[0] || 'User';
+
+                // Admin panel link (only for admin users)
+                const adminLink = userRole === 'admin' ? `
+                    <a href="admin.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start; background: rgba(255, 153, 0, 0.1); border-radius: 4px; padding: 8px 12px;">
+                        <span style="font-size: 11px; font-weight: 400;">Admin</span>
+                        <span style="font-size: 13px; font-weight: 600;">Panel</span>
+                    </a>
+                ` : '';
+
                 // Logged in user nav
                 headerNav.innerHTML = `
-                    <a href="home.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Back to</span>
-                        <span style="font-size: 13px; font-weight: 600;">Home</span>
-                    </a>
-                    <a href="#" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Returns</span>
-                        <span style="font-size: 13px; font-weight: 600;">& Orders</span>
+                    <span class="nav-link" style="color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">Welcome</span>
+                        <span style="font-size: 13px; font-weight: 600;">${displayName}</span>
+                    </span>
+                    ${adminLink}
+                    <a href="orders.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">My</span>
+                        <span style="font-size: 13px; font-weight: 600;">Orders</span>
                     </a>
                     <a href="cart.html" class="nav-icon-btn" style="position: relative;">
                         <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -757,26 +772,30 @@
                         <span style="font-size: 12px; font-weight: 600;">Cart</span>
                         <span class="cart-badge" id="cartBadge">0</span>
                     </a>
-                    <a href="${userRole === 'seller' ? 'seller.html' : 'marketplace.html'}" class="nav-icon-btn">
+                    <a href="profile.html" class="nav-icon-btn">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
                             <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
                         </svg>
-                        <span style="font-size: 12px; font-weight: 500;">Account</span>
+                        <span style="font-size: 12px; font-weight: 500;">Profile</span>
                     </a>
+                    <button class="nav-icon-btn" onclick="handleLogout()" style="background: transparent; border: none; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span style="font-size: 12px; font-weight: 500;">Logout</span>
+                    </button>
                 `;
             } else {
                 // Guest user nav
                 headerNav.innerHTML = `
-                    <a href="home.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Back to</span>
-                        <span style="font-size: 13px; font-weight: 600;">Home</span>
-                    </a>
                     <a href="seller-registration.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
                         <span style="font-size: 11px; font-weight: 400;">Become a</span>
                         <span style="font-size: 13px; font-weight: 600;">Seller</span>
                     </a>
-                    <a href="index.html" class="nav-icon-btn">
+                    <a href="auth.html" class="nav-icon-btn">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                             <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
                             <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
@@ -787,12 +806,88 @@
             }
         }
 
+        // Handle logout
+        async function handleLogout() {
+            try {
+                // Clear session data
+                sessionManager.clearSession();
+
+                // Sign out from Supabase
+                const { error } = await supabase.auth.signOut();
+                if (error) console.error('Logout error:', error);
+
+                // Clear all user-related data
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('isAdmin');
+                sessionStorage.clear();
+
+                // Prevent back button by replacing history
+                window.location.replace('index.html');
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect even if there's an error
+                sessionManager.clearSession();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace('index.html');
+            }
+        }
+
         // Initialize
+        // Load Marketplace Hero Background and Text Colors
+        async function loadMarketplaceHeroBackground() {
+            try {
+                const { data, error } = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'marketplace_hero_background')
+                    .single();
+
+                if (error || !data || !data.setting_value) return;
+
+                const settings = data.setting_value;
+                const heroEl = document.querySelector('.hero-section');
+
+                if (settings.images && settings.images.length > 0) {
+                    heroEl.style.backgroundImage = `url(${settings.images[0]})`;
+                }
+            } catch (error) {
+                console.error('Error loading marketplace hero background:', error);
+            }
+
+            // Load text colors
+            try {
+                const { data, error } = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'marketplace_text_colors')
+                    .single();
+
+                if (!error && data && data.setting_value) {
+                    const titleEl = document.querySelector('.hero-section h1');
+                    const subtitleEl = document.querySelector('.hero-section p');
+
+                    if (titleEl && data.setting_value.titleColor) {
+                        titleEl.style.color = data.setting_value.titleColor;
+                    }
+                    if (subtitleEl && data.setting_value.subtitleColor) {
+                        subtitleEl.style.color = data.setting_value.subtitleColor;
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading marketplace text colors:', error);
+            }
+        }
+
         window.addEventListener('load', () => {
             loadHeaderNav();
             loadProducts();
             loadCart();
             handleURLParams();
+            loadMarketplaceHeroBackground();
 
             // Set up real-time search for marketplace page
             setTimeout(() => {
@@ -824,7 +919,7 @@
                     <h3>Sell</h3>
                     <ul>
                         <li><a href="seller.html">Seller Dashboard</a></li>
-                        <li><a href="index.html">Start Selling</a></li>
+                        <li><a href="auth.html">Start Selling</a></li>
                         <li><a href="seller-profile.html">Seller Profile</a></li>
                         <li><a href="#">Seller Tools</a></li>
                     </ul>
@@ -854,8 +949,8 @@
                 <div class="footer-column">
                     <h3>Account</h3>
                     <ul>
-                        <li><a href="index.html">Sign In</a></li>
-                        <li><a href="index.html">Create Account</a></li>
+                        <li><a href="auth.html">Sign In</a></li>
+                        <li><a href="auth.html">Create Account</a></li>
                         <li><a href="#">My Orders</a></li>
                         <li><a href="#">Wishlist</a></li>
                     </ul>

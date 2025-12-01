@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Database Setup - London Star Marketplace</title>
+    <link rel="stylesheet" href="css/main.css">
+    <style>
+        .setup-container {
+            max-width: 1000px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+
+        .step {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step-number {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            background: var(--accent-color);
+            color: white;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 40px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+
+        .step h2 {
+            display: inline-block;
+            vertical-align: middle;
+        }
+
+        .code-box {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            border-radius: 6px;
+            margin: 15px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .status-pending { background: #999; }
+        .status-success { background: #4caf50; }
+        .status-error { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <svg width="80" height="80" viewBox="0 0 200 200" style="margin-bottom: 20px;">
+                <circle cx="100" cy="100" r="85" fill="none" stroke="#ff9900" stroke-width="3"/>
+                <circle cx="100" cy="100" r="60" fill="none" stroke="#232f3e" stroke-width="6"/>
+                <path d="M 100 40 L 130 80 L 160 60 L 140 100 L 180 120 L 140 140 L 160 180 L 100 150 L 40 180 L 60 140 L 20 120 L 60 100 L 40 60 L 70 80 Z" fill="#ff9900"/>
+            </svg>
+            <h1>Supabase Database Setup</h1>
+            <p style="color: var(--text-secondary);">Follow these steps to set up your database</p>
+        </div>
+
+        <!-- Step 1: Check Connection -->
+        <div class="step">
+            <span class="step-number">1</span>
+            <h2>Check Supabase Connection</h2>
+            <p>Verify that your Supabase credentials are configured correctly.</p>
+            <div style="margin: 20px 0;">
+                <strong>Current Configuration:</strong>
+                <div class="code-box" id="configDisplay">Loading...</div>
+            </div>
+            <button class="btn btn-primary" onclick="checkConnection()">Test Connection</button>
+            <div id="connectionStatus" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Step 2: Database Setup -->
+        <div class="step">
+            <span class="step-number">2</span>
+            <h2>Create Database Tables</h2>
+            <p>You need to run the SQL schema in your Supabase dashboard:</p>
+
+            <div class="alert alert-info">
+                <strong>Instructions:</strong>
+                <ol style="margin: 10px 0; padding-left: 20px;">
+                    <li>Open your <a href="https://supabase.com/dashboard" target="_blank" style="color: #2196f3;">Supabase Dashboard</a></li>
+                    <li>Go to <strong>SQL Editor</strong></li>
+                    <li>Click <strong>New Query</strong></li>
+                    <li>Copy the SQL below and paste it</li>
+                    <li>Click <strong>Run</strong></li>
+                </ol>
+            </div>
+
+            <button class="btn btn-secondary" onclick="copySQL()">Copy SQL Schema</button>
+            <button class="btn btn-primary" onclick="checkTables()" style="margin-left: 10px;">Verify Tables</button>
+
+            <textarea id="sqlSchema" readonly style="width: 100%; height: 150px; margin-top: 15px; font-family: monospace; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; resize: vertical;"></textarea>
+
+            <div id="tablesStatus" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Step 3: Storage Setup -->
+        <div class="step">
+            <span class="step-number">3</span>
+            <h2>Configure Storage Buckets</h2>
+            <p>Create storage buckets for images:</p>
+
+            <div class="alert alert-warning">
+                <strong>Required Buckets:</strong>
+                <ul style="margin: 10px 0; padding-left: 20px;">
+                    <li><code>product-images</code> - For product photos</li>
+                    <li><code>profile-pictures</code> - For user avatars</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="setupStorage()">Auto-Create Buckets</button>
+
+            <div id="storageStatus" style="margin-top: 15px;"></div>
+        </div>
+
+        <!-- Step 4: Verify Setup -->
+        <div class="step">
+            <span class="step-number">4</span>
+            <h2>Verify Complete Setup</h2>
+            <p>Run a complete verification to ensure everything is working:</p>
+
+            <button class="btn btn-success" onclick="verifySetup()">Run Full Verification</button>
+
+            <div id="verificationResults" style="margin-top: 20px;"></div>
+        </div>
+
+        <!-- Step 5: Next Steps -->
+        <div class="step">
+            <span class="step-number">5</span>
+            <h2>You're Ready!</h2>
+            <p>Once setup is complete, you can start using the platform:</p>
+
+            <div class="grid grid-3 mt-20">
+                <a href="index.html" class="btn btn-primary" style="text-decoration: none;">Go to Login</a>
+                <a href="seller.html" class="btn btn-secondary" style="text-decoration: none;">Seller Dashboard</a>
+                <a href="admin.html" class="btn btn-secondary" style="text-decoration: none;">Admin Panel</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
+    <script src="js/supabase-init.js"></script>
+    <script>
+        // Display current configuration
+        window.addEventListener('load', () => {
+            document.getElementById('configDisplay').textContent =
+                `URL: ${SUPABASE_URL}\nKey: ${SUPABASE_ANON_KEY.substring(0, 20)}...`;
+
+            // Load SQL schema
+            loadSQLSchema();
+        });
+
+        // Load SQL schema from file
+        async function loadSQLSchema() {
+            try {
+                const response = await fetch('supabase-schema.sql');
+                const sql = await response.text();
+                document.getElementById('sqlSchema').value = sql;
+            } catch (error) {
+                console.error('Error loading SQL:', error);
+            }
+        }
+
+        // Check Supabase connection
+        async function checkConnection() {
+            const statusDiv = document.getElementById('connectionStatus');
+            statusDiv.innerHTML = '<div style="color: var(--text-secondary);">Testing connection...</div>';
+
+            try {
+                const { data, error } = await supabaseClient.auth.getSession();
+
+                if (error && error.message.includes('Invalid')) {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-error">
+                            <span class="status-indicator status-error"></span>
+                            <strong>Connection Failed!</strong> Invalid API key or URL.
+                        </div>
+                    `;
+                } else {
+                    statusDiv.innerHTML = `
+                        <div class="alert alert-success">
+                            <span class="status-indicator status-success"></span>
+                            <strong>Connection Successful!</strong> Supabase is configured correctly.
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-error">
+                        <span class="status-indicator status-error"></span>
+                        <strong>Error:</strong> ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        // Copy SQL to clipboard
+        function copySQL() {
+            const textarea = document.getElementById('sqlSchema');
+            textarea.select();
+            document.execCommand('copy');
+
+            alert('SQL schema copied to clipboard!\n\nNow:\n1. Go to Supabase Dashboard\n2. Open SQL Editor\n3. Paste and Run');
+        }
+
+        // Check if tables exist
+        async function checkTables() {
+            const statusDiv = document.getElementById('tablesStatus');
+            statusDiv.innerHTML = '<div style="color: var(--text-secondary);">Checking tables...</div>';
+
+            const tables = ['users', 'products', 'orders', 'payment_info'];
+            const results = [];
+
+            for (const table of tables) {
+                try {
+                    const { error } = await supabaseClient
+                        .from(table)
+                        .select('id')
+                        .limit(1);
+
+                    if (error && error.code === '42P01') {
+                        results.push(`<span class="status-indicator status-error"></span> ${table} - Not Found`);
+                    } else {
+                        results.push(`<span class="status-indicator status-success"></span> ${table} - OK`);
+                    }
+                } catch (error) {
+                    results.push(`<span class="status-indicator status-error"></span> ${table} - Error`);
+                }
+            }
+
+            const allSuccess = results.every(r => r.includes('status-success'));
+
+            statusDiv.innerHTML = `
+                <div class="alert alert-${allSuccess ? 'success' : 'warning'}">
+                    <strong>Table Status:</strong>
+                    <div style="margin-top: 10px;">
+                        ${results.join('<br>')}
+                    </div>
+                </div>
+            `;
+        }
+
+        // Setup storage buckets
+        async function setupStorage() {
+            const statusDiv = document.getElementById('storageStatus');
+            statusDiv.innerHTML = '<div style="color: var(--text-secondary);">Setting up storage...</div>';
+
+            const result = await supabaseInit.setupStorageBuckets();
+
+            if (result.success) {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-success">
+                        <span class="status-indicator status-success"></span>
+                        <strong>Storage configured successfully!</strong>
+                    </div>
+                `;
+            } else {
+                statusDiv.innerHTML = `
+                    <div class="alert alert-warning">
+                        <strong>Manual setup required:</strong>
+                        <ol style="margin: 10px 0; padding-left: 20px;">
+                            <li>Go to Supabase Dashboard > Storage</li>
+                            <li>Create bucket: <code>product-images</code> (Public)</li>
+                            <li>Create bucket: <code>profile-pictures</code> (Public)</li>
+                        </ol>
+                    </div>
+                `;
+            }
+        }
+
+        // Run full verification
+        async function verifySetup() {
+            const resultsDiv = document.getElementById('verificationResults');
+            resultsDiv.innerHTML = '<div style="color: var(--text-secondary);">Running verification...</div>';
+
+            const checks = [];
+
+            // Check connection
+            try {
+                await supabaseClient.auth.getSession();
+                checks.push({ name: 'Connection', status: true });
+            } catch (error) {
+                checks.push({ name: 'Connection', status: false, error: error.message });
+            }
+
+            // Check tables
+            const tables = ['users', 'products', 'orders', 'payment_info'];
+            for (const table of tables) {
+                try {
+                    const { error } = await supabaseClient.from(table).select('id').limit(1);
+                    checks.push({ name: `Table: ${table}`, status: !error || error.code !== '42P01' });
+                } catch (error) {
+                    checks.push({ name: `Table: ${table}`, status: false });
+                }
+            }
+
+            // Check storage
+            try {
+                const { data } = await supabaseClient.storage.listBuckets();
+                const hasBuckets = data && data.length > 0;
+                checks.push({ name: 'Storage Buckets', status: hasBuckets });
+            } catch (error) {
+                checks.push({ name: 'Storage Buckets', status: false });
+            }
+
+            // Display results
+            const allPassed = checks.every(c => c.status);
+
+            const resultsHTML = checks.map(check => `
+                <div style="padding: 10px; border-bottom: 1px solid var(--border-color);">
+                    <span class="status-indicator status-${check.status ? 'success' : 'error'}"></span>
+                    <strong>${check.name}:</strong> ${check.status ? 'Passed' : 'Failed'}
+                </div>
+            `).join('');
+
+            resultsDiv.innerHTML = `
+                <div class="alert alert-${allPassed ? 'success' : 'error'}">
+                    <h3>${allPassed ? '✅ Setup Complete!' : '❌ Setup Incomplete'}</h3>
+                    <div style="margin-top: 15px;">
+                        ${resultsHTML}
+                    </div>
+                    ${allPassed ? '<p style="margin-top: 15px;"><strong>You\'re ready to use London Star Marketplace!</strong></p>' : ''}
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

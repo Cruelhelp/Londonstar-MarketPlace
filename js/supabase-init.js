@@ -65,29 +65,57 @@ class SupabaseInitializer {
     // Create user profile after signup
     async createUserProfile(userId, email, userData = {}) {
         try {
-            const { data, error } = await this.supabase
+            // Wait for trigger to create basic profile
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+            // Check if profile exists (trigger should have created it)
+            const { data: existingProfile } = await this.supabase
                 .from('users')
-                .insert([{
-                    id: userId,
-                    email: email,
-                    full_name: userData.full_name || '',
-                    role: userData.role || 'buyer',
-                    phone: userData.phone || null,
-                    avatar_url: userData.avatar_url || null
-                }])
-                .select();
+                .select('*')
+                .eq('id', userId)
+                .single();
 
-            if (error) {
-                // Check if user already exists
-                if (error.code === '23505') {
-                    console.log('ℹ️ User profile already exists');
-                    return { success: true, exists: true };
-                }
-                throw error;
+            if (existingProfile) {
+                // Profile exists, update it with additional data
+                const { data, error } = await this.supabase
+                    .from('users')
+                    .update({
+                        full_name: userData.full_name || existingProfile.full_name,
+                        role: userData.role || 'buyer',
+                        status: userData.status || 'approved',
+                        phone: userData.phone || null,
+                        avatar_url: userData.avatar_url || null,
+                        address: userData.address || null,
+                        city: userData.city || null,
+                        state: userData.state || null,
+                        postal_code: userData.postal_code || null,
+                        country: userData.country || null
+                    })
+                    .eq('id', userId)
+                    .select();
+
+                if (error) throw error;
+                console.log('✅ User profile updated:', data);
+                return { success: true, data };
+            } else {
+                // Fallback: insert if trigger didn't create it
+                const { data, error } = await this.supabase
+                    .from('users')
+                    .insert([{
+                        id: userId,
+                        email: email,
+                        full_name: userData.full_name || '',
+                        role: userData.role || 'buyer',
+                        status: userData.status || 'approved',
+                        phone: userData.phone || null,
+                        avatar_url: userData.avatar_url || null
+                    }])
+                    .select();
+
+                if (error) throw error;
+                console.log('✅ User profile created:', data);
+                return { success: true, data };
             }
-
-            console.log('✅ User profile created:', data);
-            return { success: true, data };
         } catch (error) {
             console.error('❌ Error creating user profile:', error);
             return { success: false, error: error.message };

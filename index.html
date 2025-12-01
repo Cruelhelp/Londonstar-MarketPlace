@@ -3,580 +3,1797 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>London Marketplace - Sign In</title>
+    <title>London Marketplace - Shop Premium Products Online</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
     <style>
-        body {
-            margin: 0;
-            min-height: 100vh;
-            background: #ffffff;
-            position: relative;
-            overflow-x: hidden;
+        /* Secondary Navigation */
+        .secondary-nav {
+            background: #0b1120;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(229, 231, 235, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 999;
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
         }
 
-        /* Floating bubbles abstract art */
-        .background-bubbles {
-            position: fixed;
-            inset: 0;
-            pointer-events: none;
-            z-index: 0;
+        .secondary-nav::-webkit-scrollbar {
+            height: 4px;
         }
 
-        .bg-bubble {
-            position: absolute;
-            background: rgba(249, 115, 22, 0.08);
-            border-radius: 50%;
-            animation: float 8s ease-in-out infinite;
+        .secondary-nav::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
         }
 
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
-            50% { transform: translateY(-30px) scale(1.1) rotate(180deg); }
+        .secondary-nav::-webkit-scrollbar-thumb {
+            background: var(--accent-color);
+            border-radius: 2px;
         }
 
-        .bg-bubble:nth-child(1) { width: 300px; height: 300px; top: 10%; left: 5%; animation-delay: 0s; opacity: 0.15; }
-        .bg-bubble:nth-child(2) { width: 200px; height: 200px; top: 60%; right: 10%; animation-delay: 2s; opacity: 0.12; }
-        .bg-bubble:nth-child(3) { width: 400px; height: 400px; top: 30%; left: 40%; animation-delay: 4s; opacity: 0.08; }
-        .bg-bubble:nth-child(4) { width: 150px; height: 150px; bottom: 15%; left: 20%; animation-delay: 1s; opacity: 0.13; }
-        .bg-bubble:nth-child(5) { width: 250px; height: 250px; top: 5%; right: 25%; animation-delay: 3s; opacity: 0.1; }
-        .bg-bubble:nth-child(6) { width: 180px; height: 180px; bottom: 25%; right: 15%; animation-delay: 5s; opacity: 0.11; }
-
-        /* Main content wrapper */
-        .auth-page {
-            position: relative;
-            z-index: 1;
-            min-height: 100vh;
+        .secondary-nav-content {
+            max-width: 1400px;
+            margin: 0 auto;
             display: flex;
-            flex-direction: column;
-        }
-
-        /* Auth form container */
-        .auth-container {
-            flex: 1;
-            display: flex;
+            gap: 24px;
             align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
+            padding: 0 40px;
+            min-width: max-content;
         }
 
-        .auth-card {
-            background: white;
-            border-radius: 24px;
-            padding: 40px;
-            max-width: 1100px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        .secondary-nav a {
+            color: #e5e7eb;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            white-space: nowrap;
+            padding: 8px 16px;
+            border-radius: 6px;
+            position: relative;
+        }
+
+        .secondary-nav a:hover {
+            color: var(--accent-color);
+            background: rgba(249, 115, 22, 0.1);
+        }
+
+        .secondary-nav a.active {
+            color: var(--accent-color);
+            background: rgba(249, 115, 22, 0.15);
+            font-weight: 600;
+        }
+
+        .secondary-nav a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40%;
+            height: 3px;
+            background: var(--accent-color);
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* Mobile Optimization */
+        @media (max-width: 768px) {
+            .secondary-nav {
+                padding: 8px 0;
+            }
+
+            .secondary-nav-content {
+                gap: 12px;
+                padding: 0 20px;
+            }
+
+            .secondary-nav a {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+
+        /* Hero Banner */
+        .hero-banner {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            padding: 60px 40px;
             position: relative;
             overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
         }
 
-        /* Wave decoration at top of card */
-        .auth-card::before {
+        .hero-banner::before {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            width: 40%;
-            height: 100%;
-            background: linear-gradient(135deg, #c2410c 0%, #f97316 50%, #fb923c 100%);
-            border-radius: 24px 0 0 24px;
+            right: 0;
+            bottom: 0;
+            background: rgba(254, 243, 199, 0.75);
+            pointer-events: none;
+            z-index: 0;
         }
 
-        .auth-card-content {
+        .hero-banner-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
             position: relative;
             z-index: 1;
-            display: grid;
-            grid-template-columns: 40% 60%;
-            gap: 40px;
-            align-items: center;
         }
 
-        .auth-brand {
-            text-align: center;
-            padding: 20px;
-        }
-
-        .auth-logo img {
-            width: 180px;
-            height: 180px;
-            filter: drop-shadow(0 4px 20px rgba(0, 0, 0, 0.3));
-        }
-
-        .auth-title {
-            font-size: 32px;
+        .hero-text h1 {
+            font-size: 48px;
             font-weight: 700;
-            text-align: center;
-            color: #111827;
-            margin: 24px 0 12px;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+            line-height: 1.2;
         }
 
-        .auth-subtitle {
-            text-align: center;
-            color: #374151;
-            font-size: 15px;
+        .hero-text p {
+            font-size: 20px;
+            color: #4b5563;
+            margin-bottom: 32px;
             line-height: 1.6;
         }
 
-        .auth-forms {
-            padding: 0 20px;
-        }
-
-        /* Form tabs */
-        .form-tabs {
+        .hero-buttons {
             display: flex;
-            gap: 8px;
-            margin-bottom: 20px;
-            background: #f3f4f6;
-            padding: 5px;
-            border-radius: 12px;
+            gap: 16px;
         }
 
-        .form-tab {
-            flex: 1;
-            padding: 12px;
-            background: transparent;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            color: #6b7280;
-        }
-
-        .form-tab.active {
+        .hero-promo-banner {
             background: white;
-            color: #f97316;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 30px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
         }
 
-        .form-container {
-            display: none;
-        }
-
-        .form-container.active {
-            display: block;
-            animation: fadeIn 0.3s ease;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Form elements */
-        .form-group {
-            margin-bottom: 14px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-weight: 600;
-            color: #374151;
-            font-size: 13px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 11px 14px;
-            border: 2px solid #e5e7eb;
-            border-radius: 10px;
-            font-size: 14px;
-            box-sizing: border-box;
-            transition: all 0.3s ease;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #f97316;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
-        }
-
-        /* Buttons */
-        .btn {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 10px;
-            font-size: 15px;
-            font-weight: 600;
+        .promo-item {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            border: 2px solid var(--accent-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            min-height: 200px;
+        }
+
+        .promo-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.1) 0%, transparent 70%);
+            transition: transform 0.5s ease;
+        }
+
+        .promo-item:hover::before {
+            transform: translate(-25%, -25%);
+        }
+
+        .promo-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 24px rgba(249, 115, 22, 0.3);
+            border-color: var(--accent-hover);
+        }
+
+        .promo-item-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--accent-color);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            z-index: 2;
+        }
+
+        .promo-item-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .promo-item-image {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            border: 2px solid rgba(249, 115, 22, 0.3);
+        }
+
+        .promo-item-title {
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 6px;
+            line-height: 1.3;
+        }
+
+        .promo-item-price {
+            color: var(--accent-color);
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .promo-item-description {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            line-height: 1.4;
+            margin-bottom: 12px;
+        }
+
+        .promo-item-cta {
+            background: var(--accent-color);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .promo-item:hover .promo-item-cta {
+            background: var(--accent-hover);
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, #f97316 0%, #fb923c 100%);
+            background: var(--accent-color);
             color: white;
+            padding: 14px 40px;
+            border: none;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .btn-primary:hover {
+            background: var(--accent-hover);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(249, 115, 22, 0.4);
         }
 
-        .btn-primary:disabled {
-            background: #9ca3af;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Links */
-        .link {
-            text-align: center;
-            margin-top: 12px;
-            color: #6b7280;
-            font-size: 13px;
-        }
-
-        .link a {
-            color: #f97316;
-            text-decoration: none;
+        .btn-secondary {
+            background: transparent;
+            color: var(--accent-color);
+            padding: 14px 40px;
+            border: 2px solid var(--accent-color);
+            border-radius: 24px;
+            font-size: 15px;
             font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
         }
 
-        .link a:hover {
-            text-decoration: underline;
+        .btn-secondary:hover {
+            background: rgba(249, 115, 22, 0.1);
         }
 
-        /* Alerts */
-        .alert {
-            padding: 10px 14px;
+        /* Content Cards Section */
+        .content-section {
+            background: #f3f4f6;
+            padding: 40px;
+        }
+
+        .content-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+
+        .content-card {
+            background: white;
+            border: 1px solid #e5e7eb;
             border-radius: 8px;
-            margin-bottom: 14px;
+            padding: 24px;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .content-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .content-card h3 {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 16px;
+        }
+
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-tile {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            height: 120px;
+            overflow: hidden;
+            position: relative;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .card-tile:hover {
+            transform: scale(1.02);
+        }
+
+        .card-tile img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-tile-label {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #6b7280;
+        }
+
+        .card-link {
+            color: #2563eb;
             font-size: 13px;
+            text-decoration: none;
             font-weight: 500;
         }
 
-        .alert-success {
-            background: #d1fae5;
-            color: #065f46;
-            border: 1px solid #6ee7b7;
+        .card-link:hover {
+            text-decoration: underline;
+            color: #1d4ed8;
         }
 
-        .alert-error {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fca5a5;
+        /* Sidebar Cards */
+        .sidebar-grid {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 24px;
         }
 
+        .sidebar-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 24px;
+        }
+
+        .sidebar-card.promo {
+            background: #dbeafe;
+            border-color: #bfdbfe;
+        }
+
+        /* Animated SVG Decorations */
+        .hero-decoration {
+            position: absolute;
+            opacity: 0.15;
+            pointer-events: none;
+        }
+
+        .hero-decoration.left-top {
+            left: 5%;
+            top: 15%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-decoration.right-top {
+            right: 8%;
+            top: 20%;
+            animation: float 7s ease-in-out infinite 1s;
+        }
+
+        .hero-decoration.left-bottom {
+            left: 10%;
+            bottom: 15%;
+            animation: float 8s ease-in-out infinite 2s;
+        }
+
+        .hero-decoration.right-bottom {
+            right: 5%;
+            bottom: 20%;
+            animation: float 5s ease-in-out infinite 1.5s;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 0.15;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.25;
+            }
+        }
+
+        @keyframes spin-slow {
+            from {
+                transform: rotate(0deg);
+            }
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Bigger logo for home page */
+        .logo-container img {
+            width: 80px !important;
+            height: 80px !important;
+        }
+
+        @media (max-width: 768px) {
+            .logo-container img {
+                width: 50px !important;
+                height: 50px !important;
+            }
+        }
+
+        .hero-visual {
+            position: relative;
+            height: 400px;
+        }
+
+        .shopping-bag {
+            position: absolute;
+            border-radius: 6px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .shopping-bag.green {
+            background: var(--primary-color);
+            width: 90px;
+            height: 115px;
+            right: 180px;
+            top: 150px;
+            z-index: 1;
+            opacity: 0.95;
+        }
+
+        .shopping-bag.gold {
+            background: var(--accent-color);
+            width: 95px;
+            height: 120px;
+            right: 220px;
+            top: 172px;
+            z-index: 2;
+        }
+
+        .shopping-bag::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 18px;
+            right: 18px;
+            height: 3px;
+            border: 3px solid white;
+            border-bottom: none;
+            border-radius: 50% 50% 0 0;
+            transform: translateY(-18px);
+        }
+
+        .phone-mockup {
+            position: absolute;
+            right: 0;
+            top: 40px;
+            width: 150px;
+            height: 280px;
+            background: #fefefe;
+            border: 6px solid #111;
+            border-radius: 22px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+            transform: rotate(-12deg);
+            z-index: 3;
+        }
+
+        .phone-screen {
+            margin: 20px 15px;
+            height: 220px;
+            background: linear-gradient(180deg, #cfe6ff, #e6f3ff);
+            border-radius: 15px;
+            position: relative;
+        }
+
+        .phone-card {
+            position: absolute;
+            top: 50px;
+            left: 15px;
+            right: 15px;
+            height: 65px;
+            background: var(--accent-color);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .phone-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 20px;
+            background: var(--primary-color);
+        }
+
+        /* Category Grid */
+        .category-section {
+            padding: 80px 20px;
+            background: white;
+        }
+
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .category-card {
+            background: white;
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .category-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color), var(--accent-color));
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .category-card:hover {
+            border-color: var(--accent-color);
+            transform: translateY(-8px);
+            box-shadow: 0 12px 28px rgba(249, 115, 22, 0.15);
+        }
+
+        .category-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            transition: transform 0.3s ease;
+        }
+
+        .category-card:hover .category-icon {
+            transform: scale(1.1) rotate(5deg);
+        }
+
+        /* Section Decorations */
+        .section-decoration {
+            position: absolute;
+            opacity: 0.1;
+            pointer-events: none;
+        }
+
+        .section-decoration.left {
+            left: -50px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .section-decoration.right {
+            right: -50px;
+            top: 50%;
+            transform: translateY(-50%) rotate(180deg);
+        }
+
+        .category-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Featured Section */
+        .featured-section {
+            padding: 80px 20px;
+            background: linear-gradient(180deg, #f9fafb 0%, #ffffff 100%);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-header h2 {
+            font-size: 42px;
+            margin-bottom: 12px;
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        .section-header p {
+            font-size: 20px;
+            color: var(--secondary-color);
+        }
+
+        /* Promotional Banner */
+        .promo-banner {
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            color: white;
+            padding: 50px 20px;
+            text-align: center;
+            margin: 60px 0;
+        }
+
+        .promo-banner h2 {
+            font-size: 42px;
+            margin-bottom: 15px;
+        }
+
+        .promo-banner p {
+            font-size: 20px;
+            margin-bottom: 30px;
+        }
+
+        /* Features Section */
+        .features-section {
+            padding: 60px 20px;
+            background: white;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            text-align: center;
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 36px;
+        }
+
+        .feature-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: var(--text-primary);
+        }
+
+        .feature-desc {
+            color: var(--text-secondary);
+            font-size: 15px;
+        }
+
+        /* Responsive */
         @media (max-width: 1024px) {
-            .auth-card-content {
+            .hero-container {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 40px;
+                text-align: center;
             }
 
-            .auth-card::before {
-                width: 100%;
-                height: 200px;
-                border-radius: 24px 24px 0 0;
+            .hero-content {
+                align-items: center;
+                padding-left: 0;
             }
 
-            .auth-brand {
-                padding: 10px;
+            .hero-content p {
+                max-width: 600px;
             }
 
-            .auth-logo img {
+            .hero-visual-main {
+                height: 400px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .category-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .hero-decoration {
+                opacity: 0.08;
+            }
+
+            .hero-decoration.left-top,
+            .hero-decoration.right-top {
                 width: 120px;
                 height: 120px;
             }
 
-            .auth-title {
-                font-size: 26px;
+            .hero-decoration.left-bottom,
+            .hero-decoration.right-bottom {
+                display: none;
             }
 
-            .bg-bubble {
-                display: none;
+            .hero-content p {
+                font-size: 18px;
+            }
+
+            .modern-hero {
+                min-height: 60vh;
+            }
+
+            .hero-visual-main {
+                height: 300px;
+            }
+        }
+
+        /* Category Tiles */
+        .category-tile {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-height: 110px;
+        }
+
+        .category-tile:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .category-tile span {
+            font-size: 15px;
+            color: #111827;
+            font-weight: 500;
+        }
+
+        .tile-icon {
+            width: 70px;
+            height: 70px;
+            background: #e5e7eb;
+            border-radius: 10px;
+            flex-shrink: 0;
+        }
+
+        /* Featured Products Grid */
+        .featured-products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .featured-products-grid .product-card {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            overflow: hidden;
+        }
+
+        .featured-products-grid .product-card:hover {
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .featured-products-grid .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: #e5e7eb;
+        }
+
+        .featured-products-grid .product-card > div {
+            padding: 16px;
+        }
+
+        .featured-products-grid .product-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .featured-products-grid .product-price {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin-bottom: 8px;
+        }
+
+        .featured-products-grid .product-description {
+            font-size: 13px;
+            color: #6b7280;
+            margin-bottom: 12px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .featured-products-grid .btn {
+            width: 100%;
+            padding: 10px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 1200px) {
+            .featured-products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .featured-products-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .featured-products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Comprehensive Mobile Optimization */
+        @media (max-width: 768px) {
+            /* Hero Banner Mobile */
+            .hero-banner {
+                padding: 30px 20px;
+            }
+
+            .hero-banner-content {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-text h1 {
+                font-size: 32px;
+            }
+
+            .hero-text p {
+                font-size: 16px;
+                margin-bottom: 24px;
+            }
+
+            .hero-buttons {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            .btn-primary, .btn-secondary {
+                width: 100%;
+                padding: 12px 24px;
+            }
+
+            .hero-promo-banner {
+                grid-template-columns: 1fr;
+                padding: 20px;
+                gap: 16px;
+            }
+
+            .promo-item {
+                min-height: 180px;
+            }
+
+            .promo-item-image {
+                height: 100px;
+            }
+
+            .promo-item-title {
+                font-size: 14px;
+            }
+
+            .promo-item-price {
+                font-size: 18px;
+            }
+
+            .promo-item-description {
+                font-size: 12px;
+            }
+
+            /* Hero Container (Main Section) */
+            .hero-container {
+                padding: 0 20px;
+            }
+
+            .hero-content img {
+                width: 280px !important;
+            }
+
+            .hero-content p {
+                font-size: 16px;
+            }
+
+            .hero-cta {
+                width: 100%;
+                padding: 14px 24px;
+            }
+
+            .hero-visual-main {
+                height: 300px;
+            }
+
+            .hero-visual-main svg {
+                max-width: 100%;
+            }
+
+            /* Featured Products Section */
+            .featured-products-section {
+                padding: 0 0 40px 0 !important;
+            }
+
+            .featured-products-section .container {
+                padding: 0 20px !important;
+            }
+
+            /* Featured Products Banner */
+            .featured-products-section > div > div:first-child {
+                padding: 24px 20px !important;
+                margin-bottom: 24px !important;
+            }
+
+            .featured-products-section h2 {
+                font-size: 20px !important;
+            }
+
+            .featured-products-section p {
+                font-size: 14px !important;
+            }
+
+            /* Hide decorative elements on mobile */
+            .featured-products-section > div > div:first-child > div:last-child {
+                display: none !important;
+            }
+
+            /* Top Picks Title */
+            .featured-products-section h2:not(:first-child) {
+                font-size: 24px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero-banner {
+                padding: 20px 16px;
+            }
+
+            .hero-text h1 {
+                font-size: 28px;
+            }
+
+            .hero-text p {
+                font-size: 15px;
+            }
+
+            .hero-content img {
+                width: 220px !important;
+            }
+
+            .hero-content p {
+                font-size: 14px;
+            }
+
+            .hero-visual-main {
+                height: 250px;
+            }
+
+            .featured-products-section .container {
+                padding: 0 16px !important;
+            }
+
+            .featured-products-section > div > div:first-child {
+                padding: 20px 16px !important;
+            }
+
+            .featured-products-section h2 {
+                font-size: 18px !important;
+            }
+
+            .featured-products-grid {
+                gap: 12px;
+            }
+
+            /* Prevent iOS zoom on inputs */
+            input, select, textarea {
+                font-size: 16px;
+            }
+
+            /* Touch-friendly buttons */
+            button, .btn-primary, .btn-secondary {
+                min-height: 44px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Loading Screen -->
-    <div class="loading-screen" id="loadingScreen">
-        <img src="images/logo-new.svg" alt="London Marketplace" class="loading-logo">
-        <div class="loading-spinner"></div>
-        <div class="loading-text">Loading...</div>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-main">
+            <div class="logo-container" onclick="window.location.href='index.html'">
+                <img src="images/logo-icon-new.svg" alt="London Marketplace">
+            </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
+                ☰
+            </button>
+            <div class="search-bar">
+                <input type="text" id="globalSearchInput" placeholder="Search products..." onkeypress="if(event.key==='Enter') performSearch()">
+                <button onclick="performSearch()">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </button>
+            </div>
+            <nav class="header-nav" id="headerNav">
+                <!-- Nav items will be loaded dynamically based on login status -->
+            </nav>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div id="mobileMenuContent">
+                <!-- Populated by JavaScript -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Secondary Navigation -->
+    <div class="secondary-nav">
+        <div class="secondary-nav-content" id="secondaryNav">
+            <a href="marketplace.html" class="active">All Products</a>
+            <a href="marketplace.html?filter=new">New Arrivals</a>
+            <a href="marketplace.html?filter=trending">Trending</a>
+            <a href="marketplace.html?category=Electronics">Electronics</a>
+            <a href="marketplace.html?category=Fashion">Fashion</a>
+            <a href="marketplace.html?category=Home & Garden">Home & Garden</a>
+            <a href="marketplace.html?category=Sports">Sports</a>
+            <a href="marketplace.html?category=Books">Books</a>
+            <a href="marketplace.html?category=Beauty">Beauty</a>
+            <a href="marketplace.html?filter=deals">Best Deals</a>
+        </div>
     </div>
 
-    <!-- Floating background bubbles (abstract art) -->
-    <div class="background-bubbles">
-        <div class="bg-bubble"></div>
-        <div class="bg-bubble"></div>
-        <div class="bg-bubble"></div>
-        <div class="bg-bubble"></div>
-        <div class="bg-bubble"></div>
-        <div class="bg-bubble"></div>
-    </div>
-
-    <div class="auth-page">
-        <!-- Header -->
-        <header class="header">
-            <div class="header-main" style="justify-content: flex-start;">
-                <div class="logo-container" onclick="window.location.href='home.html'" style="cursor: pointer;">
-                    <img src="images/logo-icon-new.svg" alt="London Marketplace" style="width: 60px; height: 60px;">
+    <!-- Hero Banner -->
+    <div class="hero-banner">
+        <div class="hero-banner-content">
+            <div class="hero-text">
+                <div style="text-align: center; margin-bottom: 24px;">
+                    <img src="images/logo-new.svg" alt="London Star Marketplace" style="height: 240px; width: auto; margin-bottom: 16px;">
+                    <p style="font-size: 24px; font-weight: 600; color: var(--primary-color); margin: 0;">Your Premium Marketplace</p>
+                    <p style="font-size: 16px; color: #6b7280; margin-top: 8px;">Trusted sellers • Quality products • Worldwide shipping</p>
+                </div>
+                <div class="hero-buttons" style="justify-content: center;">
+                    <button class="btn-primary" onclick="window.location.href='marketplace.html'">Start Shopping</button>
+                    <button class="btn-secondary" onclick="window.location.href='seller-registration.html'">Become a Seller</button>
                 </div>
             </div>
-        </header>
-
-        <!-- Auth Form Container -->
-        <div class="auth-container">
-            <div class="auth-card">
-                <div class="auth-card-content">
-                    <!-- Left: Branding -->
-                    <div class="auth-brand">
-                        <div class="auth-logo">
-                            <img src="images/logo-icon-new.svg" alt="London Star">
-                        </div>
-                        <h1 class="auth-title">Welcome to London Star</h1>
-                        <p class="auth-subtitle">Your premium marketplace for quality products worldwide</p>
-                    </div>
-
-                    <!-- Right: Forms -->
-                    <div class="auth-forms">
-                        <!-- Alert Container -->
-                        <div id="alertContainer"></div>
-
-                        <!-- Tab Switcher -->
-                        <div class="form-tabs">
-                            <button class="form-tab active" onclick="switchAuthTab('signin')">Sign In</button>
-                            <button class="form-tab" onclick="switchAuthTab('signup')">Sign Up</button>
-                        </div>
-
-                    <!-- Sign In Form -->
-                    <div class="form-container active" id="signinForm">
-                        <form onsubmit="handleSignIn(event)">
-                            <div class="form-group">
-                                <label>Email or Username</label>
-                                <input type="text" id="signinEmail" required placeholder="Enter your email">
-                            </div>
-                            <div class="form-group">
-                                <label>Password</label>
-                                <input type="password" id="signinPassword" required placeholder="Enter your password">
-                            </div>
-                            <div class="link" style="text-align: right; margin-top: 0; margin-bottom: 20px;">
-                                <a href="#">Forgot password?</a>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Sign In</button>
-                        </form>
-                    </div>
-
-                    <!-- Sign Up Form -->
-                    <div class="form-container" id="signupForm">
-                        <form onsubmit="handleSignUp(event)" style="max-height: 500px; overflow-y: auto; padding-right: 10px;">
-                            <div class="form-group">
-                                <label>Full Name</label>
-                                <input type="text" id="signupName" required placeholder="Enter your name">
-                            </div>
-                            <div class="form-group">
-                                <label>Email</label>
-                                <input type="email" id="signupEmail" required placeholder="Enter your email">
-                            </div>
-                            <div class="form-group">
-                                <label>Phone Number</label>
-                                <input type="tel" id="signupPhone" required placeholder="e.g., +1234567890">
-                            </div>
-                            <div class="form-group">
-                                <label>Password</label>
-                                <input type="password" id="signupPassword" required placeholder="Create a password" minlength="6">
-                            </div>
-                            <div class="form-group">
-                                <label>Street Address</label>
-                                <input type="text" id="signupAddress" required placeholder="Street address">
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div class="form-group">
-                                    <label>City</label>
-                                    <input type="text" id="signupCity" required placeholder="City">
-                                </div>
-                                <div class="form-group">
-                                    <label>State/Province</label>
-                                    <input type="text" id="signupState" required placeholder="State">
-                                </div>
-                            </div>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                                <div class="form-group">
-                                    <label>Postal Code</label>
-                                    <input type="text" id="signupPostal" required placeholder="Postal code">
-                                </div>
-                                <div class="form-group">
-                                    <label>Country</label>
-                                    <input type="text" id="signupCountry" required placeholder="Country">
-                                </div>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Create Account</button>
-                            <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #6b7280;">
-                                Want to sell products? <a href="seller-registration.html" style="color: var(--accent-color); font-weight: 600; text-decoration: none;">Apply as a seller</a>
-                            </p>
-                        </form>
-                    </div>
-                    </div>
-                </div>
+            <div class="hero-promo-banner">
+                <div class="promo-item" id="promo1"></div>
+                <div class="promo-item" id="promo2"></div>
+                <div class="promo-item" id="promo3"></div>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="js/supabase-config.js"></script>
-    <script src="js/supabase-init.js"></script>
-    <script src="js/session-manager.js"></script>
-    <script src="js/auth.js"></script>
+    <!-- Old Animated Hero Section (keeping decorations) -->
+    <div style="display: none;">
+        <!-- Animated Decorative SVGs -->
+        <svg class="hero-decoration left-top" width="180" height="180" viewBox="0 0 180 180">
+            <!-- Shopping bag with star -->
+            <rect x="40" y="50" width="100" height="120" rx="8" fill="#f97316" opacity="0.3"/>
+            <path d="M60 50 Q90 20 120 50" stroke="#f97316" stroke-width="4" fill="none" stroke-linecap="round"/>
+            <circle cx="90" cy="110" r="25" fill="#111827" opacity="0.4"/>
+            <polygon points="90,95 95,105 105,105 97,112 100,122 90,115 80,122 83,112 75,105 85,105" fill="#f97316"/>
+        </svg>
+
+        <svg class="hero-decoration right-top" width="200" height="200" viewBox="0 0 200 200">
+            <!-- Abstract product boxes stacked -->
+            <g style="animation: pulse 4s ease-in-out infinite;">
+                <rect x="50" y="80" width="60" height="60" rx="6" fill="#111827" opacity="0.3"/>
+                <rect x="90" y="60" width="60" height="60" rx="6" fill="#f97316" opacity="0.3"/>
+                <circle cx="120" cy="90" r="30" fill="none" stroke="#f97316" stroke-width="3" opacity="0.5"/>
+            </g>
+        </svg>
+
+        <svg class="hero-decoration left-bottom" width="220" height="220" viewBox="0 0 220 220">
+            <!-- Shopping cart with motion lines -->
+            <g style="animation: float 5s ease-in-out infinite;">
+                <circle cx="70" cy="180" r="12" fill="#f97316" opacity="0.4"/>
+                <circle cx="140" cy="180" r="12" fill="#f97316" opacity="0.4"/>
+                <path d="M30 60 L50 60 L70 140 L160 140 L180 80 L60 80"
+                      stroke="#111827" stroke-width="5" fill="none" stroke-linejoin="round" opacity="0.3"/>
+                <!-- Speed lines -->
+                <line x1="10" y1="80" x2="40" y2="80" stroke="#f97316" stroke-width="3" opacity="0.5"/>
+                <line x1="15" y1="100" x2="35" y2="100" stroke="#f97316" stroke-width="3" opacity="0.5"/>
+                <line x1="20" y1="120" x2="45" y2="120" stroke="#f97316" stroke-width="3" opacity="0.5"/>
+            </g>
+        </svg>
+
+        <svg class="hero-decoration right-bottom" width="190" height="190" viewBox="0 0 190 190">
+            <!-- Abstract tag/price design -->
+            <g style="animation: spin-slow 20s linear infinite;">
+                <circle cx="95" cy="95" r="60" fill="none" stroke="#111827" stroke-width="2" opacity="0.3"/>
+                <circle cx="95" cy="95" r="45" fill="none" stroke="#f97316" stroke-width="3" opacity="0.4"/>
+                <path d="M60 95 L95 60 L130 95 L95 130 Z" fill="#f97316" opacity="0.2"/>
+                <circle cx="95" cy="95" r="15" fill="#111827" opacity="0.3"/>
+                <text x="95" y="100" text-anchor="middle" font-size="18" font-weight="bold" fill="#f97316" opacity="0.6">%</text>
+            </g>
+        </svg>
+
+        <div class="hero-container">
+            <!-- Left Side: Content -->
+            <div class="hero-content">
+                <img src="images/logo-new.svg" alt="London Star Marketplace" style="width: 400px; height: auto; max-width: 100%;">
+                <p>
+                    Premium products from trusted vendors — discover unique finds at great prices. Your one-stop marketplace for quality goods.
+                </p>
+                <button class="hero-cta" onclick="window.location.href='marketplace.html'">
+                    Shop Now
+                </button>
+            </div>
+
+            <!-- Right Side: Static SVG Illustration -->
+            <div class="hero-visual-main">
+                <svg width="100%" height="100%" viewBox="0 0 500 500" style="max-width: 500px;">
+                    <!-- Large shopping bag -->
+                    <g>
+                        <rect x="150" y="180" width="200" height="250" rx="15" fill="#f97316" opacity="0.9"/>
+                        <rect x="160" y="190" width="180" height="230" rx="10" fill="#fff" opacity="0.2"/>
+                        <path d="M200 180 Q250 130 300 180" stroke="#111827" stroke-width="8" fill="none" stroke-linecap="round"/>
+
+                        <!-- Star on bag -->
+                        <polygon points="250,260 265,290 300,290 272,310 282,345 250,325 218,345 228,310 200,290 235,290" fill="#fff" opacity="0.9"/>
+                    </g>
+
+                    <!-- Floating product boxes -->
+                    <g style="animation: float 4s ease-in-out infinite;">
+                        <rect x="80" y="120" width="80" height="80" rx="10" fill="#111827" opacity="0.8"/>
+                        <rect x="90" y="130" width="60" height="60" rx="5" fill="#f97316" opacity="0.3"/>
+                        <circle cx="120" cy="160" r="20" fill="#fff" opacity="0.5"/>
+                    </g>
+
+                    <g style="animation: float 5s ease-in-out infinite 0.5s;">
+                        <rect x="340" y="100" width="100" height="100" rx="12" fill="#f97316" opacity="0.8"/>
+                        <rect x="350" y="110" width="80" height="80" rx="8" fill="#111827" opacity="0.3"/>
+                        <text x="390" y="160" text-anchor="middle" font-size="40" font-weight="bold" fill="#fff" opacity="0.8">%</text>
+                    </g>
+
+                    <!-- Shopping cart icon -->
+                    <g style="animation: float 6s ease-in-out infinite 1s;">
+                        <circle cx="120" cy="380" r="18" fill="#111827"/>
+                        <circle cx="200" cy="380" r="18" fill="#111827"/>
+                        <path d="M60 300 L80 300 L110 360 L220 360 L250 310 L90 310"
+                              stroke="#f97316" stroke-width="10" fill="none" stroke-linejoin="round"/>
+                    </g>
+
+                    <!-- Decorative circles -->
+                    <circle cx="400" cy="300" r="40" fill="none" stroke="#f97316" stroke-width="3" opacity="0.4" style="animation: pulse 3s ease-in-out infinite;"/>
+                    <circle cx="100" cy="250" r="30" fill="none" stroke="#111827" stroke-width="3" opacity="0.3" style="animation: pulse 4s ease-in-out infinite 1s;"/>
+
+                    <!-- Tags/Labels -->
+                    <g style="animation: float 5.5s ease-in-out infinite 0.8s;">
+                        <rect x="350" y="380" width="100" height="60" rx="8" fill="#111827" opacity="0.85"/>
+                        <text x="400" y="405" text-anchor="middle" font-size="16" font-weight="600" fill="#f97316">NEW</text>
+                        <text x="400" y="425" text-anchor="middle" font-size="14" font-weight="500" fill="#fff" opacity="0.8">DEALS</text>
+                    </g>
+
+                    <!-- Small stars scattered -->
+                    <circle cx="420" cy="200" r="4" fill="#f97316" style="animation: pulse 2s ease-in-out infinite;"/>
+                    <circle cx="90" cy="320" r="4" fill="#f97316" style="animation: pulse 2.5s ease-in-out infinite 0.5s;"/>
+                    <circle cx="300" cy="420" r="4" fill="#111827" style="animation: pulse 3s ease-in-out infinite 1s;"/>
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <!-- Featured Products Section -->
+    <section class="featured-products-section" style="background: #ffffff; padding: 0 0 60px 0;">
+        <!-- Full Width Hero Banner -->
+        <div style="background: linear-gradient(to right, #c2410c 0%, #f97316 50%, #fb923c 100%); border-radius: 0; padding: 40px 50px; margin-bottom: 40px; position: relative; overflow: hidden; width: 100%;">
+            <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 40px; position: relative; z-index: 1;">
+                <div style="position: relative; z-index: 1;">
+                    <h2 style="font-size: 26px; font-weight: 600; color: #ffffff; margin: 0 0 10px 0;">Featured Products from Our Marketplace</h2>
+                    <p style="font-size: 16px; color: #fff5ed; margin: 0;">Discover quality products from trusted sellers across Jamaica & worldwide.</p>
+                </div>
+                <!-- Decorative element -->
+                <div style="position: absolute; right: 80px; top: 50%; transform: translateY(-50%); display: flex; gap: 10px; align-items: center;">
+                    <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.15); border-radius: 12px; border: 2px solid rgba(255, 255, 255, 0.25);"></div>
+                    <div style="width: 50px; height: 50px; background: #fde68a; border-radius: 10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content Container -->
+        <div class="container" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;">
+            <!-- Section Title -->
+            <div style="margin-bottom: 30px;">
+                <h2 style="font-size: 30px; font-weight: 700; color: #111827; margin: 0 0 5px 0;">Top Picks</h2>
+                <div style="width: 140px; height: 2px; background: #111827;"></div>
+            </div>
+
+            <!-- Products Grid -->
+            <div id="featuredProducts" class="featured-products-grid">
+                <!-- Products will be loaded here by JavaScript -->
+            </div>
+
+            <!-- Empty State -->
+            <div id="emptyState" style="text-align: center; padding: 60px 20px; display: none;">
+                <svg width="100" height="100" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin: 0 auto 20px; color: #9ca3af;">
+                    <path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/>
+                    <path d="M16 21V5c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v16"/>
+                </svg>
+                <h3 style="color: #6b7280; margin-bottom: 10px; font-size: 20px; font-weight: 600;">No products available yet</h3>
+                <p style="color: #9ca3af; margin-bottom: 20px;">Be the first to start selling on our marketplace!</p>
+                <a href="auth.html" class="btn-primary" style="display: inline-block; text-decoration: none;">Become a Seller</a>
+            </div>
+
+            <!-- View All Button -->
+            <div style="text-align: center; margin-top: 40px;" id="viewAllBtn">
+                <a href="marketplace.html" style="display: inline-block; padding: 14px 40px; background: var(--accent-color); color: white; text-decoration: none; border-radius: 24px; font-size: 15px; font-weight: 600; transition: all 0.3s ease;">View All Products</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Footer -->
+    <footer class="global-footer">
+        <div class="footer-container">
+            <div class="footer-main">
+                <div class="footer-column">
+                    <h3>Shop</h3>
+                    <ul>
+                        <li><a href="marketplace.html">All Products</a></li>
+                        <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                        <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                        <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                        <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
+                        <li><a href="marketplace.html?category=books">Books</a></li>
+                        <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
+                        <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Sell</h3>
+                    <ul>
+                        <li><a href="seller.html">Seller Dashboard</a></li>
+                        <li><a href="auth.html">Start Selling</a></li>
+                        <li><a href="seller-profile.html">Seller Profile</a></li>
+                        <li><a href="#">Seller Tools</a></li>
+                        <li><a href="#">Seller University</a></li>
+                        <li><a href="#">Advertising</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Customer Service</h3>
+                    <ul>
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Track Your Order</a></li>
+                        <li><a href="#">Returns & Refunds</a></li>
+                        <li><a href="#">Shipping Info</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">FAQs</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>About Us</h3>
+                    <ul>
+                        <li><a href="#">About London Marketplace</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Press Center</a></li>
+                        <li><a href="#">Sustainability</a></li>
+                        <li><a href="#">Blog</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Account</h3>
+                    <ul>
+                        <li><a href="auth.html">Sign In</a></li>
+                        <li><a href="auth.html">Create Account</a></li>
+                        <li><a href="#">My Orders</a></li>
+                        <li><a href="#">Wishlist</a></li>
+                        <li><a href="#">Account Settings</a></li>
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul>
+                        <li><a href="#">Privacy Policy</a></li>
+                        <li><a href="#">Terms of Service</a></li>
+                        <li><a href="#">Cookie Policy</a></li>
+                        <li><a href="#">Accessibility</a></li>
+                        <li><a href="#">Sitemap</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Marketplace">
+                </div>
+
+                <div class="footer-links">
+                    <a href="#">Privacy</a>
+                    <a href="#">Terms</a>
+                    <a href="#">Cookie Policy</a>
+                    <a href="#">Accessibility</a>
+                    <a href="#">Interest-Based Ads</a>
+                </div>
+
+                <div class="footer-copyright">
+                    &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/demo-data.js"></script>
     <script>
-        // Auth tab switching
-        function switchAuthTab(tab) {
-            const tabs = document.querySelectorAll('.form-tab');
-            const forms = document.querySelectorAll('.form-container');
 
-            tabs.forEach(t => t.classList.remove('active'));
-            forms.forEach(f => f.classList.remove('active'));
+        // Load and display featured products
+        // Load Homepage Cards
+        function loadHomepageCards() {
+            const cardsData = JSON.parse(localStorage.getItem('homepageCards')) || getDefaultCards();
+            const mainCards = document.getElementById('mainCards');
 
-            event.target.classList.add('active');
-            document.getElementById(tab === 'signin' ? 'signinForm' : 'signupForm').classList.add('active');
+            // Skip if mainCards element doesn't exist (section was removed)
+            if (!mainCards) return;
+
+            mainCards.innerHTML = cardsData.map(card => `
+                <div class="content-card">
+                    <h3>${card.title}</h3>
+                    <div class="card-grid">
+                        ${card.tiles.map((tile, idx) => `
+                            <div class="card-tile" onclick="window.location.href='marketplace.html?category=${tile.category}'">
+                                ${tile.image ? `<img src="${tile.image}" alt="${tile.label}">` : ''}
+                                <div class="card-tile-label">${tile.label}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <a href="${card.link}" class="card-link">${card.linkText}</a>
+                </div>
+            `).join('');
         }
 
-        // Show alert
-        function showAlert(message, type = 'info') {
-            const container = document.getElementById('alertContainer');
-            const alert = document.createElement('div');
-            alert.className = `alert alert-${type}`;
-            alert.textContent = message;
-            container.innerHTML = '';
-            container.appendChild(alert);
-
-            setTimeout(() => alert.remove(), 5000);
+        function getDefaultCards() {
+            return [];
         }
 
-        // Handle Sign In
-        async function handleSignIn(e) {
-            e.preventDefault();
-            const email = document.getElementById('signinEmail').value.trim();
-            const password = document.getElementById('signinPassword').value;
-
-            // Check for admin login (bypass authentication)
-            if (email.toLowerCase() === 'admin' && password === 'admin123') {
-                localStorage.setItem('userRole', 'admin');
-                localStorage.setItem('isAdmin', 'true');
-                showAlert('Admin access granted! Redirecting...', 'success');
-                setTimeout(() => {
-                    window.location.href = 'admin-cards.html';
-                }, 1000);
-                return;
-            }
-
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Signing in...';
-
+        // Load hot/trending products into promo banner
+        async function loadHotProducts() {
             try {
-                // Supabase authentication
-                const result = await authHandler.signIn(email, password);
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('views', { ascending: false })
+                    .limit(3);
 
-                if (result.success) {
-                    const user = result.data.user;
+                if (error) throw error;
 
-                    // Ensure user profile exists
-                    await supabaseInit.ensureUserProfile(user.id, user.email);
+                if (!products || products.length === 0) {
+                    // Load by most recent if no views data
+                    const { data: recentProducts } = await supabase
+                        .from('products')
+                        .select('*')
+                        .eq('status', 'active')
+                        .order('created_at', { ascending: false })
+                        .limit(3);
 
-                    // Get user role
-                    const role = await authHandler.getUserRole(user.id);
-
-                    // Create session
-                    sessionManager.createSession(user, role);
-
-                    showAlert('Login successful!', 'success');
-
-                    setTimeout(() => {
-                        if (role === 'seller') {
-                            window.location.href = 'seller.html';
-                        } else if (role === 'admin') {
-                            window.location.href = 'admin.html';
-                        } else {
-                            window.location.href = 'marketplace.html';
-                        }
-                    }, 1000);
+                    renderHotProducts(recentProducts || []);
                 } else {
-                    showAlert(result.error, 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Sign In';
+                    renderHotProducts(products);
                 }
             } catch (error) {
-                console.error('Sign in error:', error);
-                showAlert('An error occurred. Please try again.', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Sign In';
+                console.error('Error loading hot products:', error);
             }
         }
 
-        // Handle Sign Up
-        async function handleSignUp(e) {
-            e.preventDefault();
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            const name = document.getElementById('signupName').value;
-            const phone = document.getElementById('signupPhone').value;
-            const address = document.getElementById('signupAddress').value;
-            const city = document.getElementById('signupCity').value;
-            const state = document.getElementById('signupState').value;
-            const postal = document.getElementById('signupPostal').value;
-            const country = document.getElementById('signupCountry').value;
-            const role = 'buyer'; // All signups through this form are buyers
+        function renderHotProducts(products) {
+            const badges = ['🔥 HOT', '⭐ TRENDING', '💎 TOP PICK'];
 
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.disabled = true;
-            btn.textContent = 'Creating account...';
+            products.forEach((product, index) => {
+                const promoItem = document.getElementById(`promo${index + 1}`);
+                if (!promoItem) return;
+
+                const images = Array.isArray(product.images) ? product.images : [];
+                const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+                const description = product.description || 'Check out this amazing product!';
+                const truncatedDesc = description.length > 60 ? description.substring(0, 60) + '...' : description;
+
+                promoItem.innerHTML = `
+                    <div class="promo-item-badge">${badges[index] || '🔥 HOT'}</div>
+                    <div class="promo-item-content">
+                        <img src="${firstImage}" alt="${product.name}" class="promo-item-image" onerror="this.src='images/placeholder.png'">
+                        <div class="promo-item-title">${product.name}</div>
+                        <div class="promo-item-price">J$${parseFloat(product.price).toFixed(2)}</div>
+                        <div class="promo-item-description">${truncatedDesc}</div>
+                        <div class="promo-item-cta">Shop Now →</div>
+                    </div>
+                `;
+
+                promoItem.onclick = () => {
+                    window.location.href = `marketplace.html?product=${product.id}`;
+                };
+            });
+        }
+
+        async function loadFeaturedProducts() {
+            const featuredGrid = document.getElementById('featuredProducts');
+            const emptyState = document.getElementById('emptyState');
 
             try {
-                // Supabase sign up
-                const result = await authHandler.signUp(email, password, {
-                    full_name: name,
-                    role: role
-                });
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*')
+                    .eq('status', 'active')
+                    .order('created_at', { ascending: false })
+                    .limit(8);
 
-                if (result.success) {
-                    const user = result.data.user;
+                if (error) throw error;
 
-                    // Create user profile with approved status (buyers are auto-approved)
-                    await supabaseInit.createUserProfile(user.id, email, {
-                        full_name: name,
-                        role: role,
-                        status: 'approved',
-                        phone: phone,
-                        address: address,
-                        city: city,
-                        state: state,
-                        postal_code: postal,
-                        country: country
-                    });
-
-                    // Create session
-                    sessionManager.createSession(user, role);
-
-                    showAlert('Account created successfully!', 'success');
-                    setTimeout(() => {
-                        window.location.href = 'marketplace.html';
-                    }, 2000);
-                } else {
-                    showAlert(result.error, 'error');
-                    btn.disabled = false;
-                    btn.textContent = 'Create Account';
+                if (!products || products.length === 0) {
+                    featuredGrid.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    return;
                 }
+
+                featuredGrid.innerHTML = products.map(product => {
+                    const images = Array.isArray(product.images) ? product.images : [];
+                    const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+
+                    return `
+                    <div class="product-card" onclick="viewProduct('${product.id}')">
+                        <img src="${firstImage}" alt="${product.name}" class="product-image">
+                        <div class="product-title">${product.name}</div>
+                        <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
+                        <div class="product-description">${product.description}</div>
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="event.stopPropagation(); addToCartGuest('${product.id}')">
+                            Add to Cart
+                        </button>
+                    </div>
+                    `;
+                }).join('');
             } catch (error) {
-                console.error('Sign up error:', error);
-                showAlert('An error occurred. Please try again.', 'error');
-                btn.disabled = false;
-                btn.textContent = 'Create Account';
+                console.error('Error loading featured products:', error);
+                featuredGrid.style.display = 'none';
+                emptyState.style.display = 'block';
             }
         }
 
-        // Hide loading screen when page loads
+        // Handle search from hero or header
+        function handleSearch(event) {
+            if (event.key === 'Enter') {
+                performSearch();
+            }
+        }
+
+        function performSearch() {
+            const query = document.getElementById('globalSearchInput')?.value || '';
+
+            if (query) {
+                window.location.href = `marketplace.html?search=${encodeURIComponent(query)}`;
+            } else {
+                window.location.href = 'marketplace.html';
+            }
+        }
+
+        // Browse by category
+        function browseCategory(category) {
+            window.location.href = `marketplace.html?category=${category}`;
+        }
+
+        // View product details
+        function viewProduct(id) {
+            window.location.href = `marketplace.html?product=${id}`;
+        }
+
+        // Add to cart (guest or logged in)
+        function addToCartGuest(productId) {
+            window.location.href = `marketplace.html?product=${productId}&action=addToCart`;
+        }
+
+        // Load Hero Background Image
+        async function loadHeroBackground() {
+            try {
+                const { data, error } = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'hero_background')
+                    .single();
+
+                if (error || !data || !data.setting_value) return;
+
+                const settings = data.setting_value;
+                const heroEl = document.querySelector('.hero-banner');
+
+                if (settings.isSlideshow && settings.images && settings.images.length > 0) {
+                    // Slideshow mode
+                    let currentIndex = 0;
+                    const images = settings.images;
+
+                    function changeBackground() {
+                        heroEl.style.backgroundImage = `url(${images[currentIndex]})`;
+                        currentIndex = (currentIndex + 1) % images.length;
+                    }
+
+                    // Set initial image
+                    changeBackground();
+
+                    // Change every 5 seconds
+                    setInterval(changeBackground, 5000);
+                } else if (settings.images && settings.images.length > 0) {
+                    // Static mode
+                    heroEl.style.backgroundImage = `url(${settings.images[0]})`;
+                }
+            } catch (error) {
+                console.error('Error loading hero background:', error);
+            }
+        }
+
+        // Load header navigation based on login status
+        function loadHeaderNav() {
+            const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            const userRole = localStorage.getItem('userRole');
+            const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+            const userName = localStorage.getItem('userName') || sessionStorage.getItem('userName');
+            const headerNav = document.getElementById('headerNav');
+
+            if (userId) {
+                const displayName = userName || userEmail?.split('@')[0] || 'User';
+
+                // Admin panel link (only for admin users)
+                const adminLink = userRole === 'admin' ? `
+                    <a href="admin.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start; background: rgba(255, 153, 0, 0.1); border-radius: 4px; padding: 8px 12px;">
+                        <span style="font-size: 11px; font-weight: 400;">Admin</span>
+                        <span style="font-size: 13px; font-weight: 600;">Panel</span>
+                    </a>
+                ` : '';
+
+                // Logged in user nav
+                headerNav.innerHTML = `
+                    <span class="nav-link" style="color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">Welcome</span>
+                        <span style="font-size: 13px; font-weight: 600;">${displayName}</span>
+                    </span>
+                    ${adminLink}
+                    <a href="marketplace.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">Today's</span>
+                        <span style="font-size: 13px; font-weight: 600;">Deals</span>
+                    </a>
+                    <a href="orders.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">My</span>
+                        <span style="font-size: 13px; font-weight: 600;">Orders</span>
+                    </a>
+                    <a href="cart.html" class="nav-icon-btn" style="position: relative;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="9" cy="21" r="1"/>
+                            <circle cx="20" cy="21" r="1"/>
+                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                        </svg>
+                        <span style="font-size: 12px; font-weight: 600;">Cart</span>
+                        <span id="cartBadge" style="position: absolute; top: -5px; right: -5px; background: var(--accent-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; font-weight: 700; display: none; align-items: center; justify-content: center;">0</span>
+                    </a>
+                    <a href="profile.html" class="nav-icon-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        <span style="font-size: 12px; font-weight: 500;">Profile</span>
+                    </a>
+                    <button class="nav-icon-btn" onclick="handleLogout()" style="background: transparent; border: none; cursor: pointer;">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                            <polyline points="16 17 21 12 16 7"/>
+                            <line x1="21" y1="12" x2="9" y2="12"/>
+                        </svg>
+                        <span style="font-size: 12px; font-weight: 500;">Logout</span>
+                    </button>
+                `;
+            } else {
+                // Not logged in nav
+                headerNav.innerHTML = `
+                    <a href="marketplace.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">Browse</span>
+                        <span style="font-size: 13px; font-weight: 600;">Products</span>
+                    </a>
+                    <a href="seller-registration.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
+                        <span style="font-size: 11px; font-weight: 400;">Become a</span>
+                        <span style="font-size: 13px; font-weight: 600;">Seller</span>
+                    </a>
+                    <a href="auth.html" class="nav-icon-btn">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                            <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                        </svg>
+                        <span style="font-size: 12px; font-weight: 500;">Sign In</span>
+                    </a>
+                `;
+            }
+
+            // Also populate mobile menu
+            const mobileMenuContent = document.getElementById('mobileMenuContent');
+            if (mobileMenuContent) {
+                mobileMenuContent.innerHTML = headerNav.innerHTML;
+            }
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                // Clear session data
+                sessionManager.clearSession();
+
+                // Sign out from Supabase
+                const { error } = await supabase.auth.signOut();
+                if (error) console.error('Logout error:', error);
+
+                // Clear all user-related data
+                localStorage.removeItem('userId');
+                localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('isAdmin');
+                sessionStorage.clear();
+
+                // Prevent back button by replacing history
+                window.location.replace('index.html');
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect even if there's an error
+                sessionManager.clearSession();
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.replace('index.html');
+            }
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('mobileMenuToggle');
+
+            mobileMenu.classList.toggle('active');
+
+            // Change icon
+            if (mobileMenu.classList.contains('active')) {
+                toggle.textContent = '✕';
+            } else {
+                toggle.textContent = '☰';
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('mobileMenuToggle');
+
+            if (mobileMenu && toggle && mobileMenu.classList.contains('active')) {
+                if (!mobileMenu.contains(event.target) && event.target !== toggle) {
+                    mobileMenu.classList.remove('active');
+                    toggle.textContent = '☰';
+                }
+            }
+        });
+
+        // Load cart count
+        async function loadCartCount() {
+            // Get user-specific cart from localStorage
+            const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+            const cartKey = userId ? `cart_${userId}` : 'cart_guest';
+
+            try {
+                const userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+                const totalItems = userCart.reduce((sum, item) => sum + item.quantity, 0);
+
+                const badge = document.getElementById('cartBadge');
+                if (badge) {
+                    badge.textContent = totalItems;
+                    badge.style.display = totalItems > 0 ? 'flex' : 'none';
+                }
+            } catch (error) {
+                console.error('Error loading cart count:', error);
+            }
+        }
+
+        // Update secondary nav active state based on current page
+        function updateSecondaryNavActive() {
+            // On homepage, set "All Products" as active
+            const navLinks = document.querySelectorAll('.secondary-nav a');
+            navLinks.forEach(link => {
+                if (link.href.includes('marketplace.html') && !link.href.includes('?')) {
+                    link.classList.add('active');
+                } else {
+                    link.classList.remove('active');
+                }
+            });
+        }
+
+        // Initialize
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-            }, 1500);
+            loadHeaderNav();
+            loadHeroBackground();
+            loadHomepageCards();
+            loadHotProducts();
+            loadFeaturedProducts();
+            loadCartCount();
+            updateSecondaryNavActive();
         });
     </script>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase-config.js"></script>
 </body>
 </html>

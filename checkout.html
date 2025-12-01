@@ -301,7 +301,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-main">
-            <div class="logo-container" onclick="window.location.href='home.html'" style="cursor: pointer;">
+            <div class="logo-container" onclick="window.location.href='index.html'" style="cursor: pointer;">
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
             <div class="header-nav" id="headerNav">
@@ -445,16 +445,36 @@
 
             if (userId) {
                 headerNav.innerHTML = `
-                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="index.html" class="nav-link">Home</a>
                     <a href="marketplace.html" class="nav-link">Browse Products</a>
                     <a href="cart.html" class="nav-link">Back to Cart</a>
+                    <button class="nav-link" onclick="handleLogout()" style="background: transparent; border: none; cursor: pointer; color: var(--accent-color);">Logout</button>
                 `;
             } else {
                 headerNav.innerHTML = `
-                    <a href="home.html" class="nav-link">Home</a>
+                    <a href="index.html" class="nav-link">Home</a>
                     <a href="marketplace.html" class="nav-link">Browse Products</a>
                     <a href="cart.html" class="nav-link">Back to Cart</a>
                 `;
+            }
+        }
+
+        // Handle logout
+        async function handleLogout() {
+            try {
+                // Clear session data
+                sessionManager.clearSession();
+
+                // Sign out from Supabase
+                const { error } = await supabase.auth.signOut();
+                if (error) console.error('Logout error:', error);
+
+                // Redirect to homepage
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect even if there's an error
+                window.location.href = 'index.html';
             }
         }
 
@@ -462,36 +482,16 @@
         async function loadCartItems() {
             currentUserId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
 
-            if (currentUserId) {
-                // Registered user - load from Supabase
-                isGuest = false;
-                const { data: items, error } = await supabase
-                    .from('cart_items')
-                    .select(`
-                        id, quantity,
-                        products (
-                            id, name, price, images, stock, category,
-                            users!products_seller_id_fkey (full_name, email)
-                        )
-                    `)
-                    .eq('buyer_id', currentUserId);
+            // Get user-specific cart from localStorage
+            const cartKey = currentUserId ? `cart_${currentUserId}` : 'cart_guest';
+            const userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+            cartItems = userCart;
 
-                if (!error && items) {
-                    cartItems = items.map(item => ({
-                        id: item.products.id,
-                        name: item.products.name,
-                        price: item.products.price,
-                        quantity: item.quantity,
-                        images: item.products.images,
-                        stock: item.products.stock
-                    }));
-                }
-            } else {
-                // Guest user - load from localStorage
+            if (!currentUserId) {
                 isGuest = true;
                 document.getElementById('guestNotice').style.display = 'flex';
-                const guestCart = JSON.parse(localStorage.getItem('guestCart') || '[]');
-                cartItems = guestCart;
+            } else {
+                isGuest = false;
             }
 
             renderCartPreview();
@@ -516,7 +516,7 @@
                         </div>
                         <div class="preview-details">
                             <div class="preview-name">${item.name}</div>
-                            <div class="preview-qty-price">Qty: ${item.quantity} × $${item.price.toFixed(2)}</div>
+                            <div class="preview-qty-price">Qty: ${item.quantity} × J$${item.price.toFixed(2)}</div>
                         </div>
                     </div>
                 `;
@@ -631,7 +631,7 @@
                         await supabase
                             .from('cart_items')
                             .delete()
-                            .eq('buyer_id', currentUserId);
+                            .eq('user_id', currentUserId);
                     }
                 }
 

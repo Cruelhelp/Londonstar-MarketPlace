@@ -18,7 +18,7 @@
     <!-- Header -->
     <header class="header">
         <div class="header-main">
-            <div class="logo-container" onclick="window.location.href='home.html'">
+            <div class="logo-container" onclick="window.location.href='index.html'">
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
             <div class="search-bar">
@@ -32,7 +32,7 @@
             </div>
             <nav class="header-nav">
                 <span class="nav-link" style="font-weight: 600;">Seller Dashboard</span>
-                <a href="index.html" class="nav-icon-btn" onclick="handleLogout()">
+                <a href="auth.html" class="nav-icon-btn" onclick="handleLogout()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
                         <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2"/>
                         <polyline points="16 17 21 12 16 7" stroke="currentColor" stroke-width="2"/>
@@ -252,7 +252,7 @@
             if (sessionManager.checkLoggedOut()) return false;
             currentUserId = sessionManager.getUserId();
             if (!currentUserId) {
-                window.location.href = 'index.html';
+                window.location.href = 'auth.html';
                 return false;
             }
 
@@ -353,7 +353,7 @@
                 <div class="product-card">
                     <img src="${product.images[0]}" alt="${product.name}" class="product-image">
                     <div class="product-title">${product.name}</div>
-                    <div class="product-price">$${parseFloat(product.price).toFixed(2)}</div>
+                    <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
                     <div class="product-description">${product.description}</div>
                     <div style="margin-top: 12px; font-size: 13px; color: var(--text-secondary);">
                         Stock: ${product.stock} | Category: ${product.category}
@@ -602,10 +602,21 @@
         }
 
         async function handleLogout() {
-            await authHandler.signOut();
-            sessionManager.clearSession();
-            window.location.replace('index.html');
-            return false;
+            try {
+                // Clear session data
+                sessionManager.clearSession();
+
+                // Sign out from Supabase
+                const { error } = await supabase.auth.signOut();
+                if (error) console.error('Logout error:', error);
+
+                // Redirect to homepage
+                window.location.href = 'index.html';
+            } catch (error) {
+                console.error('Error during logout:', error);
+                // Still redirect even if there's an error
+                window.location.href = 'index.html';
+            }
         }
 
         // Initialize
@@ -636,7 +647,7 @@
                 <h3>Sell</h3>
                 <ul>
                     <li><a href="seller.html">Seller Dashboard</a></li>
-                    <li><a href="index.html">Start Selling</a></li>
+                    <li><a href="auth.html">Start Selling</a></li>
                     <li><a href="seller-profile.html">Seller Profile</a></li>
                     <li><a href="#">Seller Tools</a></li>
                     <li><a href="#">Seller University</a></li>
@@ -677,8 +688,8 @@
             <div class="footer-column">
                 <h3>Account</h3>
                 <ul>
-                    <li><a href="index.html">Sign In</a></li>
-                    <li><a href="index.html">Create Account</a></li>
+                    <li><a href="auth.html">Sign In</a></li>
+                    <li><a href="auth.html">Create Account</a></li>
                     <li><a href="#">My Orders</a></li>
                     <li><a href="#">Wishlist</a></li>
                     <li><a href="#">Account Settings</a></li>

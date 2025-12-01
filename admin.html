@@ -138,13 +138,119 @@
                 margin-left: 0;
             }
         }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 10000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            width: 90%;
+            max-width: 600px;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 32px;
+            color: #6b7280;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            width: 32px;
+            height: 32px;
+        }
+
+        .close-modal:hover {
+            color: var(--primary-color);
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(255, 153, 0, 0.1);
+        }
+
+        /* Role selection styling */
+        #roleModal label:has(input[type="radio"]:checked) {
+            border-color: var(--accent-color) !important;
+            background: rgba(255, 153, 0, 0.05);
+        }
+
+        #roleModal label:hover {
+            border-color: var(--accent-color);
+            background: rgba(255, 153, 0, 0.02);
+        }
     </style>
 </head>
 <body>
     <!-- Header -->
     <header class="header">
         <div class="header-main">
-            <div class="logo-container" onclick="confirmLeave('home.html')">
+            <button class="mobile-menu-toggle" id="adminMenuToggle" onclick="toggleAdminSidebar()">
+                ☰
+            </button>
+            <div class="logo-container" onclick="confirmLeave('index.html')">
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
             <div style="flex: 1; padding-left: 20px;">
@@ -157,10 +263,13 @@
         </div>
     </header>
 
+    <!-- Admin Sidebar Overlay (for mobile) -->
+    <div class="admin-overlay" id="adminOverlay" onclick="toggleAdminSidebar()"></div>
+
     <!-- Admin Sidebar -->
     <div class="admin-sidebar">
-        <div class="admin-nav-item active" onclick="switchTab('dashboard')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
+        <div class="admin-nav-item active" onclick="switchTab('dashboard', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
                 <rect x="3" y="3" width="7" height="7"/>
                 <rect x="14" y="3" width="7" height="7"/>
                 <rect x="14" y="14" width="7" height="7"/>
@@ -168,14 +277,14 @@
             </svg>
             Dashboard
         </div>
-        <div class="admin-nav-item" onclick="switchTab('products')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
+        <div class="admin-nav-item" onclick="switchTab('products', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
                 <path d="M20 7H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2z"/>
             </svg>
             Products
         </div>
-        <div class="admin-nav-item" onclick="switchTab('users')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
+        <div class="admin-nav-item" onclick="switchTab('users', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
@@ -183,8 +292,8 @@
             </svg>
             Users
         </div>
-        <div class="admin-nav-item" onclick="switchTab('sellers')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
+        <div class="admin-nav-item" onclick="switchTab('sellers', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
@@ -192,25 +301,23 @@
             </svg>
             Seller Approvals
         </div>
-        <div class="admin-nav-item" onclick="switchTab('orders')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
+        <div class="admin-nav-item" onclick="switchTab('orders', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
                 <circle cx="9" cy="21" r="1"/>
                 <circle cx="20" cy="21" r="1"/>
                 <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
             </svg>
             Orders
         </div>
-        <a href="#" onclick="confirmLeave('admin-cards.html'); return false;" class="admin-nav-item" style="text-decoration: none;">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
-                <rect x="3" y="3" width="7" height="7" rx="1"/>
-                <rect x="14" y="3" width="7" height="7" rx="1"/>
-                <rect x="3" y="14" width="7" height="7" rx="1"/>
-                <rect x="14" y="14" width="7" height="7" rx="1"/>
+        <div class="admin-nav-item" onclick="switchTab('homepage', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
+                <rect x="3" y="3" width="18" height="18" rx="2"/>
+                <path d="M3 9h18M9 21V9"/>
             </svg>
-            Homepage Cards
-        </a>
-        <div class="admin-nav-item" onclick="switchTab('settings')">
-            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px;">
+            Customise Backgrounds
+        </div>
+        <div class="admin-nav-item" onclick="switchTab('settings', event)">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 10px; pointer-events: none;">
                 <circle cx="12" cy="12" r="3"/>
                 <path d="M12 1v6m0 6v6M5.64 5.64l4.24 4.24m4.24 4.24l4.24 4.24M1 12h6m6 0h6M5.64 18.36l4.24-4.24m4.24-4.24l4.24-4.24"/>
             </svg>
@@ -253,9 +360,9 @@
                 <div class="card">
                     <h3>Quick Actions</h3>
                     <div style="margin-top: 20px;">
-                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="switchTab('products')">Manage Products</button>
-                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;" onclick="switchTab('users')">Manage Users</button>
-                        <button class="btn btn-secondary" style="width: 100%;" onclick="switchTab('orders')">View Orders</button>
+                        <button class="btn btn-primary" style="width: 100%; margin-bottom: 10px;" onclick="switchTab('products', event)">Manage Products</button>
+                        <button class="btn btn-secondary" style="width: 100%; margin-bottom: 10px;" onclick="switchTab('users', event)">Manage Users</button>
+                        <button class="btn btn-secondary" style="width: 100%;" onclick="switchTab('orders', event)">View Orders</button>
                     </div>
                 </div>
             </div>
@@ -263,23 +370,47 @@
 
         <!-- Products Tab -->
         <div class="tab-content" id="products">
-            <h1 style="margin-bottom: 30px;">Product Management</h1>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h1 style="margin: 0;">Product Management</h1>
+                <button class="btn btn-primary" onclick="openAddProductModal()" style="padding: 12px 24px;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Product
+                </button>
+            </div>
+
+            <!-- Products Search -->
+            <div style="margin-bottom: 20px;">
+                <div style="position: relative; max-width: 500px;">
+                    <input type="text" id="productSearch" placeholder="Search products by name, category, or seller..."
+                           onkeyup="searchProducts()" onfocus="this.style.borderColor='var(--accent-color)'; this.style.boxShadow='0 0 0 3px rgba(255, 153, 0, 0.1)'" onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                           style="width: 100%; padding: 12px 45px 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; transition: all 0.3s ease;">
+                    <svg width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24"
+                         style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </div>
+            </div>
             <div class="data-table">
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Image</th>
                             <th>Name</th>
                             <th>Category</th>
                             <th>Price</th>
                             <th>Stock</th>
                             <th>Seller</th>
+                            <th>Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody id="productsTableBody">
                         <tr>
-                            <td colspan="7" class="loading-row">Loading products...</td>
+                            <td colspan="8" class="loading-row">Loading products...</td>
                         </tr>
                     </tbody>
                 </table>
@@ -289,6 +420,21 @@
         <!-- Users Tab -->
         <div class="tab-content" id="users">
             <h1 style="margin-bottom: 30px;">User Management</h1>
+
+            <!-- Users Search -->
+            <div style="margin-bottom: 20px;">
+                <div style="position: relative; max-width: 500px;">
+                    <input type="text" id="userSearch" placeholder="Search users by name, email, or role..."
+                           onkeyup="searchUsers()" onfocus="this.style.borderColor='var(--accent-color)'; this.style.boxShadow='0 0 0 3px rgba(255, 153, 0, 0.1)'" onblur="this.style.borderColor='#e5e7eb'; this.style.boxShadow='none'"
+                           style="width: 100%; padding: 12px 45px 12px 16px; border: 2px solid #e5e7eb; border-radius: 8px; font-size: 15px; transition: all 0.3s ease;">
+                    <svg width="20" height="20" fill="none" stroke="#6b7280" stroke-width="2" viewBox="0 0 24 24"
+                         style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); pointer-events: none;">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.35-4.35"/>
+                    </svg>
+                </div>
+            </div>
+
             <div class="data-table">
                 <table>
                     <thead>
@@ -386,12 +532,348 @@
                 </form>
             </div>
         </div>
+
+        <!-- Customise Backgrounds Tab -->
+        <div class="tab-content" id="homepage">
+            <h1 style="margin-bottom: 30px;">Customise Backgrounds</h1>
+
+            <!-- Hero Background Section -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Hero Background Image</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Upload a background image for the homepage hero section (JPG, PNG, GIF - max 5MB)</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- Upload Section -->
+                    <div>
+                        <div class="form-group">
+                            <label>Upload Background Image</label>
+                            <input type="file" id="heroBackgroundInput" accept="image/*" onchange="previewHeroBackground(this)">
+                        </div>
+
+                        <div id="heroBackgroundPreview" style="display: none; margin-top: 12px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Preview</label>
+                            <div style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; height: 200px; background-size: cover; background-position: center; position: relative;">
+                                <img id="heroPreviewImage" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px; display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="saveHeroBackground()" id="saveHeroBtn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Save Background
+                            </button>
+                            <button class="btn btn-secondary" onclick="removeHeroBackground()" id="removeHeroBtn">
+                                Remove Background
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Background Section -->
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Background</label>
+                        <div id="currentHeroBackground" style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; height: 200px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #6b7280; background-size: cover; background-position: center;">
+                            No background set
+                        </div>
+                        <div style="margin-top: 12px; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;">
+                            <p style="margin: 0; font-size: 13px; color: #6b7280;">
+                                <strong>Tip:</strong> Use a high-quality image (1920x600px recommended) for best results. The image will be used as the background for the hero banner section.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Marketplace Hero Background Section -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Marketplace Hero Customization</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Customize the marketplace hero section background and text colors</p>
+
+                <!-- Text Color Settings -->
+                <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 8px;">
+                    <h4 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Text Colors</h4>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Title Color</label>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <input type="color" id="marketplaceTitleColor" value="#ffffff" style="width: 60px; height: 40px; border-radius: 6px; border: 2px solid #e5e7eb; cursor: pointer;">
+                                <input type="text" id="marketplaceTitleColorHex" value="#ffffff" placeholder="#ffffff" style="flex: 1; padding: 10px; border: 2px solid #e5e7eb; border-radius: 6px; font-family: monospace;">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Subtitle Color</label>
+                            <div style="display: flex; gap: 12px; align-items: center;">
+                                <input type="color" id="marketplaceSubtitleColor" value="#ffffff" style="width: 60px; height: 40px; border-radius: 6px; border: 2px solid #e5e7eb; cursor: pointer;">
+                                <input type="text" id="marketplaceSubtitleColorHex" value="#ffffff" placeholder="#ffffff" style="flex: 1; padding: 10px; border: 2px solid #e5e7eb; border-radius: 6px; font-family: monospace;">
+                            </div>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" onclick="saveMarketplaceTextColors()" style="margin-top: 16px;">Save Text Colors</button>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- Upload Section -->
+                    <div>
+                        <div class="form-group">
+                            <label>Upload Background Image</label>
+                            <input type="file" id="marketplaceHeroInput" accept="image/*" onchange="previewMarketplaceHero(this)">
+                        </div>
+
+                        <div id="marketplaceHeroPreview" style="display: none; margin-top: 12px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Preview</label>
+                            <div style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; height: 200px; background-size: cover; background-position: center; position: relative;">
+                                <img id="marketplacePreviewImage" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px; display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="saveMarketplaceHero()" id="saveMarketplaceHeroBtn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Save Background
+                            </button>
+                            <button class="btn btn-secondary" onclick="removeMarketplaceHero()" id="removeMarketplaceHeroBtn">
+                                Remove Background
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Background Section -->
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Background</label>
+                        <div id="currentMarketplaceHero" style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; height: 200px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #6b7280; background-size: cover; background-position: center;">
+                            No background set
+                        </div>
+                        <div style="margin-top: 12px; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;">
+                            <p style="margin: 0; font-size: 13px; color: #6b7280;">
+                                <strong>Tip:</strong> Use a high-quality image (1920x400px recommended) for the marketplace hero section.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 480px; text-align: center;">
+            <div style="margin-bottom: 20px;">
+                <div style="width: 64px; height: 64px; margin: 0 auto 16px; background: rgba(249, 115, 22, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="32" height="32" fill="none" stroke="#f97316" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                    </svg>
+                </div>
+                <h3 id="confirmTitle" style="font-size: 20px; font-weight: 600; color: var(--primary-color); margin: 0 0 12px 0;"></h3>
+                <p id="confirmMessage" style="color: #6b7280; font-size: 15px; line-height: 1.5; margin: 0;"></p>
+            </div>
+            <div style="display: flex; gap: 12px; justify-content: center;">
+                <button class="btn btn-secondary" onclick="closeConfirmModal(false)" style="min-width: 120px;">Cancel</button>
+                <button class="btn btn-primary" id="confirmBtn" onclick="closeConfirmModal(true)" style="min-width: 120px; background: #dc2626;">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Role Modal -->
+    <div id="roleModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 480px;">
+            <div class="modal-header">
+                <h2>Change User Role</h2>
+                <button class="close-modal" onclick="closeRoleModal()">&times;</button>
+            </div>
+            <div style="padding: 20px;">
+                <p style="color: #6b7280; margin-bottom: 20px;">Select new role for this user:</p>
+                <div style="display: flex; flex-direction: column; gap: 12px;">
+                    <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <input type="radio" name="userRole" value="buyer" style="margin-right: 12px; width: 18px; height: 18px; accent-color: var(--accent-color);">
+                        <div>
+                            <div style="font-weight: 600; color: var(--primary-color);">Buyer</div>
+                            <div style="font-size: 13px; color: #6b7280;">Can browse and purchase products</div>
+                        </div>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <input type="radio" name="userRole" value="seller" style="margin-right: 12px; width: 18px; height: 18px; accent-color: var(--accent-color);">
+                        <div>
+                            <div style="font-weight: 600; color: var(--primary-color);">Seller</div>
+                            <div style="font-size: 13px; color: #6b7280;">Can list and manage products</div>
+                        </div>
+                    </label>
+                    <label style="display: flex; align-items: center; padding: 12px; border: 2px solid #e5e7eb; border-radius: 8px; cursor: pointer; transition: all 0.2s;">
+                        <input type="radio" name="userRole" value="admin" style="margin-right: 12px; width: 18px; height: 18px; accent-color: var(--accent-color);">
+                        <div>
+                            <div style="font-weight: 600; color: var(--primary-color);">Admin</div>
+                            <div style="font-size: 13px; color: #6b7280;">Full platform access and management</div>
+                        </div>
+                    </label>
+                </div>
+            </div>
+            <div style="display: flex; gap: 12px; padding: 0 20px 20px 20px;">
+                <button class="btn btn-secondary" onclick="closeRoleModal()" style="flex: 1;">Cancel</button>
+                <button class="btn btn-primary" onclick="confirmRoleChange()" style="flex: 1;">Change Role</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Product Modal -->
+    <div id="addProductModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>Add New Product</h2>
+                <button class="close-modal" onclick="closeAddProductModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addProductForm" onsubmit="handleAddProduct(event)">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Product Name *</label>
+                            <input type="text" id="productName" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <select id="productCategory" required>
+                                <option value="">Select category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="home">Home & Garden</option>
+                                <option value="sports">Sports & Outdoors</option>
+                                <option value="books">Books & Media</option>
+                                <option value="toys">Toys & Games</option>
+                                <option value="beauty">Beauty & Personal Care</option>
+                                <option value="automotive">Automotive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Price (JMD) *</label>
+                            <input type="number" id="productPrice" step="0.01" min="0" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity *</label>
+                            <input type="number" id="productStock" min="0" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="productDescription" rows="4" required></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Product Images *</label>
+                        <input type="file" id="productImages" accept="image/*" multiple onchange="previewProductImages(this)">
+                        <small style="color: #6b7280; display: block; margin-top: 4px;">Select up to 5 images (JPG, PNG, GIF, WEBP - max 5MB each)</small>
+                    </div>
+
+                    <div class="form-group" id="productImagesPreviewContainer" style="display: none;">
+                        <label>Image Previews</label>
+                        <div id="productImagesPreview" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 8px;">
+                            <!-- Image previews will appear here -->
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Seller (Optional - will use admin if not specified)</label>
+                        <select id="productSeller">
+                            <option value="">Admin Account</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                        <button type="button" class="btn" onclick="closeAddProductModal()" style="background: #6b7280;">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add/Edit Banner Modal -->
+    <div id="bannerModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h2 id="bannerModalTitle">Add Banner</h2>
+                <button class="close-modal" onclick="closeBannerModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="bannerForm" onsubmit="handleBannerSubmit(event)">
+                    <input type="hidden" id="bannerId">
+
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="bannerCategory" required>
+                            <option value="">Select category</option>
+                            <option value="Electronics">Electronics</option>
+                            <option value="Fashion">Fashion</option>
+                            <option value="Home & Garden">Home & Garden</option>
+                            <option value="Sports">Sports</option>
+                            <option value="Books">Books</option>
+                            <option value="Toys">Toys</option>
+                            <option value="Beauty">Beauty</option>
+                            <option value="Automotive">Automotive</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="bannerTitle" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="bannerDescription" rows="3"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Banner Image *</label>
+                        <input type="file" id="bannerImageInput" accept="image/*" onchange="previewBannerImage(this)">
+                        <small style="color: #6b7280; display: block; margin-top: 4px;">Recommended size: 1200x400px (max 5MB)</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Image Preview</label>
+                        <div id="bannerImagePreview" style="width: 100%; height: 200px; background: #f3f4f6; border: 2px dashed #d1d5db; border-radius: 8px; background-size: cover; background-position: center; display: flex; align-items: center; justify-content: center; color: #9ca3af;">
+                            No image selected
+                        </div>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Display Order</label>
+                            <input type="number" id="bannerOrder" min="0" value="0">
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
+                                <input type="checkbox" id="bannerActive" checked style="width: 20px; height: 20px; cursor: pointer;">
+                                <span>Active</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                        <button type="button" class="btn" onclick="closeBannerModal()" style="background: #6b7280;">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="bannerSubmitBtn">Add Banner</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-init.js"></script>
+    <script src="js/supabase-homepage.js"></script>
     <script src="js/session-manager.js"></script>
+    <script src="js/toast.js"></script>
     <script>
         // ============================================
         // ADMIN SESSION PROTECTION
@@ -403,59 +885,125 @@
 
         if (!isAdmin && userRole !== 'admin') {
             alert('Access denied. Admin privileges required.');
-            window.location.href = 'index.html';
+            window.location.href = 'auth.html';
         }
 
         // ============================================
         // NAVIGATION CONFIRMATION DIALOGS
         // ============================================
+        // CUSTOM CONFIRM MODAL
+        // ============================================
+
+        let confirmCallback = null;
+
+        function showConfirmModal(title, message, onConfirm) {
+            document.getElementById('confirmTitle').textContent = title;
+            document.getElementById('confirmMessage').textContent = message;
+            confirmCallback = onConfirm;
+            document.getElementById('confirmModal').style.display = 'flex';
+        }
+
+        function closeConfirmModal(confirmed) {
+            document.getElementById('confirmModal').style.display = 'none';
+            if (confirmed && confirmCallback) {
+                confirmCallback();
+            }
+            confirmCallback = null;
+        }
 
         function confirmLeave(url) {
-            if (confirm('Are you sure you want to leave the admin panel?')) {
-                window.location.href = url;
-            }
+            showConfirmModal(
+                'Leave Admin Panel?',
+                'Are you sure you want to leave the admin panel?',
+                () => window.location.href = url
+            );
         }
 
         // ============================================
         // SUPABASE CLIENT REFERENCE
         // ============================================
 
-        const supabase = window.supabaseClient;
+        // Supabase is already declared globally in supabase-config.js
+        // Just verify it's available
+        if (!window.supabaseClient && !supabase) {
+            console.error('Supabase client not initialized! Please check supabase-config.js');
+            alert('Database connection error. Please refresh the page.');
+        }
 
         // ============================================
         // TAB SWITCHING
         // ============================================
 
         function switchTab(tabName, event) {
-            // Update nav items
-            document.querySelectorAll('.admin-nav-item').forEach(item => {
-                item.classList.remove('active');
-            });
+            console.log('switchTab called with:', tabName);
 
-            // Find the nav item that was clicked (could be the element itself or a parent)
-            if (event) {
-                let navItem = event.target;
-                while (navItem && !navItem.classList.contains('admin-nav-item')) {
-                    navItem = navItem.parentElement;
+            try {
+                // Update nav items
+                document.querySelectorAll('.admin-nav-item').forEach(item => {
+                    item.classList.remove('active');
+                });
+
+                // Find the nav item that was clicked (could be the element itself or a parent)
+                if (event) {
+                    let navItem = event.target;
+                    while (navItem && !navItem.classList.contains('admin-nav-item')) {
+                        navItem = navItem.parentElement;
+                    }
+                    if (navItem) {
+                        navItem.classList.add('active');
+                    }
                 }
-                if (navItem) {
-                    navItem.classList.add('active');
+
+                // Update content
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                const tabElement = document.getElementById(tabName);
+                if (!tabElement) {
+                    console.error('Tab element not found:', tabName);
+                    alert('Tab not found: ' + tabName);
+                    return;
+                }
+                tabElement.classList.add('active');
+
+                // Load data for the tab
+                console.log('Loading data for tab:', tabName);
+                if (tabName === 'dashboard') loadDashboard();
+                if (tabName === 'products') loadProducts();
+                if (tabName === 'users') loadUsers();
+                if (tabName === 'sellers') loadSellers();
+                if (tabName === 'orders') loadOrders();
+                if (tabName === 'homepage') loadHomepage();
+                if (tabName === 'settings') loadSettings();
+
+                // Close mobile sidebar after selecting a tab
+                if (window.innerWidth <= 768) {
+                    toggleAdminSidebar();
+                }
+            } catch (error) {
+                console.error('Error in switchTab:', error);
+                alert('Error switching tabs: ' + error.message);
+            }
+        }
+
+        // Toggle admin sidebar for mobile
+        function toggleAdminSidebar() {
+            const sidebar = document.querySelector('.admin-sidebar');
+            const overlay = document.getElementById('adminOverlay');
+            const toggle = document.getElementById('adminMenuToggle');
+
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+
+            // Change icon
+            if (toggle) {
+                if (sidebar.classList.contains('active')) {
+                    toggle.textContent = '✕';
+                } else {
+                    toggle.textContent = '☰';
                 }
             }
-
-            // Update content
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.remove('active');
-            });
-            document.getElementById(tabName).classList.add('active');
-
-            // Load data for the tab
-            if (tabName === 'dashboard') loadDashboard();
-            if (tabName === 'products') loadProducts();
-            if (tabName === 'users') loadUsers();
-            if (tabName === 'sellers') loadSellers();
-            if (tabName === 'orders') loadOrders();
-            if (tabName === 'settings') loadSettings();
         }
 
         // ============================================
@@ -512,7 +1060,7 @@
 
         async function loadProducts() {
             const tbody = document.getElementById('productsTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loading-row">Loading products...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" class="loading-row">Loading products...</td></tr>';
 
             try {
                 const { data: products, error } = await supabase
@@ -524,8 +1072,9 @@
                         price,
                         stock,
                         status,
+                        images,
                         seller_id,
-                        users!products_seller_id_fkey (
+                        seller:seller_id (
                             email,
                             full_name
                         )
@@ -535,18 +1084,23 @@
                 if (error) throw error;
 
                 if (!products || products.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--text-secondary);">No products found</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary);">No products found</td></tr>';
                     return;
                 }
 
-                tbody.innerHTML = products.map(product => `
+                tbody.innerHTML = products.map(product => {
+                    const images = Array.isArray(product.images) ? product.images : [];
+                    const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+
+                    return `
                     <tr>
-                        <td>${product.id.substring(0, 8)}...</td>
+                        <td><img src="${firstImage}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
                         <td>${product.name}</td>
                         <td>${product.category}</td>
-                        <td>$${parseFloat(product.price).toFixed(2)}</td>
+                        <td>J$${parseFloat(product.price).toFixed(2)}</td>
                         <td>${product.stock}</td>
-                        <td>${product.users?.email || 'Unknown'}</td>
+                        <td>${product.seller?.email || 'Unknown'}</td>
+                        <td><span class="badge ${product.status === 'active' ? 'badge-success' : 'badge-warning'}">${product.status || 'active'}</span></td>
                         <td>
                             <div class="action-buttons">
                                 <button class="btn btn-secondary btn-sm" onclick="editStock('${product.id}', ${product.stock})">Edit Stock</button>
@@ -554,11 +1108,12 @@
                             </div>
                         </td>
                     </tr>
-                `).join('');
+                `;
+                }).join('');
 
             } catch (error) {
                 console.error('Error loading products:', error);
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Error loading products: ${error.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">Error loading products: ${error.message}</td></tr>`;
             }
         }
 
@@ -592,25 +1147,223 @@
         }
 
         async function deleteProduct(productId) {
-            if (!confirm('Are you sure you want to delete this product? This action cannot be undone.')) {
+            showConfirmModal(
+                'Delete Product?',
+                'Are you sure you want to delete this product? This action cannot be undone.',
+                async () => {
+                    try {
+                        const { error } = await supabase
+                            .from('products')
+                            .delete()
+                            .eq('id', productId);
+
+                        if (error) throw error;
+
+                        showSuccess('Product deleted successfully!');
+                        loadProducts();
+                        loadDashboard(); // Refresh dashboard stats
+
+                    } catch (error) {
+                        console.error('Error deleting product:', error);
+                        showError('Error deleting product: ' + error.message);
+                    }
+                }
+            );
+        }
+
+        // Search Products
+        function searchProducts() {
+            const searchTerm = document.getElementById('productSearch').value.toLowerCase().trim();
+            const tableBody = document.getElementById('productsTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                // Skip loading row
+                if (row.classList.contains('loading-row') || row.cells.length < 2) continue;
+
+                const name = row.cells[1]?.textContent?.toLowerCase() || '';
+                const category = row.cells[2]?.textContent?.toLowerCase() || '';
+                const seller = row.cells[5]?.textContent?.toLowerCase() || '';
+
+                if (name.includes(searchTerm) || category.includes(searchTerm) || seller.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            }
+        }
+
+        // Open add product modal
+        async function openAddProductModal() {
+            const modal = document.getElementById('addProductModal');
+            modal.style.display = 'flex';
+
+            // Load sellers for dropdown
+            try {
+                const { data: sellers, error } = await supabase
+                    .from('users')
+                    .select('id, email, full_name')
+                    .eq('role', 'seller')
+                    .eq('status', 'approved');
+
+                if (!error && sellers) {
+                    const sellerSelect = document.getElementById('productSeller');
+                    sellerSelect.innerHTML = '<option value="">Admin Account</option>' +
+                        sellers.map(seller => `<option value="${seller.id}">${seller.full_name || seller.email}</option>`).join('');
+                }
+            } catch (error) {
+                console.error('Error loading sellers:', error);
+            }
+        }
+
+        // Close add product modal
+        // Store uploaded product images
+        let productImagesData = [];
+
+        function previewProductImages(input) {
+            const files = Array.from(input.files);
+            if (files.length === 0) return;
+
+            if (files.length > 5) {
+                showWarning('Maximum 5 images allowed');
+                input.value = '';
                 return;
             }
 
+            productImagesData = [];
+            const previewContainer = document.getElementById('productImagesPreview');
+            const previewSection = document.getElementById('productImagesPreviewContainer');
+            previewContainer.innerHTML = '';
+
+            let processed = 0;
+
+            files.forEach((file, index) => {
+                // Validate file size (max 5MB)
+                if (file.size > 5 * 1024 * 1024) {
+                    showWarning(`${file.name} is too large (max 5MB)`);
+                    return;
+                }
+
+                // Validate file type
+                if (!file.type.startsWith('image/')) {
+                    showWarning(`${file.name} is not an image file`);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    productImagesData.push(e.target.result);
+                    processed++;
+
+                    // Create preview
+                    const previewDiv = document.createElement('div');
+                    previewDiv.style.cssText = 'position: relative; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden;';
+                    previewDiv.innerHTML = `
+                        <img src="${e.target.result}" style="width: 100%; height: 100px; object-fit: cover;">
+                        <button type="button" onclick="removeProductImage(${productImagesData.length - 1})" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px;">×</button>
+                    `;
+                    previewContainer.appendChild(previewDiv);
+
+                    if (processed === files.length) {
+                        previewSection.style.display = 'block';
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function removeProductImage(index) {
+            productImagesData.splice(index, 1);
+            const input = document.getElementById('productImages');
+            input.value = '';
+
+            // Re-render previews
+            const previewContainer = document.getElementById('productImagesPreview');
+            const previewSection = document.getElementById('productImagesPreviewContainer');
+
+            if (productImagesData.length === 0) {
+                previewSection.style.display = 'none';
+                previewContainer.innerHTML = '';
+            } else {
+                previewContainer.innerHTML = productImagesData.map((img, idx) => `
+                    <div style="position: relative; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                        <img src="${img}" style="width: 100%; height: 100px; object-fit: cover;">
+                        <button type="button" onclick="removeProductImage(${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px;">×</button>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function closeAddProductModal() {
+            const modal = document.getElementById('addProductModal');
+            modal.style.display = 'none';
+            document.getElementById('addProductForm').reset();
+            productImagesData = [];
+            document.getElementById('productImagesPreviewContainer').style.display = 'none';
+            document.getElementById('productImagesPreview').innerHTML = '';
+        }
+
+        // Handle add product form submission
+        async function handleAddProduct(event) {
+            event.preventDefault();
+
+            const submitBtn = event.target.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Adding...';
+
             try {
-                const { error } = await supabase
+                // Get form data
+                const name = document.getElementById('productName').value;
+                const category = document.getElementById('productCategory').value;
+                const price = parseFloat(document.getElementById('productPrice').value);
+                const stock = parseInt(document.getElementById('productStock').value);
+                const description = document.getElementById('productDescription').value;
+                const sellerId = document.getElementById('productSeller').value;
+
+                // Check if images were uploaded
+                if (productImagesData.length === 0) {
+                    showWarning('Please upload at least one product image');
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Add Product';
+                    return;
+                }
+
+                // Use admin's user ID if no seller selected
+                const adminUserId = localStorage.getItem('userId');
+                const finalSellerId = sellerId || adminUserId;
+
+                if (!finalSellerId) {
+                    throw new Error('Unable to determine seller ID');
+                }
+
+                // Insert product into Supabase with uploaded images
+                const { data, error } = await supabase
                     .from('products')
-                    .delete()
-                    .eq('id', productId);
+                    .insert({
+                        name: name,
+                        category: category,
+                        price: price,
+                        stock: stock,
+                        description: description,
+                        images: productImagesData,
+                        seller_id: finalSellerId,
+                        status: 'active'
+                    })
+                    .select();
 
                 if (error) throw error;
 
-                alert('Product deleted successfully!');
+                showSuccess('Product added successfully!');
+                closeAddProductModal();
                 loadProducts();
                 loadDashboard(); // Refresh dashboard stats
 
             } catch (error) {
-                console.error('Error deleting product:', error);
-                alert('Error deleting product: ' + error.message);
+                console.error('Error adding product:', error);
+                showError('Error adding product: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Add Product';
             }
         }
 
@@ -662,34 +1415,73 @@
             }
         }
 
-        async function changeUserRole(userId, currentRole) {
-            const roles = ['buyer', 'seller', 'admin'];
-            const roleChoice = prompt(`Select new role:\n1 = buyer\n2 = seller\n3 = admin\n\nCurrent role: ${currentRole}`);
+        let currentUserIdForRoleChange = null;
 
-            if (!roleChoice) return; // User cancelled
+        function changeUserRole(userId, currentRole) {
+            currentUserIdForRoleChange = userId;
 
-            const roleIndex = parseInt(roleChoice) - 1;
-            if (roleIndex < 0 || roleIndex > 2) {
-                alert('Invalid choice. Please enter 1, 2, or 3.');
+            // Pre-select the current role
+            const radioButtons = document.querySelectorAll('input[name="userRole"]');
+            radioButtons.forEach(radio => {
+                radio.checked = (radio.value === currentRole);
+            });
+
+            // Show modal
+            document.getElementById('roleModal').style.display = 'flex';
+        }
+
+        function closeRoleModal() {
+            document.getElementById('roleModal').style.display = 'none';
+            currentUserIdForRoleChange = null;
+        }
+
+        async function confirmRoleChange() {
+            const selectedRole = document.querySelector('input[name="userRole"]:checked');
+
+            if (!selectedRole) {
+                showWarning('Please select a role');
                 return;
             }
 
-            const newRole = roles[roleIndex];
+            const newRole = selectedRole.value;
 
             try {
                 const { error } = await supabase
                     .from('users')
                     .update({ role: newRole })
-                    .eq('id', userId);
+                    .eq('id', currentUserIdForRoleChange);
 
                 if (error) throw error;
 
-                alert(`User role changed to ${newRole} successfully!`);
+                showSuccess(`User role changed to ${newRole} successfully!`);
+                closeRoleModal();
                 loadUsers();
 
             } catch (error) {
                 console.error('Error changing user role:', error);
-                alert('Error changing user role: ' + error.message);
+                showError('Error changing user role: ' + error.message);
+            }
+        }
+
+        // Search Users
+        function searchUsers() {
+            const searchTerm = document.getElementById('userSearch').value.toLowerCase().trim();
+            const tableBody = document.getElementById('usersTableBody');
+            const rows = tableBody.getElementsByTagName('tr');
+
+            for (let row of rows) {
+                // Skip loading row
+                if (row.classList.contains('loading-row') || row.cells.length < 2) continue;
+
+                const email = row.cells[0]?.textContent?.toLowerCase() || '';
+                const fullName = row.cells[1]?.textContent?.toLowerCase() || '';
+                const role = row.cells[2]?.textContent?.toLowerCase() || '';
+
+                if (email.includes(searchTerm) || fullName.includes(searchTerm) || role.includes(searchTerm)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
             }
         }
 
@@ -798,26 +1590,28 @@
         }
 
         async function deleteUser(userId) {
-            if (!confirm('Are you sure you want to delete this user? This will also delete all their products, orders, and related data.')) {
-                return;
-            }
+            showConfirmModal(
+                'Delete User?',
+                'Are you sure you want to delete this user? This will also delete all their products, orders, and related data.',
+                async () => {
+                    try {
+                        const { error } = await supabase
+                            .from('users')
+                            .delete()
+                            .eq('id', userId);
 
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .delete()
-                    .eq('id', userId);
+                        if (error) throw error;
 
-                if (error) throw error;
+                        showSuccess('User deleted successfully!');
+                        loadUsers();
+                        loadDashboard(); // Refresh dashboard stats
 
-                alert('User deleted successfully!');
-                loadUsers();
-                loadDashboard(); // Refresh dashboard stats
-
-            } catch (error) {
-                console.error('Error deleting user:', error);
-                alert('Error deleting user: ' + error.message);
-            }
+                    } catch (error) {
+                        console.error('Error deleting user:', error);
+                        showError('Error deleting user: ' + error.message);
+                    }
+                }
+            );
         }
 
         // ============================================
@@ -861,7 +1655,7 @@
                         <tr>
                             <td>${order.id.substring(0, 8)}...</td>
                             <td>${order.users?.email || 'Unknown'}</td>
-                            <td>$${parseFloat(order.total).toFixed(2)}</td>
+                            <td>J$${parseFloat(order.total).toFixed(2)}</td>
                             <td><span class="badge ${statusClass}">${order.status}</span></td>
                             <td>${orderDate}</td>
                             <td>
@@ -999,23 +1793,847 @@
             }
 
             try {
-                // Clear admin flags
-                localStorage.removeItem('isAdmin');
-                localStorage.removeItem('userRole');
+                // Clear session data
+                sessionManager.clearSession();
+
+                // Sign out from Supabase
+                const { error } = await supabase.auth.signOut();
+                if (error) console.error('Logout error:', error);
+
+                // Clear all user-related data
                 localStorage.removeItem('userId');
                 localStorage.removeItem('userEmail');
+                localStorage.removeItem('userName');
+                localStorage.removeItem('userRole');
+                localStorage.removeItem('isAdmin');
+                sessionStorage.clear();
 
-                // Clear session
-                if (window.sessionManager) {
-                    sessionManager.clearSession();
-                }
-
-                // Redirect to login
+                // Prevent back button by replacing history
                 window.location.replace('index.html');
 
             } catch (error) {
                 console.error('Error during logout:', error);
+                // Still redirect even if there's an error
+                sessionManager.clearSession();
+                localStorage.clear();
+                sessionStorage.clear();
                 window.location.replace('index.html');
+            }
+        }
+
+        // ============================================
+        // HOMEPAGE CUSTOMIZATION SECTION
+        // ============================================
+
+        let homepageCardsData = [];
+
+        async function loadHomepage() {
+            await loadCurrentHeroBackground();
+            await loadCurrentMarketplaceHero();
+            await loadHomepageCardsData();
+            syncMarketplaceColors();
+        }
+
+        // Hero Background Management
+        let heroImages = [];
+        let isSlideshowMode = false;
+
+        async function toggleSlideshowMode(enabled) {
+            isSlideshowMode = enabled;
+            document.getElementById('staticImageSection').style.display = enabled ? 'none' : 'block';
+            document.getElementById('slideshowSection').style.display = enabled ? 'block' : 'none';
+        }
+
+        async function handleHeroBackgroundUpload(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showWarning('Image size must be less than 5MB');
+                input.value = '';
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showWarning('Please select a valid image file');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const imageData = e.target.result;
+                heroImages = [imageData];
+                updateHeroPreview(imageData);
+                showSuccess('Hero background ready to save!');
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handleSlideshowUpload(input) {
+            const files = Array.from(input.files);
+            if (files.length === 0) return;
+
+            heroImages = [];
+            let processed = 0;
+
+            for (const file of files) {
+                if (file.size > 5 * 1024 * 1024) {
+                    showWarning(`${file.name} is too large (max 5MB)`);
+                    continue;
+                }
+
+                if (!file.type.startsWith('image/')) {
+                    showWarning(`${file.name} is not an image file`);
+                    continue;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    heroImages.push(e.target.result);
+                    processed++;
+
+                    if (processed === files.length) {
+                        renderSlideshowImages();
+                        showSuccess(`${heroImages.length} images ready to save!`);
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function renderSlideshowImages() {
+            const container = document.getElementById('slideshowImagesContainer');
+            if (heroImages.length === 0) {
+                container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #9ca3af; padding: 40px;">No images uploaded</div>';
+                return;
+            }
+
+            container.innerHTML = heroImages.map((img, index) => `
+                <div style="position: relative; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
+                    <img src="${img}" style="width: 100%; height: 100px; object-fit: cover;">
+                    <button onclick="removeSlideshowImage(${index})" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 12px;">Remove</button>
+                </div>
+            `).join('');
+        }
+
+        function removeSlideshowImage(index) {
+            heroImages.splice(index, 1);
+            renderSlideshowImages();
+        }
+
+        function removeAllSlideshowImages() {
+            if (confirm('Remove all slideshow images?')) {
+                heroImages = [];
+                renderSlideshowImages();
+                document.getElementById('slideshowInput').value = '';
+            }
+        }
+
+        async function removeHeroBackground() {
+            if (confirm('Are you sure you want to remove the hero background?')) {
+                heroImages = [];
+                resetHeroPreview();
+                await saveHeroSettings();
+            }
+        }
+
+        async function saveHeroSettings() {
+            try {
+                const settings = {
+                    isSlideshow: isSlideshowMode,
+                    images: heroImages
+                };
+
+                const { error } = await supabase
+                    .from('platform_settings')
+                    .upsert({
+                        setting_key: 'hero_background',
+                        setting_value: settings
+                    }, {
+                        onConflict: 'setting_key'
+                    });
+
+                if (error) throw error;
+
+                alert('Hero settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving hero settings:', error);
+                alert('Error saving settings: ' + error.message);
+            }
+        }
+
+        async function loadHeroBackgroundPreview() {
+            try {
+                const { data, error } = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'hero_background')
+                    .single();
+
+                if (!error && data && data.setting_value) {
+                    const settings = data.setting_value;
+                    isSlideshowMode = settings.isSlideshow || false;
+                    heroImages = settings.images || [];
+
+                    document.getElementById('slideshowToggle').checked = isSlideshowMode;
+                    toggleSlideshowMode(isSlideshowMode);
+
+                    if (isSlideshowMode) {
+                        renderSlideshowImages();
+                    } else if (heroImages.length > 0) {
+                        updateHeroPreview(heroImages[0]);
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading hero settings:', error);
+            }
+        }
+
+        function updateHeroPreview(imageData) {
+            const preview = document.getElementById('heroBgPreview');
+            if (preview) {
+                preview.style.backgroundImage = `url(${imageData})`;
+                preview.textContent = '';
+            }
+        }
+
+        function resetHeroPreview() {
+            const preview = document.getElementById('heroBgPreview');
+            if (preview) {
+                preview.style.backgroundImage = '';
+                preview.textContent = 'No background set';
+            }
+            const input = document.getElementById('heroBgInput');
+            if (input) input.value = '';
+        }
+
+        // New simplified hero background functions for updated UI
+        let currentHeroImageData = null;
+
+        function previewHeroBackground(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Image size must be less than 5MB');
+                input.value = '';
+                return;
+            }
+
+            // Validate file type
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentHeroImageData = e.target.result;
+                document.getElementById('heroPreviewImage').src = currentHeroImageData;
+                document.getElementById('heroBackgroundPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveHeroBackground() {
+            if (!currentHeroImageData) {
+                showError('Please select an image first');
+                return;
+            }
+
+            const btn = document.getElementById('saveHeroBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                const settings = {
+                    isSlideshow: false,
+                    images: [currentHeroImageData]
+                };
+
+                const { error } = await supabase
+                    .from('platform_settings')
+                    .upsert({
+                        setting_key: 'hero_background',
+                        setting_value: settings
+                    }, {
+                        onConflict: 'setting_key'
+                    });
+
+                if (error) throw error;
+
+                showSuccess('Hero background saved successfully!');
+                await loadCurrentHeroBackground();
+
+                // Clear upload
+                document.getElementById('heroBackgroundInput').value = '';
+                document.getElementById('heroBackgroundPreview').style.display = 'none';
+                currentHeroImageData = null;
+
+            } catch (error) {
+                console.error('Error saving hero background:', error);
+                showError('Error saving background: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Background';
+            }
+        }
+
+        async function removeHeroBackground() {
+            if (!confirm('Are you sure you want to remove the hero background?')) return;
+
+            const btn = document.getElementById('removeHeroBtn');
+            btn.disabled = true;
+            btn.textContent = 'Removing...';
+
+            try {
+                const { error } = await supabase
+                    .from('platform_settings')
+                    .delete()
+                    .eq('setting_key', 'hero_background');
+
+                if (error) throw error;
+
+                showSuccess('Hero background removed successfully!');
+                await loadCurrentHeroBackground();
+
+                // Clear upload
+                document.getElementById('heroBackgroundInput').value = '';
+                document.getElementById('heroBackgroundPreview').style.display = 'none';
+                currentHeroImageData = null;
+
+            } catch (error) {
+                console.error('Error removing hero background:', error);
+                showError('Error removing background: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Remove Background';
+            }
+        }
+
+        async function loadCurrentHeroBackground() {
+            try {
+                const { data, error } = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'hero_background')
+                    .single();
+
+                const currentBg = document.getElementById('currentHeroBackground');
+
+                if (!error && data && data.setting_value && data.setting_value.images && data.setting_value.images.length > 0) {
+                    const imageUrl = data.setting_value.images[0];
+                    currentBg.style.backgroundImage = `url(${imageUrl})`;
+                    currentBg.textContent = '';
+                } else {
+                    currentBg.style.backgroundImage = '';
+                    currentBg.textContent = 'No background set';
+                }
+            } catch (error) {
+                console.error('Error loading current hero background:', error);
+            }
+        }
+
+        // Marketplace Hero Background Management
+        let currentMarketplaceImageData = null;
+
+        function previewMarketplaceHero(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Image size must be less than 5MB');
+                input.value = '';
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                showError('Please select a valid image file');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentMarketplaceImageData = e.target.result;
+                document.getElementById('marketplacePreviewImage').src = currentMarketplaceImageData;
+                document.getElementById('marketplaceHeroPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveMarketplaceHero() {
+            if (!currentMarketplaceImageData) {
+                showError('Please select an image first');
+                return;
+            }
+
+            const btn = document.getElementById('saveMarketplaceHeroBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                const settings = {
+                    isSlideshow: false,
+                    images: [currentMarketplaceImageData]
+                };
+
+                const { error } = await supabase
+                    .from('platform_settings')
+                    .upsert({
+                        setting_key: 'marketplace_hero_background',
+                        setting_value: settings
+                    }, {
+                        onConflict: 'setting_key'
+                    });
+
+                if (error) throw error;
+
+                showSuccess('Marketplace hero background saved successfully!');
+                await loadCurrentMarketplaceHero();
+
+                document.getElementById('marketplaceHeroInput').value = '';
+                document.getElementById('marketplaceHeroPreview').style.display = 'none';
+                currentMarketplaceImageData = null;
+
+            } catch (error) {
+                console.error('Error saving marketplace hero background:', error);
+                showError('Error saving background: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Background';
+            }
+        }
+
+        async function removeMarketplaceHero() {
+            if (!confirm('Are you sure you want to remove the marketplace hero background?')) return;
+
+            const btn = document.getElementById('removeMarketplaceHeroBtn');
+            btn.disabled = true;
+            btn.textContent = 'Removing...';
+
+            try {
+                const { error } = await supabase
+                    .from('platform_settings')
+                    .delete()
+                    .eq('setting_key', 'marketplace_hero_background');
+
+                if (error) throw error;
+
+                showSuccess('Marketplace hero background removed successfully!');
+                await loadCurrentMarketplaceHero();
+
+                document.getElementById('marketplaceHeroInput').value = '';
+                document.getElementById('marketplaceHeroPreview').style.display = 'none';
+                currentMarketplaceImageData = null;
+
+            } catch (error) {
+                console.error('Error removing marketplace hero background:', error);
+                showError('Error removing background: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Remove Background';
+            }
+        }
+
+        async function loadCurrentMarketplaceHero() {
+            try {
+                const { data, error} = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'marketplace_hero_background')
+                    .single();
+
+                const currentBg = document.getElementById('currentMarketplaceHero');
+
+                if (!error && data && data.setting_value && data.setting_value.images && data.setting_value.images.length > 0) {
+                    const imageUrl = data.setting_value.images[0];
+                    currentBg.style.backgroundImage = `url(${imageUrl})`;
+                    currentBg.textContent = '';
+                } else {
+                    currentBg.style.backgroundImage = '';
+                    currentBg.textContent = 'No background set';
+                }
+            } catch (error) {
+                console.error('Error loading current marketplace hero background:', error);
+            }
+
+            // Load text colors
+            try {
+                const { data, error } = await supabase
+                    .from('platform_settings')
+                    .select('setting_value')
+                    .eq('setting_key', 'marketplace_text_colors')
+                    .single();
+
+                if (!error && data && data.setting_value) {
+                    const titleColor = data.setting_value.titleColor || '#ffffff';
+                    const subtitleColor = data.setting_value.subtitleColor || '#ffffff';
+
+                    document.getElementById('marketplaceTitleColor').value = titleColor;
+                    document.getElementById('marketplaceTitleColorHex').value = titleColor;
+                    document.getElementById('marketplaceSubtitleColor').value = subtitleColor;
+                    document.getElementById('marketplaceSubtitleColorHex').value = subtitleColor;
+                }
+            } catch (error) {
+                console.error('Error loading marketplace text colors:', error);
+            }
+        }
+
+        // Sync color picker with hex input
+        function syncMarketplaceColors() {
+            const titleColor = document.getElementById('marketplaceTitleColor');
+            const titleHex = document.getElementById('marketplaceTitleColorHex');
+            const subtitleColor = document.getElementById('marketplaceSubtitleColor');
+            const subtitleHex = document.getElementById('marketplaceSubtitleColorHex');
+
+            titleColor.addEventListener('input', (e) => titleHex.value = e.target.value);
+            titleHex.addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    titleColor.value = e.target.value;
+                }
+            });
+
+            subtitleColor.addEventListener('input', (e) => subtitleHex.value = e.target.value);
+            subtitleHex.addEventListener('input', (e) => {
+                if (/^#[0-9A-F]{6}$/i.test(e.target.value)) {
+                    subtitleColor.value = e.target.value;
+                }
+            });
+        }
+
+        async function saveMarketplaceTextColors() {
+            const titleColor = document.getElementById('marketplaceTitleColorHex').value;
+            const subtitleColor = document.getElementById('marketplaceSubtitleColorHex').value;
+
+            try {
+                const { error } = await supabase
+                    .from('platform_settings')
+                    .upsert({
+                        setting_key: 'marketplace_text_colors',
+                        setting_value: { titleColor, subtitleColor }
+                    }, {
+                        onConflict: 'setting_key'
+                    });
+
+                if (error) throw error;
+
+                showSuccess('Marketplace text colors saved successfully!');
+            } catch (error) {
+                console.error('Error saving marketplace text colors:', error);
+                showError('Error saving text colors: ' + error.message);
+            }
+        }
+
+        // ============================================
+        // BANNER MANAGEMENT
+        // ============================================
+
+        let currentBannerImage = null;
+
+        async function loadBanners() {
+            const tbody = document.getElementById('bannersTableBody');
+            tbody.innerHTML = '<tr><td colspan="7" class="loading-row">Loading banners...</td></tr>';
+
+            try {
+                const { data: banners, error } = await supabase
+                    .from('banners')
+                    .select('*')
+                    .order('display_order', { ascending: true });
+
+                if (error) throw error;
+
+                if (!banners || banners.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">No banners found. Click "Add Banner" to create one.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = banners.map(banner => `
+                    <tr>
+                        <td>
+                            <img src="${banner.image_url}" alt="${banner.title}"
+                                style="width: 120px; height: 40px; object-fit: cover; border-radius: 4px;">
+                        </td>
+                        <td><strong>${banner.category}</strong></td>
+                        <td>${banner.title}</td>
+                        <td>${banner.description || '-'}</td>
+                        <td>
+                            <span class="badge ${banner.is_active ? 'badge-success' : 'badge-warning'}">
+                                ${banner.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </td>
+                        <td>${banner.display_order}</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" onclick="editBanner('${banner.id}')">Edit</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteBanner('${banner.id}')">Delete</button>
+                        </td>
+                    </tr>
+                `).join('');
+
+            } catch (error) {
+                console.error('Error loading banners:', error);
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Error loading banners: ${error.message}</td></tr>`;
+            }
+        }
+
+        function openAddBannerModal() {
+            document.getElementById('bannerModalTitle').textContent = 'Add Banner';
+            document.getElementById('bannerSubmitBtn').textContent = 'Add Banner';
+            document.getElementById('bannerForm').reset();
+            document.getElementById('bannerId').value = '';
+            document.getElementById('bannerImagePreview').style.backgroundImage = '';
+            document.getElementById('bannerImagePreview').textContent = 'No image selected';
+            currentBannerImage = null;
+            document.getElementById('bannerModal').style.display = 'flex';
+        }
+
+        function closeBannerModal() {
+            document.getElementById('bannerModal').style.display = 'none';
+            document.getElementById('bannerForm').reset();
+            currentBannerImage = null;
+        }
+
+        function previewBannerImage(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showWarning('Image size must be less than 5MB');
+                input.value = '';
+                return;
+            }
+
+            if (!file.type.startsWith('image/')) {
+                showWarning('Please select a valid image file');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentBannerImage = e.target.result;
+                const preview = document.getElementById('bannerImagePreview');
+                preview.style.backgroundImage = `url(${currentBannerImage})`;
+                preview.textContent = '';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function handleBannerSubmit(event) {
+            event.preventDefault();
+            const submitBtn = document.getElementById('bannerSubmitBtn');
+            const originalText = submitBtn.textContent;
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
+
+            try {
+                const bannerId = document.getElementById('bannerId').value;
+                const category = document.getElementById('bannerCategory').value;
+                const title = document.getElementById('bannerTitle').value;
+                const description = document.getElementById('bannerDescription').value;
+                const displayOrder = parseInt(document.getElementById('bannerOrder').value) || 0;
+                const isActive = document.getElementById('bannerActive').checked;
+
+                const bannerData = {
+                    category,
+                    title,
+                    description,
+                    display_order: displayOrder,
+                    is_active: isActive
+                };
+
+                // Add or update image
+                if (currentBannerImage) {
+                    bannerData.image_url = currentBannerImage;
+                } else if (!bannerId) {
+                    showWarning('Please select a banner image');
+                    return;
+                }
+
+                if (bannerId) {
+                    // Update existing banner
+                    const { error } = await supabase
+                        .from('banners')
+                        .update(bannerData)
+                        .eq('id', bannerId);
+
+                    if (error) throw error;
+                    showSuccess('Banner updated successfully!');
+                } else {
+                    // Insert new banner
+                    const { error } = await supabase
+                        .from('banners')
+                        .insert(bannerData);
+
+                    if (error) throw error;
+                    showSuccess('Banner added successfully!');
+                }
+
+                closeBannerModal();
+                loadBanners();
+
+            } catch (error) {
+                console.error('Error saving banner:', error);
+                showError('Error saving banner: ' + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = originalText;
+            }
+        }
+
+        async function editBanner(bannerId) {
+            try {
+                const { data: banner, error } = await supabase
+                    .from('banners')
+                    .select('*')
+                    .eq('id', bannerId)
+                    .single();
+
+                if (error) throw error;
+
+                document.getElementById('bannerModalTitle').textContent = 'Edit Banner';
+                document.getElementById('bannerSubmitBtn').textContent = 'Update Banner';
+                document.getElementById('bannerId').value = banner.id;
+                document.getElementById('bannerCategory').value = banner.category;
+                document.getElementById('bannerTitle').value = banner.title;
+                document.getElementById('bannerDescription').value = banner.description || '';
+                document.getElementById('bannerOrder').value = banner.display_order;
+                document.getElementById('bannerActive').checked = banner.is_active;
+
+                // Show current image
+                const preview = document.getElementById('bannerImagePreview');
+                preview.style.backgroundImage = `url(${banner.image_url})`;
+                preview.textContent = '';
+                currentBannerImage = banner.image_url;
+
+                document.getElementById('bannerModal').style.display = 'flex';
+
+            } catch (error) {
+                console.error('Error loading banner:', error);
+                alert('Error loading banner: ' + error.message);
+            }
+        }
+
+        async function deleteBanner(bannerId) {
+            showConfirmModal(
+                'Delete Banner?',
+                'Are you sure you want to delete this banner?',
+                async () => {
+                    try {
+                        const { error } = await supabase
+                            .from('banners')
+                            .delete()
+                            .eq('id', bannerId);
+
+                        if (error) throw error;
+
+                        showSuccess('Banner deleted successfully!');
+                        loadBanners();
+
+                    } catch (error) {
+                        console.error('Error deleting banner:', error);
+                        showError('Error deleting banner: ' + error.message);
+                    }
+                }
+            );
+        }
+
+        // Homepage Cards Management
+        async function loadHomepageCardsData() {
+            // Try Supabase first, fallback to localStorage
+            if (typeof HomepageDB !== 'undefined') {
+                const result = await HomepageDB.getCards();
+                homepageCardsData = result.data || getDefaultHomepageCards();
+            } else {
+                const stored = localStorage.getItem('homepageCards');
+                homepageCardsData = stored ? JSON.parse(stored) : getDefaultHomepageCards();
+            }
+            renderHomepageCards();
+        }
+
+        function getDefaultHomepageCards() {
+            return [
+                {
+                    title: 'Shop by Category',
+                    tiles: [
+                        { label: 'Electronics', category: 'electronics' },
+                        { label: 'Fashion', category: 'fashion' },
+                        { label: 'Home & Kitchen', category: 'home' },
+                        { label: 'Beauty & Care', category: 'beauty' }
+                    ],
+                    link: 'marketplace.html',
+                    linkText: 'Shop all categories'
+                },
+                {
+                    title: 'Refresh your space',
+                    tiles: [
+                        { label: 'Living Room', category: 'home' },
+                        { label: 'Bedding', category: 'home' },
+                        { label: 'Decor', category: 'home' },
+                        { label: 'Storage', category: 'home' }
+                    ],
+                    link: 'marketplace.html?category=home',
+                    linkText: 'See more'
+                },
+                {
+                    title: 'Electronics',
+                    tiles: [
+                        { label: 'Laptops', category: 'electronics' },
+                        { label: 'Phones', category: 'electronics' },
+                        { label: 'Headsets', category: 'electronics' },
+                        { label: 'Accessories', category: 'electronics' }
+                    ],
+                    link: 'marketplace.html?category=electronics',
+                    linkText: 'See deals in Electronics'
+                }
+            ];
+        }
+
+        function renderHomepageCards() {
+            const container = document.getElementById('homepageCardsContainer');
+            if (!container) return;
+
+            container.innerHTML = homepageCardsData.map((card, idx) => `
+                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+                    <h4 style="margin-bottom: 15px;">Card ${idx + 1}: ${card.title}</h4>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
+                        ${card.tiles.map(tile => `
+                            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; text-align: center;">
+                                ${tile.label}
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div style="color: #6b7280; font-size: 13px;">
+                        Link: ${card.link} | Text: "${card.linkText}"
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function saveHomepageCards() {
+            if (typeof HomepageDB !== 'undefined') {
+                const result = await HomepageDB.saveCards(homepageCardsData);
+                if (result.success) {
+                    alert('Homepage cards saved successfully!');
+                } else {
+                    alert('Error saving cards: ' + result.error);
+                }
+            } else {
+                localStorage.setItem('homepageCards', JSON.stringify(homepageCardsData));
+                alert('Homepage cards saved successfully!');
+            }
+        }
+
+        function resetHomepageCards() {
+            if (confirm('Reset all cards to default settings?')) {
+                homepageCardsData = getDefaultHomepageCards();
+                renderHomepageCards();
+                saveHomepageCards();
             }
         }
 
@@ -1023,124 +2641,18 @@
         // INITIALIZE
         // ============================================
 
-        // Settings form handler
-        document.getElementById('settingsForm').addEventListener('submit', saveSettings);
-
         // Load dashboard on page load
         window.addEventListener('load', () => {
+            // Settings form handler
+            const settingsForm = document.getElementById('settingsForm');
+            if (settingsForm) {
+                settingsForm.addEventListener('submit', saveSettings);
+            }
+
             loadDashboard();
         });
     </script>
 
-    <!-- Global Footer -->
-<footer class="global-footer">
-    <div class="footer-container">
-        <div class="footer-main">
-            <div class="footer-column">
-                <h3>Shop</h3>
-                <ul>
-                    <li><a href="marketplace.html">All Products</a></li>
-                    <li><a href="marketplace.html?category=electronics">Electronics</a></li>
-                    <li><a href="marketplace.html?category=fashion">Fashion</a></li>
-                    <li><a href="marketplace.html?category=home">Home & Garden</a></li>
-                    <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
-                    <li><a href="marketplace.html?category=books">Books</a></li>
-                    <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
-                    <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>Sell</h3>
-                <ul>
-                    <li><a href="seller.html">Seller Dashboard</a></li>
-                    <li><a href="index.html">Start Selling</a></li>
-                    <li><a href="seller-profile.html">Seller Profile</a></li>
-                    <li><a href="#">Seller Tools</a></li>
-                    <li><a href="#">Seller University</a></li>
-                    <li><a href="#">Advertising</a></li>
-                    <li><a href="#">Pricing</a></li>
-                    <li><a href="#">Resources</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>Customer Service</h3>
-                <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Track Your Order</a></li>
-                    <li><a href="#">Returns & Refunds</a></li>
-                    <li><a href="#">Shipping Info</a></li>
-                    <li><a href="#">Payment Methods</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">Report an Issue</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>About Us</h3>
-                <ul>
-                    <li><a href="#">About London Marketplace</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Press Center</a></li>
-                    <li><a href="#">Investor Relations</a></li>
-                    <li><a href="#">Sustainability</a></li>
-                    <li><a href="#">Community Impact</a></li>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">Success Stories</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>Account</h3>
-                <ul>
-                    <li><a href="index.html">Sign In</a></li>
-                    <li><a href="index.html">Create Account</a></li>
-                    <li><a href="#">My Orders</a></li>
-                    <li><a href="#">Wishlist</a></li>
-                    <li><a href="#">Account Settings</a></li>
-                    <li><a href="#">Gift Cards</a></li>
-                    <li><a href="#">Subscriptions</a></li>
-                    <li><a href="#">Notifications</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>Resources</h3>
-                <ul>
-                    <li><a href="#">Buyer Protection</a></li>
-                    <li><a href="#">Trust & Safety</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Cookie Policy</a></li>
-                    <li><a href="#">Accessibility</a></li>
-                    <li><a href="#">Sitemap</a></li>
-                    <li><a href="#">Mobile App</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div class="footer-bottom">
-            <div class="footer-logo">
-                <img src="images/logo-new.svg" alt="London Marketplace">
-            </div>
-
-            <div class="footer-links">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Cookie Policy</a>
-                <a href="#">Accessibility</a>
-                <a href="#">Do Not Sell My Personal Information</a>
-                <a href="#">Interest-Based Ads</a>
-            </div>
-
-            <div class="footer-copyright">
-                &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
-            </div>
-        </div>
-    </div>
-</footer>
 
 </body>
 </html>

@@ -26,6 +26,13 @@ class SessionManager {
         localStorage.setItem('userEmail', user.email);
         localStorage.setItem('userRole', role);
 
+        // Store user name if available
+        if (user.full_name) {
+            localStorage.setItem('userName', user.full_name);
+        } else if (user.user_metadata?.full_name) {
+            localStorage.setItem('userName', user.user_metadata.full_name);
+        }
+
         return session;
     }
 
@@ -90,7 +97,7 @@ class SessionManager {
     }
 
     // Validate session and redirect if not authenticated
-    requireAuth(redirectUrl = 'index.html') {
+    requireAuth(redirectUrl = 'auth.html') {
         if (!this.isAuthenticated()) {
             window.location.href = redirectUrl;
             return false;
@@ -99,7 +106,7 @@ class SessionManager {
     }
 
     // Require specific role
-    requireRole(requiredRole, redirectUrl = 'index.html') {
+    requireRole(requiredRole, redirectUrl = 'auth.html') {
         if (!this.isAuthenticated()) {
             window.location.href = redirectUrl;
             return false;
@@ -126,6 +133,7 @@ class SessionManager {
         localStorage.removeItem(this.SESSION_KEY);
         localStorage.removeItem('userId');
         localStorage.removeItem('userEmail');
+        localStorage.removeItem('userName');
         localStorage.removeItem('userRole');
         localStorage.removeItem('isAdmin');
 
@@ -137,7 +145,7 @@ class SessionManager {
     checkLoggedOut() {
         if (sessionStorage.getItem('logged_out') === 'true') {
             sessionStorage.removeItem('logged_out');
-            window.location.replace('index.html');
+            window.location.replace('auth.html');
             return true;
         }
         return false;

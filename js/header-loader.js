@@ -10,7 +10,7 @@ const HeaderLoader = {
             { text: 'Sign In', href: 'index.html', icon: 'user' }
         ],
         marketplace: [
-            { text: 'Home', href: 'home.html', icon: 'home' },
+            { text: 'Home', href: 'index.html', icon: 'home' },
             { text: 'Sell on London', href: 'seller.html', icon: 'home' },
             { text: 'Cart', action: 'toggleCart', icon: 'cart', badge: true },
             { text: 'Sign Out', href: 'index.html', icon: 'signout' }
@@ -22,7 +22,6 @@ const HeaderLoader = {
             { text: 'Sign Out', href: 'index.html', action: 'handleLogout' }
         ],
         auth: [
-            { text: 'Back to Home', href: 'home.html', icon: 'home' },
             { text: 'Browse Products', href: 'marketplace.html' },
             { text: 'Sell on Marketplace', href: 'seller.html', icon: 'home' }
         ]
@@ -87,7 +86,18 @@ const HeaderLoader = {
 
         const config = this.navConfigs[pageType] || this.navConfigs.home;
 
-        navContainer.innerHTML = config.map(item => {
+        // Check if user is logged in
+        const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
+        const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
+        const userName = localStorage.getItem('userName') || sessionStorage.getItem('userName');
+
+        let welcomeMessage = '';
+        if (userId && pageType !== 'auth') {
+            const displayName = userName || userEmail?.split('@')[0] || 'User';
+            welcomeMessage = `<span class="nav-link" style="color: var(--accent-color); font-weight: 600; pointer-events: none;">Welcome, ${displayName}</span>`;
+        }
+
+        const navLinks = config.map(item => {
             const icon = item.icon ? this.icons[item.icon] : '';
             const badge = item.badge ? '<span class="cart-badge" id="cartBadge">0</span>' : '';
             const activeClass = item.active ? ' active' : '';
@@ -101,6 +111,8 @@ const HeaderLoader = {
                 return `<span class="nav-link${activeClass}">${item.text}</span>`;
             }
         }).join('');
+
+        navContainer.innerHTML = welcomeMessage + navLinks;
     },
 
     // Set up global event listeners
