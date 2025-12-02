@@ -423,10 +423,35 @@
         </div>
     </div>
 
+    <!-- Success Modal -->
+    <div id="successModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 540px; text-align: center;">
+            <div style="margin-bottom: 24px;">
+                <div style="width: 80px; height: 80px; margin: 0 auto 20px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                    <svg width="48" height="48" fill="none" stroke="#10b981" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M5 13l4 4L19 7"/>
+                    </svg>
+                </div>
+                <h3 style="font-size: 24px; font-weight: 600; color: var(--primary-color); margin: 0 0 12px 0;">Application Submitted Successfully!</h3>
+                <p style="color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0 0 8px 0;">
+                    Your seller application has been submitted and is pending admin approval.
+                </p>
+                <p style="color: #6b7280; font-size: 15px; line-height: 1.6; margin: 0;">
+                    You will receive an email notification once your account has been reviewed.
+                </p>
+                <p style="color: var(--accent-color); font-size: 14px; font-weight: 500; margin: 16px 0 0 0;">
+                    Thank you for choosing London Star Marketplace!
+                </p>
+            </div>
+            <button class="btn btn-primary" onclick="closeSuccessModal()" style="min-width: 150px;">Continue</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-init.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/toast.js"></script>
     <script>
         async function handleRegistration(e) {
             e.preventDefault();
@@ -470,13 +495,18 @@
 
                 if (authError) throw authError;
 
-                // Wait a bit for the trigger to create the user profile
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                console.log('✅ Auth user created:', authData.user.id);
 
-                // Update user profile with seller role and pending status
-                const { error: profileError } = await supabase
+                // Wait a bit for auth session to fully establish
+                await new Promise(resolve => setTimeout(resolve, 2000));
+
+                // Use UPSERT to overwrite any auto-created profile with seller data
+                console.log('📝 Creating/updating seller profile with UPSERT...');
+                const { data: upsertData, error: upsertError } = await supabase
                     .from('users')
-                    .update({
+                    .upsert({
+                        id: authData.user.id,
+                        email: formData.email,
                         full_name: formData.fullName,
                         role: 'seller',
                         status: 'pending',
@@ -497,23 +527,54 @@
                             agreeMarketing: formData.agreeMarketing,
                             applicationDate: new Date().toISOString()
                         }
+                    }, {
+                        onConflict: 'id',
+                        ignoreDuplicates: false
                     })
-                    .eq('id', authData.user.id);
+                    .select();
 
-                if (profileError) throw profileError;
+                if (upsertError) {
+                    console.error('❌ Error upserting seller profile:', upsertError);
+                    throw upsertError;
+                }
 
-                // Show success message
-                alert('Application Submitted Successfully!\n\nYour seller application has been submitted and is pending admin approval. You will receive an email notification once your account has been reviewed.\n\nThank you for choosing London Star Marketplace!');
+                console.log('✅ Seller profile upserted:', upsertData);
 
-                // Redirect to home
-                window.location.href = 'index.html';
+                // Verify the seller was created correctly
+                const { data: verifyData, error: verifyError } = await supabase
+                    .from('users')
+                    .select('id, email, role, status')
+                    .eq('id', authData.user.id)
+                    .single();
+
+                if (verifyError) {
+                    console.error('❌ Error verifying seller profile:', verifyError);
+                    throw verifyError;
+                }
+
+                console.log('✅ Verification - Seller exists:', verifyData);
+
+                if (verifyData.role !== 'seller' || verifyData.status !== 'pending') {
+                    throw new Error(`Profile verification failed. Role: ${verifyData.role}, Status: ${verifyData.status}`);
+                }
+
+                console.log('✅ Seller registration complete!');
+
+                // Show success modal
+                document.getElementById('successModal').style.display = 'flex';
 
             } catch (error) {
                 console.error('Registration error:', error);
-                alert('Error submitting application: ' + error.message);
+                showError('Error submitting application: ' + error.message);
                 submitBtn.disabled = false;
                 submitBtn.textContent = 'Submit Application';
             }
+        }
+
+        // Close success modal and redirect
+        function closeSuccessModal() {
+            document.getElementById('successModal').style.display = 'none';
+            window.location.href = 'index.html';
         }
 
         // Hide loading screen

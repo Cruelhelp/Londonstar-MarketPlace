@@ -28,17 +28,16 @@ The app runs as static HTML - just open `index.html` in a browser or use Python'
 - `admin-cards.html` - Admin homepage card management
 
 ### Admin Access
-- Username: `admin`
-- Password: `admin123`
-- Bypasses Supabase authentication, sets localStorage flags, redirects to `admin-cards.html`
+- Create admin account through signup form
+- Run SQL to upgrade user role to 'admin'
+- Login with admin credentials to access admin panel
 
 ## Code Architecture
 
 ### Authentication Flow
-1. User signs in via `index.html` → `js/auth.js` handles Supabase auth
+1. User signs in via `auth.html` → `js/auth.js` handles Supabase auth
 2. On success → `js/session-manager.js` creates session in localStorage
 3. Role-based redirect: seller → `seller.html`, buyer → `marketplace.html`, admin → `admin.html`
-4. Admin bypass: username "admin" + password "admin123" → direct to `admin-cards.html`
 
 ### Supabase Integration Pattern
 The app uses a **dual-mode system**:
@@ -161,16 +160,9 @@ const { data, error } = await supabaseClient.storage
 
 ## Role-Based Routing Logic
 
-**index.html (lines 304-356)**:
+**auth.html - Authentication flow**:
 ```javascript
-// Admin bypass
-if (email === 'admin' && password === 'admin123') {
-    localStorage.setItem('userRole', 'admin');
-    localStorage.setItem('isAdmin', 'true');
-    window.location.href = 'admin-cards.html';
-}
-
-// Regular Supabase auth
+// Supabase authentication
 const role = await authHandler.getUserRole(user.id);
 sessionManager.createSession(user, role);
 if (role === 'seller') window.location.href = 'seller.html';
@@ -271,7 +263,7 @@ localStorage.getItem('isAdmin')
 ### Common Issues
 - **"relation does not exist"**: Run `supabase-schema.sql` in Supabase dashboard
 - **Images not loading**: Check Base64 string length, verify 5MB limit
-- **Admin redirect fails**: Verify exact credentials: "admin" / "admin123"
+- **Admin access denied**: Ensure user role is 'admin' in database
 - **RLS errors**: Check user is authenticated and has correct role
 
 ## Design Principles
@@ -285,7 +277,7 @@ localStorage.getItem('isAdmin')
 
 ## Testing Workflow
 
-1. **Demo Mode**: Open `index.html`, sign up as buyer/seller
+1. **Demo Mode**: Open `auth.html`, sign up as buyer/seller
 2. **Production Mode**: Set up Supabase, run schema, update config
-3. **Admin Testing**: Login with admin/admin123, test homepage customization
+3. **Admin Testing**: Create admin account, upgrade role via SQL, test admin features
 4. **Cross-role Testing**: Create multiple accounts to test buyer/seller flows

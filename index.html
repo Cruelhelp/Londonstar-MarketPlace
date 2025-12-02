@@ -150,8 +150,8 @@
         }
 
         .hero-promo-banner {
-            background: white;
-            border: 1px solid #e5e7eb;
+            background: transparent;
+            border: none;
             border-radius: 16px;
             padding: 30px;
             display: grid;
@@ -1137,9 +1137,9 @@
                 </div>
             </div>
             <div class="hero-promo-banner">
-                <div class="promo-item" id="promo1"></div>
-                <div class="promo-item" id="promo2"></div>
-                <div class="promo-item" id="promo3"></div>
+                <div class="promo-item scroll-fade" id="promo1"></div>
+                <div class="promo-item scroll-fade" id="promo2"></div>
+                <div class="promo-item scroll-fade" id="promo3"></div>
             </div>
         </div>
     </div>
@@ -1515,7 +1515,7 @@
                     const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
 
                     return `
-                    <div class="product-card" onclick="viewProduct('${product.id}')">
+                    <div class="product-card scroll-fade" onclick="viewProduct('${product.id}')">
                         <img src="${firstImage}" alt="${product.name}" class="product-image">
                         <div class="product-title">${product.name}</div>
                         <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
@@ -1526,6 +1526,13 @@
                     </div>
                     `;
                 }).join('');
+
+                // Trigger scroll effects for new product cards
+                setTimeout(() => {
+                    if (window.scrollEffects) {
+                        window.scrollEffects.addScrollFade('.product-card');
+                    }
+                }, 100);
             } catch (error) {
                 console.error('Error loading featured products:', error);
                 featuredGrid.style.display = 'none';
@@ -1795,5 +1802,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/scroll-effects.js"></script>
 </body>
 </html>

@@ -370,6 +370,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/session-manager.js"></script>
+    <script src="js/scroll-effects.js"></script>
 
     <script>
         let allProducts = [];
@@ -421,7 +422,7 @@
                 const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
 
                 return `
-                <div class="product-card" onclick="viewProduct('${product.id}')">
+                <div class="product-card scroll-fade" onclick="viewProduct('${product.id}')">
                     <img src="${firstImage}" alt="${product.name}" class="product-image">
                     <div class="product-title">${product.name}</div>
                     <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
@@ -432,6 +433,11 @@
                 </div>
                 `;
             }).join('');
+
+            // Trigger scroll effects for new product cards
+            if (window.scrollEffects) {
+                window.scrollEffects.addScrollFade('.product-card');
+            }
         }
 
         // Filter by category

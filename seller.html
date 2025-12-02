@@ -239,6 +239,7 @@
     <script src="js/supabase-init.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/auth.js"></script>
+    <script src="js/scroll-effects.js"></script>
     <script src="js/product-manager.js"></script>
     <script>
         let products = [];
@@ -350,7 +351,7 @@
             emptyState.style.display = 'none';
 
             grid.innerHTML = products.map(product => `
-                <div class="product-card">
+                <div class="product-card scroll-fade">
                     <img src="${product.images[0]}" alt="${product.name}" class="product-image">
                     <div class="product-title">${product.name}</div>
                     <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
@@ -364,6 +365,11 @@
                     </div>
                 </div>
             `).join('');
+
+            // Trigger scroll effects for product cards
+            if (window.scrollEffects) {
+                window.scrollEffects.addScrollFade('.product-card');
+            }
         }
 
         // Update stats
