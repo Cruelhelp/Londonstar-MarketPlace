@@ -54,6 +54,58 @@ const HomepageDB = {
         }
     },
 
+    // Auth Page Background Management
+    async saveAuthBackground(imageData) {
+        try {
+            const { data, error } = await supabaseClient
+                .from('homepage_settings')
+                .upsert({
+                    id: 1,
+                    auth_background: imageData,
+                    updated_at: new Date().toISOString()
+                })
+                .select();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error saving auth background:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async getAuthBackground() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('homepage_settings')
+                .select('auth_background')
+                .eq('id', 1)
+                .single();
+
+            if (error && error.code !== 'PGRST116') throw error;
+            return { success: true, data: data?.auth_background || null };
+        } catch (error) {
+            console.error('Error getting auth background:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
+    async removeAuthBackground() {
+        try {
+            const { data, error } = await supabaseClient
+                .from('homepage_settings')
+                .update({ auth_background: null, updated_at: new Date().toISOString() })
+                .eq('id', 1)
+                .select();
+
+            if (error) throw error;
+            return { success: true, data };
+        } catch (error) {
+            console.error('Error removing auth background:', error);
+            return { success: false, error: error.message };
+        }
+    },
+
     // Homepage Cards Management
     async saveCards(cardsData) {
         try {

@@ -497,48 +497,71 @@
 
                 console.log('✅ Auth user created:', authData.user.id);
 
-                // Wait a bit for auth session to fully establish
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                // Check if session was created (depends on email confirmation settings)
+                let session = authData.session;
 
-                // Use UPSERT to overwrite any auto-created profile with seller data
-                console.log('📝 Creating/updating seller profile with UPSERT...');
-                const { data: upsertData, error: upsertError } = await supabase
-                    .from('users')
-                    .upsert({
-                        id: authData.user.id,
+                if (!session) {
+                    console.log('⚠️ No session from signup, attempting to sign in...');
+
+                    // If email confirmation is required, we need to sign in
+                    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
                         email: formData.email,
-                        full_name: formData.fullName,
-                        role: 'seller',
-                        status: 'pending',
-                        phone: formData.phone,
-                        metadata: {
-                            businessName: formData.businessName,
-                            businessType: formData.businessType,
-                            taxId: formData.taxId,
-                            businessAddress: formData.businessAddress,
-                            city: formData.city,
-                            state: formData.state,
-                            postalCode: formData.postalCode,
-                            country: formData.country,
-                            primaryCategory: formData.primaryCategory,
-                            businessDescription: formData.businessDescription,
-                            salesVolume: formData.salesVolume,
-                            website: formData.website,
-                            agreeMarketing: formData.agreeMarketing,
-                            applicationDate: new Date().toISOString()
-                        }
-                    }, {
-                        onConflict: 'id',
-                        ignoreDuplicates: false
-                    })
-                    .select();
+                        password: formData.password
+                    });
 
-                if (upsertError) {
-                    console.error('❌ Error upserting seller profile:', upsertError);
-                    throw upsertError;
+                    if (signInError) {
+                        console.error('❌ Sign in error:', signInError);
+                        throw new Error('Account created but could not sign in. Your email may need to be confirmed first.');
+                    }
+
+                    session = signInData.session;
+                    console.log('✅ Signed in successfully');
                 }
 
-                console.log('✅ Seller profile upserted:', upsertData);
+                console.log('🔐 Session established:', session ? 'Authenticated' : 'Not authenticated', session?.user?.id);
+
+                if (!session || !session.user) {
+                    throw new Error('Authentication session not established. Please check your email for confirmation link.');
+                }
+
+                // Use database function to create seller profile (bypasses RLS)
+                console.log('📝 Creating seller profile using database function...');
+                const { data: profileData, error: profileError } = await supabase.rpc('create_seller_profile', {
+                    user_id: authData.user.id,
+                    user_email: formData.email,
+                    user_full_name: formData.fullName,
+                    user_phone: formData.phone,
+                    user_metadata: {
+                        businessName: formData.businessName,
+                        businessType: formData.businessType,
+                        taxId: formData.taxId,
+                        businessAddress: formData.businessAddress,
+                        city: formData.city,
+                        state: formData.state,
+                        postalCode: formData.postalCode,
+                        country: formData.country,
+                        primaryCategory: formData.primaryCategory,
+                        businessDescription: formData.businessDescription,
+                        salesVolume: formData.salesVolume,
+                        website: formData.website,
+                        agreeMarketing: formData.agreeMarketing,
+                        applicationDate: new Date().toISOString()
+                    }
+                });
+
+                if (profileError) {
+                    console.error('❌ Error creating seller profile:', profileError);
+
+                    // Check if function doesn't exist
+                    if (profileError.message && profileError.message.includes('function') && profileError.message.includes('does not exist')) {
+                        console.error('⚠️ DATABASE FUNCTION MISSING! Run migration-seller-registration-function.sql in Supabase SQL Editor');
+                        throw new Error('Database function not found. Please run the seller registration migration.');
+                    }
+
+                    throw profileError;
+                }
+
+                console.log('✅ Seller profile created:', profileData);
 
                 // Verify the seller was created correctly
                 const { data: verifyData, error: verifyError } = await supabase

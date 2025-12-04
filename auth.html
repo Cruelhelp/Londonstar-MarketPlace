@@ -13,6 +13,10 @@
             background: #ffffff;
             position: relative;
             overflow-x: hidden;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
         }
 
         /* Floating bubbles abstract art */
@@ -532,6 +536,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-init.js"></script>
+    <script src="js/supabase-homepage.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/auth.js"></script>
     <script>
@@ -670,11 +675,31 @@
             }
         }
 
+        // Load custom auth background
+        async function loadAuthBackground() {
+            try {
+                const result = await HomepageDB.getAuthBackground();
+                if (result.success && result.data) {
+                    document.body.style.backgroundImage = `url(${result.data})`;
+                    // Hide default bubbles if custom background is set
+                    const bubbles = document.querySelector('.background-bubbles');
+                    if (bubbles) bubbles.style.display = 'none';
+                }
+            } catch (error) {
+                console.log('No custom auth background set, using default');
+            }
+        }
+
         // Hide loading screen when page loads
         window.addEventListener('load', () => {
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
             }, 1500);
+
+            // Load custom background
+            if (typeof HomepageDB !== 'undefined') {
+                loadAuthBackground();
+            }
         });
     </script>
 </body>

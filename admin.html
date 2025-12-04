@@ -505,32 +505,307 @@
         <!-- Settings Tab -->
         <div class="tab-content" id="settings">
             <h1 style="margin-bottom: 30px;">Platform Settings</h1>
-            <div class="card">
-                <h3>General Settings</h3>
-                <form id="settingsForm" style="margin-top: 20px;">
-                    <div class="form-group">
-                        <label>Platform Name</label>
-                        <input type="text" id="platformName" required>
+
+            <!-- General Settings -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">General Settings</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Basic platform configuration</p>
+
+                <form id="generalSettingsForm" style="margin-top: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Platform Name</label>
+                            <input type="text" id="platformName" placeholder="London Star Marketplace" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Platform Tagline</label>
+                            <input type="text" id="platformTagline" placeholder="Premium Marketplace for Quality Products">
+                        </div>
+                        <div class="form-group">
+                            <label>Support Email</label>
+                            <input type="email" id="platformEmail" placeholder="support@londonstar.com" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number</label>
+                            <input type="tel" id="platformPhone" placeholder="+1 (555) 123-4567">
+                        </div>
+                        <div class="form-group">
+                            <label>Currency</label>
+                            <select id="currency" required>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="JMD">JMD - Jamaican Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Timezone</label>
+                            <select id="timezone">
+                                <option value="America/Jamaica">America/Jamaica (GMT-5)</option>
+                                <option value="America/New_York">America/New_York (EST)</option>
+                                <option value="America/Los_Angeles">America/Los_Angeles (PST)</option>
+                                <option value="Europe/London">Europe/London (GMT)</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
-                        <label>Platform Email</label>
-                        <input type="email" id="platformEmail" required>
+                        <label>Platform Description (SEO)</label>
+                        <textarea id="platformDescription" rows="3" placeholder="A premium e-commerce marketplace offering quality products worldwide..."></textarea>
                     </div>
-                    <div class="form-group">
-                        <label>Commission Rate (%)</label>
-                        <input type="number" id="commissionRate" min="0" max="100" step="0.01" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Currency</label>
-                        <select id="currency" required>
-                            <option value="USD">USD - US Dollar</option>
-                            <option value="GBP">GBP - British Pound</option>
-                            <option value="EUR">EUR - Euro</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn btn-primary" id="saveSettingsBtn">Save Settings</button>
+                    <button type="submit" class="btn btn-primary">Save General Settings</button>
                 </form>
             </div>
+
+            <!-- Business Settings -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Business Settings</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Commission, fees, and business rules</p>
+
+                <form id="businessSettingsForm" style="margin-top: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Commission Rate (%)</label>
+                            <input type="number" id="commissionRate" min="0" max="100" step="0.01" placeholder="5.00" required>
+                            <small style="color: #6b7280;">Percentage charged on each sale</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Minimum Order Amount</label>
+                            <input type="number" id="minOrderAmount" min="0" step="0.01" placeholder="10.00">
+                            <small style="color: #6b7280;">Minimum order value (leave blank for no minimum)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Shipping Fee</label>
+                            <input type="number" id="shippingFee" min="0" step="0.01" placeholder="5.00">
+                            <small style="color: #6b7280;">Flat shipping rate (0 for free shipping)</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Free Shipping Threshold</label>
+                            <input type="number" id="freeShippingThreshold" min="0" step="0.01" placeholder="50.00">
+                            <small style="color: #6b7280;">Order value for free shipping</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Tax Rate (%)</label>
+                            <input type="number" id="taxRate" min="0" max="100" step="0.01" placeholder="0.00">
+                            <small style="color: #6b7280;">Sales tax percentage</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Max Products Per Page</label>
+                            <input type="number" id="productsPerPage" min="6" max="100" step="6" value="24">
+                            <small style="color: #6b7280;">Number of products to display per page</small>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Business Settings</button>
+                </form>
+            </div>
+
+            <!-- Seller Settings -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Seller Settings</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Seller application and management settings</p>
+
+                <form id="sellerSettingsForm" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="autoApproveSellers" style="width: auto;">
+                            <span>Auto-approve seller applications</span>
+                        </label>
+                        <small style="color: #6b7280; display: block; margin-top: 4px; margin-left: 30px;">
+                            If enabled, sellers are automatically approved without admin review
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="requireSellerVerification" style="width: auto;">
+                            <span>Require seller identity verification</span>
+                        </label>
+                        <small style="color: #6b7280; display: block; margin-top: 4px; margin-left: 30px;">
+                            Sellers must verify their identity before listing products
+                        </small>
+                    </div>
+                    <div class="form-group">
+                        <label>Maximum Products Per Seller</label>
+                        <input type="number" id="maxProductsPerSeller" min="1" step="1" placeholder="100">
+                        <small style="color: #6b7280;">Leave blank for unlimited products</small>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Seller Settings</button>
+                </form>
+            </div>
+
+            <!-- Feature Toggles -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Feature Toggles</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Enable or disable platform features</p>
+
+                <form id="featureSettingsForm" style="margin-top: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="enableReviews" style="width: auto;" checked>
+                                <span>Enable Product Reviews</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="enableWishlist" style="width: auto;" checked>
+                                <span>Enable Wishlist</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="enableGuestCheckout" style="width: auto;">
+                                <span>Enable Guest Checkout</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="enableNewsletter" style="width: auto;" checked>
+                                <span>Enable Newsletter Signup</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="enableLiveChat" style="width: auto;">
+                                <span>Enable Live Chat Support</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="maintenanceMode" style="width: auto;">
+                                <span>Maintenance Mode</span>
+                            </label>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Feature Settings</button>
+                </form>
+            </div>
+
+            <!-- Social Media & Contact -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Social Media & Links</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Social media profiles and external links</p>
+
+                <form id="socialSettingsForm" style="margin-top: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                        <div class="form-group">
+                            <label>Facebook URL</label>
+                            <input type="url" id="facebookUrl" placeholder="https://facebook.com/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>Instagram URL</label>
+                            <input type="url" id="instagramUrl" placeholder="https://instagram.com/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>Twitter/X URL</label>
+                            <input type="url" id="twitterUrl" placeholder="https://twitter.com/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>LinkedIn URL</label>
+                            <input type="url" id="linkedinUrl" placeholder="https://linkedin.com/company/yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>YouTube URL</label>
+                            <input type="url" id="youtubeUrl" placeholder="https://youtube.com/@yourpage">
+                        </div>
+                        <div class="form-group">
+                            <label>TikTok URL</label>
+                            <input type="url" id="tiktokUrl" placeholder="https://tiktok.com/@yourpage">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Physical Address</label>
+                        <textarea id="physicalAddress" rows="2" placeholder="123 Main Street, Kingston, Jamaica"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Social Media Settings</button>
+                </form>
+            </div>
+
+            <!-- Email Notifications -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Email Notifications</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Configure automated email notifications</p>
+
+                <form id="emailSettingsForm" style="margin-top: 20px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emailOrderConfirmation" style="width: auto;" checked>
+                                <span>Order Confirmation Emails</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emailShippingUpdate" style="width: auto;" checked>
+                                <span>Shipping Update Emails</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emailSellerApproval" style="width: auto;" checked>
+                                <span>Seller Approval Emails</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emailNewOrder" style="width: auto;" checked>
+                                <span>New Order Notifications (to Admin)</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emailLowStock" style="width: auto;">
+                                <span>Low Stock Alerts (to Sellers)</span>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                                <input type="checkbox" id="emailWeeklyReport" style="width: auto;">
+                                <span>Weekly Sales Reports</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div class="form-group" style="margin-top: 16px;">
+                        <label>Email From Name</label>
+                        <input type="text" id="emailFromName" placeholder="London Star Marketplace">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Email Settings</button>
+                </form>
+            </div>
+
+            <!-- SEO Settings -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">SEO & Meta Tags</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Search engine optimization settings</p>
+
+                <form id="seoSettingsForm" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label>Meta Title</label>
+                        <input type="text" id="metaTitle" placeholder="London Star Marketplace - Premium Products Online" maxlength="60">
+                        <small style="color: #6b7280;">Recommended: 50-60 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Meta Description</label>
+                        <textarea id="metaDescription" rows="3" placeholder="Shop premium quality products from trusted sellers worldwide. Fast shipping, secure payment, and excellent customer service." maxlength="160"></textarea>
+                        <small style="color: #6b7280;">Recommended: 150-160 characters</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Meta Keywords</label>
+                        <input type="text" id="metaKeywords" placeholder="marketplace, ecommerce, online shopping, premium products">
+                        <small style="color: #6b7280;">Comma-separated keywords</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Google Analytics ID</label>
+                        <input type="text" id="googleAnalyticsId" placeholder="G-XXXXXXXXXX">
+                    </div>
+                    <div class="form-group">
+                        <label>Facebook Pixel ID</label>
+                        <input type="text" id="facebookPixelId" placeholder="123456789012345">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save SEO Settings</button>
+                </form>
+            </div>
+
         </div>
 
         <!-- Customise Backgrounds Tab -->
@@ -581,6 +856,56 @@
                         <div style="margin-top: 12px; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;">
                             <p style="margin: 0; font-size: 13px; color: #6b7280;">
                                 <strong>Tip:</strong> Use a high-quality image (1920x600px recommended) for best results. The image will be used as the background for the hero banner section.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Auth/Login Page Background Section -->
+            <div class="card" style="margin-bottom: 30px;">
+                <h3 style="margin: 0 0 8px 0;">Login Page Background Image</h3>
+                <p style="color: #6b7280; margin: 0 0 20px 0;">Upload a background image for the login/authentication page (JPG, PNG, GIF - max 5MB)</p>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+                    <!-- Upload Section -->
+                    <div>
+                        <div class="form-group">
+                            <label>Upload Background Image</label>
+                            <input type="file" id="authBackgroundInput" accept="image/*" onchange="previewAuthBackground(this)">
+                        </div>
+
+                        <div id="authBackgroundPreview" style="display: none; margin-top: 12px;">
+                            <label style="display: block; margin-bottom: 8px; font-weight: 600;">Preview</label>
+                            <div style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; height: 200px; background-size: cover; background-position: center; position: relative;">
+                                <img id="authPreviewImage" style="width: 100%; height: 100%; object-fit: cover;">
+                            </div>
+                        </div>
+
+                        <div style="margin-top: 16px; display: flex; gap: 12px;">
+                            <button class="btn btn-primary" onclick="saveAuthBackground()" id="saveAuthBtn">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                                    <polyline points="17 21 17 13 7 13 7 21"/>
+                                    <polyline points="7 3 7 8 15 8"/>
+                                </svg>
+                                Save Background
+                            </button>
+                            <button class="btn btn-secondary" onclick="removeAuthBackground()" id="removeAuthBtn">
+                                Remove Background
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Current Background Section -->
+                    <div>
+                        <label style="display: block; margin-bottom: 8px; font-weight: 600;">Current Background</label>
+                        <div id="currentAuthBackground" style="border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden; height: 200px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; color: #6b7280; background-size: cover; background-position: center;">
+                            No background set
+                        </div>
+                        <div style="margin-top: 12px; padding: 12px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 6px;">
+                            <p style="margin: 0; font-size: 13px; color: #6b7280;">
+                                <strong>Tip:</strong> Use a high-quality image (1920x1080px recommended) for best results. The image will replace the default floating bubbles on the login page.
                             </p>
                         </div>
                     </div>
@@ -1751,6 +2076,26 @@ CREATE POLICY "Admins can delete any user"
         // SETTINGS SECTION
         // ============================================
 
+        // Helper function to get setting value
+        function getSettingValue(settingsMap, key, defaultValue = '') {
+            const value = settingsMap[key];
+            if (value === undefined || value === null) return defaultValue;
+            return value;
+        }
+
+        // Helper function to save setting
+        async function saveSetting(key, value) {
+            const { error } = await supabase
+                .from('platform_settings')
+                .upsert({
+                    setting_key: key,
+                    setting_value: value
+                }, {
+                    onConflict: 'setting_key'
+                });
+            if (error) throw error;
+        }
+
         async function loadSettings() {
             try {
                 const { data: settings, error } = await supabase
@@ -1762,73 +2107,241 @@ CREATE POLICY "Admins can delete any user"
                 // Create a map of settings for easy access
                 const settingsMap = {};
                 settings.forEach(setting => {
-                    // Parse JSONB value
-                    let value = setting.setting_value;
-                    if (typeof value === 'string') {
-                        try {
-                            value = JSON.parse(value);
-                        } catch (e) {
-                            // Value is already parsed or simple string
-                        }
-                    }
-                    settingsMap[setting.setting_key] = value;
+                    settingsMap[setting.setting_key] = setting.setting_value;
                 });
 
-                // Populate form fields
-                document.getElementById('platformName').value = settingsMap.platform_name || 'London Star Marketplace';
-                document.getElementById('platformEmail').value = settingsMap.platform_email || 'admin@londonstar.com';
-                document.getElementById('commissionRate').value = settingsMap.commission_rate || 10;
-                document.getElementById('currency').value = settingsMap.currency || 'USD';
+                // General Settings
+                document.getElementById('platformName').value = getSettingValue(settingsMap, 'platform_name', 'London Star Marketplace');
+                document.getElementById('platformTagline').value = getSettingValue(settingsMap, 'platform_tagline');
+                document.getElementById('platformEmail').value = getSettingValue(settingsMap, 'platform_email');
+                document.getElementById('platformPhone').value = getSettingValue(settingsMap, 'platform_phone');
+                document.getElementById('currency').value = getSettingValue(settingsMap, 'currency', 'JMD');
+                document.getElementById('timezone').value = getSettingValue(settingsMap, 'timezone', 'America/Jamaica');
+                document.getElementById('platformDescription').value = getSettingValue(settingsMap, 'platform_description');
+
+                // Business Settings
+                document.getElementById('commissionRate').value = getSettingValue(settingsMap, 'commission_rate', '5.00');
+                document.getElementById('minOrderAmount').value = getSettingValue(settingsMap, 'min_order_amount');
+                document.getElementById('shippingFee').value = getSettingValue(settingsMap, 'shipping_fee');
+                document.getElementById('freeShippingThreshold').value = getSettingValue(settingsMap, 'free_shipping_threshold');
+                document.getElementById('taxRate').value = getSettingValue(settingsMap, 'tax_rate', '0.00');
+                document.getElementById('productsPerPage').value = getSettingValue(settingsMap, 'products_per_page', '24');
+
+                // Seller Settings
+                document.getElementById('autoApproveSellers').checked = getSettingValue(settingsMap, 'auto_approve_sellers') === 'true';
+                document.getElementById('requireSellerVerification').checked = getSettingValue(settingsMap, 'require_seller_verification') === 'true';
+                document.getElementById('maxProductsPerSeller').value = getSettingValue(settingsMap, 'max_products_per_seller');
+
+                // Feature Toggles
+                document.getElementById('enableReviews').checked = getSettingValue(settingsMap, 'enable_reviews', 'true') === 'true';
+                document.getElementById('enableWishlist').checked = getSettingValue(settingsMap, 'enable_wishlist', 'true') === 'true';
+                document.getElementById('enableGuestCheckout').checked = getSettingValue(settingsMap, 'enable_guest_checkout') === 'true';
+                document.getElementById('enableNewsletter').checked = getSettingValue(settingsMap, 'enable_newsletter', 'true') === 'true';
+                document.getElementById('enableLiveChat').checked = getSettingValue(settingsMap, 'enable_live_chat') === 'true';
+                document.getElementById('maintenanceMode').checked = getSettingValue(settingsMap, 'maintenance_mode') === 'true';
+
+                // Social Media
+                document.getElementById('facebookUrl').value = getSettingValue(settingsMap, 'facebook_url');
+                document.getElementById('instagramUrl').value = getSettingValue(settingsMap, 'instagram_url');
+                document.getElementById('twitterUrl').value = getSettingValue(settingsMap, 'twitter_url');
+                document.getElementById('linkedinUrl').value = getSettingValue(settingsMap, 'linkedin_url');
+                document.getElementById('youtubeUrl').value = getSettingValue(settingsMap, 'youtube_url');
+                document.getElementById('tiktokUrl').value = getSettingValue(settingsMap, 'tiktok_url');
+                document.getElementById('physicalAddress').value = getSettingValue(settingsMap, 'physical_address');
+
+                // Email Settings
+                document.getElementById('emailOrderConfirmation').checked = getSettingValue(settingsMap, 'email_order_confirmation', 'true') === 'true';
+                document.getElementById('emailShippingUpdate').checked = getSettingValue(settingsMap, 'email_shipping_update', 'true') === 'true';
+                document.getElementById('emailSellerApproval').checked = getSettingValue(settingsMap, 'email_seller_approval', 'true') === 'true';
+                document.getElementById('emailNewOrder').checked = getSettingValue(settingsMap, 'email_new_order', 'true') === 'true';
+                document.getElementById('emailLowStock').checked = getSettingValue(settingsMap, 'email_low_stock') === 'true';
+                document.getElementById('emailWeeklyReport').checked = getSettingValue(settingsMap, 'email_weekly_report') === 'true';
+                document.getElementById('emailFromName').value = getSettingValue(settingsMap, 'email_from_name', 'London Star Marketplace');
+
+                // SEO Settings
+                document.getElementById('metaTitle').value = getSettingValue(settingsMap, 'meta_title');
+                document.getElementById('metaDescription').value = getSettingValue(settingsMap, 'meta_description');
+                document.getElementById('metaKeywords').value = getSettingValue(settingsMap, 'meta_keywords');
+                document.getElementById('googleAnalyticsId').value = getSettingValue(settingsMap, 'google_analytics_id');
+                document.getElementById('facebookPixelId').value = getSettingValue(settingsMap, 'facebook_pixel_id');
 
             } catch (error) {
                 console.error('Error loading settings:', error);
-                alert('Error loading settings: ' + error.message);
+                showError('Error loading settings: ' + error.message);
             }
         }
 
-        async function saveSettings(e) {
+        // Save General Settings
+        async function saveGeneralSettings(e) {
             e.preventDefault();
-
-            const btn = document.getElementById('saveSettingsBtn');
-            const originalText = btn.textContent;
+            const btn = e.target.querySelector('button[type="submit"]');
             btn.disabled = true;
             btn.textContent = 'Saving...';
 
             try {
-                const platformName = document.getElementById('platformName').value;
-                const platformEmail = document.getElementById('platformEmail').value;
-                const commissionRate = parseFloat(document.getElementById('commissionRate').value);
-                const currency = document.getElementById('currency').value;
+                await saveSetting('platform_name', document.getElementById('platformName').value);
+                await saveSetting('platform_tagline', document.getElementById('platformTagline').value);
+                await saveSetting('platform_email', document.getElementById('platformEmail').value);
+                await saveSetting('platform_phone', document.getElementById('platformPhone').value);
+                await saveSetting('currency', document.getElementById('currency').value);
+                await saveSetting('timezone', document.getElementById('timezone').value);
+                await saveSetting('platform_description', document.getElementById('platformDescription').value);
 
-                // Update each setting
-                const updates = [
-                    { key: 'platform_name', value: platformName },
-                    { key: 'platform_email', value: platformEmail },
-                    { key: 'commission_rate', value: commissionRate },
-                    { key: 'currency', value: currency }
-                ];
-
-                for (const update of updates) {
-                    const { error } = await supabase
-                        .from('platform_settings')
-                        .upsert({
-                            setting_key: update.key,
-                            setting_value: JSON.stringify(update.value)
-                        }, {
-                            onConflict: 'setting_key'
-                        });
-
-                    if (error) throw error;
-                }
-
-                alert('Settings saved successfully!');
-
+                showSuccess('General settings saved successfully!');
             } catch (error) {
-                console.error('Error saving settings:', error);
-                alert('Error saving settings: ' + error.message);
+                console.error('Error saving general settings:', error);
+                showError('Error saving settings: ' + error.message);
             } finally {
                 btn.disabled = false;
-                btn.textContent = originalText;
+                btn.textContent = 'Save General Settings';
+            }
+        }
+
+        // Save Business Settings
+        async function saveBusinessSettings(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await saveSetting('commission_rate', document.getElementById('commissionRate').value);
+                await saveSetting('min_order_amount', document.getElementById('minOrderAmount').value);
+                await saveSetting('shipping_fee', document.getElementById('shippingFee').value);
+                await saveSetting('free_shipping_threshold', document.getElementById('freeShippingThreshold').value);
+                await saveSetting('tax_rate', document.getElementById('taxRate').value);
+                await saveSetting('products_per_page', document.getElementById('productsPerPage').value);
+
+                showSuccess('Business settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving business settings:', error);
+                showError('Error saving settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Business Settings';
+            }
+        }
+
+        // Save Seller Settings
+        async function saveSellerSettings(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await saveSetting('auto_approve_sellers', document.getElementById('autoApproveSellers').checked.toString());
+                await saveSetting('require_seller_verification', document.getElementById('requireSellerVerification').checked.toString());
+                await saveSetting('max_products_per_seller', document.getElementById('maxProductsPerSeller').value);
+
+                showSuccess('Seller settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving seller settings:', error);
+                showError('Error saving settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Seller Settings';
+            }
+        }
+
+        // Save Feature Settings
+        async function saveFeatureSettings(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await saveSetting('enable_reviews', document.getElementById('enableReviews').checked.toString());
+                await saveSetting('enable_wishlist', document.getElementById('enableWishlist').checked.toString());
+                await saveSetting('enable_guest_checkout', document.getElementById('enableGuestCheckout').checked.toString());
+                await saveSetting('enable_newsletter', document.getElementById('enableNewsletter').checked.toString());
+                await saveSetting('enable_live_chat', document.getElementById('enableLiveChat').checked.toString());
+                await saveSetting('maintenance_mode', document.getElementById('maintenanceMode').checked.toString());
+
+                showSuccess('Feature settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving feature settings:', error);
+                showError('Error saving settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Feature Settings';
+            }
+        }
+
+        // Save Social Media Settings
+        async function saveSocialSettings(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await saveSetting('facebook_url', document.getElementById('facebookUrl').value);
+                await saveSetting('instagram_url', document.getElementById('instagramUrl').value);
+                await saveSetting('twitter_url', document.getElementById('twitterUrl').value);
+                await saveSetting('linkedin_url', document.getElementById('linkedinUrl').value);
+                await saveSetting('youtube_url', document.getElementById('youtubeUrl').value);
+                await saveSetting('tiktok_url', document.getElementById('tiktokUrl').value);
+                await saveSetting('physical_address', document.getElementById('physicalAddress').value);
+
+                showSuccess('Social media settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving social media settings:', error);
+                showError('Error saving settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Social Media Settings';
+            }
+        }
+
+        // Save Email Settings
+        async function saveEmailSettings(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await saveSetting('email_order_confirmation', document.getElementById('emailOrderConfirmation').checked.toString());
+                await saveSetting('email_shipping_update', document.getElementById('emailShippingUpdate').checked.toString());
+                await saveSetting('email_seller_approval', document.getElementById('emailSellerApproval').checked.toString());
+                await saveSetting('email_new_order', document.getElementById('emailNewOrder').checked.toString());
+                await saveSetting('email_low_stock', document.getElementById('emailLowStock').checked.toString());
+                await saveSetting('email_weekly_report', document.getElementById('emailWeeklyReport').checked.toString());
+                await saveSetting('email_from_name', document.getElementById('emailFromName').value);
+
+                showSuccess('Email settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving email settings:', error);
+                showError('Error saving settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Email Settings';
+            }
+        }
+
+        // Save SEO Settings
+        async function saveSEOSettings(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                await saveSetting('meta_title', document.getElementById('metaTitle').value);
+                await saveSetting('meta_description', document.getElementById('metaDescription').value);
+                await saveSetting('meta_keywords', document.getElementById('metaKeywords').value);
+                await saveSetting('google_analytics_id', document.getElementById('googleAnalyticsId').value);
+                await saveSetting('facebook_pixel_id', document.getElementById('facebookPixelId').value);
+
+                showSuccess('SEO settings saved successfully!');
+            } catch (error) {
+                console.error('Error saving SEO settings:', error);
+                showError('Error saving settings: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save SEO Settings';
             }
         }
 
@@ -1880,6 +2393,7 @@ CREATE POLICY "Admins can delete any user"
 
         async function loadHomepage() {
             await loadCurrentHeroBackground();
+            await loadCurrentAuthBackground();
             await loadCurrentMarketplaceHero();
             await loadHomepageCardsData();
             syncMarketplaceColors();
@@ -2164,6 +2678,115 @@ CREATE POLICY "Admins can delete any user"
             } finally {
                 btn.disabled = false;
                 btn.textContent = 'Remove Background';
+            }
+        }
+
+        // Auth Background Management
+        let currentAuthImageData = null;
+
+        function previewAuthBackground(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                showError('Image size must be less than 5MB');
+                input.value = '';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentAuthImageData = e.target.result;
+                document.getElementById('authPreviewImage').src = currentAuthImageData;
+                document.getElementById('authBackgroundPreview').style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        async function saveAuthBackground() {
+            if (!currentAuthImageData) {
+                showError('Please select an image first');
+                return;
+            }
+
+            const btn = document.getElementById('saveAuthBtn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            try {
+                const result = await HomepageDB.saveAuthBackground(currentAuthImageData);
+
+                if (!result.success) {
+                    throw new Error(result.error);
+                }
+
+                showSuccess('Login page background saved successfully!');
+                await loadCurrentAuthBackground();
+
+                // Clear upload
+                document.getElementById('authBackgroundInput').value = '';
+                document.getElementById('authBackgroundPreview').style.display = 'none';
+                currentAuthImageData = null;
+
+            } catch (error) {
+                console.error('Error saving auth background:', error);
+                showError('Error saving background: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Save Background';
+            }
+        }
+
+        async function removeAuthBackground() {
+            showConfirmModal(
+                'Remove Background?',
+                'Are you sure you want to remove the login page background? The default floating bubbles will be restored.',
+                async () => {
+                    const btn = document.getElementById('removeAuthBtn');
+                    btn.disabled = true;
+                    btn.textContent = 'Removing...';
+
+                    try {
+                        const result = await HomepageDB.removeAuthBackground();
+
+                        if (!result.success) {
+                            throw new Error(result.error);
+                        }
+
+                        showSuccess('Login page background removed successfully!');
+                        await loadCurrentAuthBackground();
+
+                        // Clear upload
+                        document.getElementById('authBackgroundInput').value = '';
+                        document.getElementById('authBackgroundPreview').style.display = 'none';
+                        currentAuthImageData = null;
+
+                    } catch (error) {
+                        console.error('Error removing auth background:', error);
+                        showError('Error removing background: ' + error.message);
+                    } finally {
+                        btn.disabled = false;
+                        btn.textContent = 'Remove Background';
+                    }
+                }
+            );
+        }
+
+        async function loadCurrentAuthBackground() {
+            try {
+                const result = await HomepageDB.getAuthBackground();
+
+                const currentBg = document.getElementById('currentAuthBackground');
+
+                if (result.success && result.data) {
+                    currentBg.style.backgroundImage = `url(${result.data})`;
+                    currentBg.textContent = '';
+                } else {
+                    currentBg.style.backgroundImage = 'none';
+                    currentBg.textContent = 'No background set';
+                }
+            } catch (error) {
+                console.error('Error loading current auth background:', error);
             }
         }
 
@@ -2694,10 +3317,40 @@ CREATE POLICY "Admins can delete any user"
 
         // Load dashboard on page load
         window.addEventListener('load', () => {
-            // Settings form handler
-            const settingsForm = document.getElementById('settingsForm');
-            if (settingsForm) {
-                settingsForm.addEventListener('submit', saveSettings);
+            // Settings form handlers
+            const generalSettingsForm = document.getElementById('generalSettingsForm');
+            if (generalSettingsForm) {
+                generalSettingsForm.addEventListener('submit', saveGeneralSettings);
+            }
+
+            const businessSettingsForm = document.getElementById('businessSettingsForm');
+            if (businessSettingsForm) {
+                businessSettingsForm.addEventListener('submit', saveBusinessSettings);
+            }
+
+            const sellerSettingsForm = document.getElementById('sellerSettingsForm');
+            if (sellerSettingsForm) {
+                sellerSettingsForm.addEventListener('submit', saveSellerSettings);
+            }
+
+            const featureSettingsForm = document.getElementById('featureSettingsForm');
+            if (featureSettingsForm) {
+                featureSettingsForm.addEventListener('submit', saveFeatureSettings);
+            }
+
+            const socialSettingsForm = document.getElementById('socialSettingsForm');
+            if (socialSettingsForm) {
+                socialSettingsForm.addEventListener('submit', saveSocialSettings);
+            }
+
+            const emailSettingsForm = document.getElementById('emailSettingsForm');
+            if (emailSettingsForm) {
+                emailSettingsForm.addEventListener('submit', saveEmailSettings);
+            }
+
+            const seoSettingsForm = document.getElementById('seoSettingsForm');
+            if (seoSettingsForm) {
+                seoSettingsForm.addEventListener('submit', saveSEOSettings);
             }
 
             loadDashboard();

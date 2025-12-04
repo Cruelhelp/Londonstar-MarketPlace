@@ -237,6 +237,104 @@
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
         }
 
+        /* Product Carousel Styles */
+        .product-carousel {
+            position: relative;
+            width: 100%;
+            height: 200px;
+            overflow: hidden;
+            border-radius: 8px;
+            background: #f3f4f6;
+        }
+
+        .carousel-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+        }
+
+        .carousel-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
+            pointer-events: none;
+        }
+
+        .carousel-image.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            z-index: 2;
+            opacity: 0;
+        }
+
+        .product-carousel:hover .carousel-btn {
+            opacity: 1;
+        }
+
+        .carousel-btn:hover {
+            background: rgba(0, 0, 0, 0.8);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-btn.prev {
+            left: 8px;
+        }
+
+        .carousel-btn.next {
+            right: 8px;
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 2;
+        }
+
+        .carousel-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .carousel-dots .dot.active {
+            background: white;
+            width: 24px;
+            border-radius: 4px;
+        }
+
+        .carousel-dots .dot:hover {
+            background: rgba(255, 255, 255, 0.8);
+        }
+
         @media (max-width: 768px) {
             .cart-panel {
                 width: 100%;
@@ -245,6 +343,12 @@
 
             .hero-section h1 {
                 font-size: 32px;
+            }
+
+            .carousel-btn {
+                opacity: 1;
+                width: 28px;
+                height: 28px;
             }
         }
     </style>
@@ -417,13 +521,44 @@
             grid.style.display = 'grid';
             emptyState.style.display = 'none';
 
-            grid.innerHTML = filteredProducts.map(product => {
+            grid.innerHTML = filteredProducts.map((product, idx) => {
                 const images = Array.isArray(product.images) ? product.images : [];
-                const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+                const hasMultipleImages = images.length > 1;
+
+                // Generate carousel HTML if multiple images, otherwise single image
+                let imageHTML;
+                if (hasMultipleImages) {
+                    imageHTML = `
+                        <div class="product-carousel" data-product-id="${product.id}">
+                            <div class="carousel-container">
+                                ${images.map((img, imgIdx) => `
+                                    <img src="${img}" alt="${product.name}" class="carousel-image ${imgIdx === 0 ? 'active' : ''}" data-index="${imgIdx}">
+                                `).join('')}
+                            </div>
+                            <button class="carousel-btn prev" onclick="event.stopPropagation(); prevImage('${product.id}')" aria-label="Previous image">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <polyline points="15 18 9 12 15 6"></polyline>
+                                </svg>
+                            </button>
+                            <button class="carousel-btn next" onclick="event.stopPropagation(); nextImage('${product.id}')" aria-label="Next image">
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <polyline points="9 18 15 12 9 6"></polyline>
+                                </svg>
+                            </button>
+                            <div class="carousel-dots">
+                                ${images.map((_, dotIdx) => `
+                                    <span class="dot ${dotIdx === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToImage('${product.id}', ${dotIdx})"></span>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    imageHTML = `<img src="${images[0] || 'images/placeholder.png'}" alt="${product.name}" class="product-image">`;
+                }
 
                 return `
                 <div class="product-card scroll-fade" onclick="viewProduct('${product.id}')">
-                    <img src="${firstImage}" alt="${product.name}" class="product-image">
+                    ${imageHTML}
                     <div class="product-title">${product.name}</div>
                     <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
                     <div class="product-description">${product.description}</div>
@@ -437,6 +572,53 @@
             // Trigger scroll effects for new product cards
             if (window.scrollEffects) {
                 window.scrollEffects.addScrollFade('.product-card');
+            }
+        }
+
+        // Carousel Navigation Functions
+        function prevImage(productId) {
+            const carousel = document.querySelector(`[data-product-id="${productId}"]`);
+            if (!carousel) return;
+
+            const images = carousel.querySelectorAll('.carousel-image');
+            const dots = carousel.querySelectorAll('.dot');
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            const prevIndex = (currentIndex - 1 + images.length) % images.length;
+
+            images[currentIndex].classList.remove('active');
+            images[prevIndex].classList.add('active');
+            dots[currentIndex].classList.remove('active');
+            dots[prevIndex].classList.add('active');
+        }
+
+        function nextImage(productId) {
+            const carousel = document.querySelector(`[data-product-id="${productId}"]`);
+            if (!carousel) return;
+
+            const images = carousel.querySelectorAll('.carousel-image');
+            const dots = carousel.querySelectorAll('.dot');
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            const nextIndex = (currentIndex + 1) % images.length;
+
+            images[currentIndex].classList.remove('active');
+            images[nextIndex].classList.add('active');
+            dots[currentIndex].classList.remove('active');
+            dots[nextIndex].classList.add('active');
+        }
+
+        function goToImage(productId, index) {
+            const carousel = document.querySelector(`[data-product-id="${productId}"]`);
+            if (!carousel) return;
+
+            const images = carousel.querySelectorAll('.carousel-image');
+            const dots = carousel.querySelectorAll('.dot');
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+            if (currentIndex !== index) {
+                images[currentIndex].classList.remove('active');
+                images[index].classList.add('active');
+                dots[currentIndex].classList.remove('active');
+                dots[index].classList.add('active');
             }
         }
 
