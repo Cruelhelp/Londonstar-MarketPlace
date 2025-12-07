@@ -37,13 +37,14 @@ class ScrollEffects {
         // Elements that should fade in on scroll
         const observerOptions = {
             threshold: 0.1,
-            rootMargin: '0px 0px -50px 0px'
+            rootMargin: '50px 0px -50px 0px' // Extended top margin to catch already-visible elements
         };
 
         const fadeInObserver = new IntersectionObserver((entries) => {
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('is-visible');
+                    entry.target.classList.remove('scroll-fade-hidden');
                     // Optionally unobserve after animation
                     // fadeInObserver.unobserve(entry.target);
                 }
@@ -58,6 +59,19 @@ class ScrollEffects {
         });
 
         this.observers.set('fadeIn', fadeInObserver);
+
+        // Trigger immediate check for elements already in viewport
+        // Use requestAnimationFrame to ensure layout is complete
+        requestAnimationFrame(() => {
+            fadeElements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+                if (isInViewport) {
+                    el.classList.add('is-visible');
+                    el.classList.remove('scroll-fade-hidden');
+                }
+            });
+        });
     }
 
     handleScroll() {
@@ -93,6 +107,18 @@ class ScrollEffects {
             if (this.observers.has('fadeIn')) {
                 this.observers.get('fadeIn').observe(el);
             }
+        });
+
+        // Immediately check if elements are already in viewport
+        requestAnimationFrame(() => {
+            elements.forEach(el => {
+                const rect = el.getBoundingClientRect();
+                const isInViewport = rect.top < window.innerHeight && rect.bottom > 0;
+                if (isInViewport) {
+                    el.classList.add('is-visible');
+                    el.classList.remove('scroll-fade-hidden');
+                }
+            });
         });
     }
 

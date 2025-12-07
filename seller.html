@@ -21,6 +21,13 @@
             <div class="logo-container" onclick="window.location.href='index.html'">
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
             <div class="search-bar">
                 <input type="text" placeholder="Search products...">
                 <button>
@@ -30,7 +37,7 @@
                     </svg>
                 </button>
             </div>
-            <nav class="header-nav">
+            <nav class="header-nav" id="headerNav">
                 <span class="nav-link" style="font-weight: 600;">Seller Dashboard</span>
                 <a href="auth.html" class="nav-icon-btn" onclick="handleLogout()">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
@@ -41,6 +48,12 @@
                     <span style="font-size: 12px; font-weight: 500;">Sign Out</span>
                 </a>
             </nav>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div id="mobileMenuContent">
+                <!-- Populated by JavaScript -->
+            </div>
         </div>
     </header>
 
@@ -117,7 +130,26 @@
 
         <!-- Products Grid -->
         <div class="card">
-            <h2 style="margin-bottom: 20px;">Your Products</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h2 style="margin: 0;">Your Products</h2>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="openBulkUploadModal()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Bulk Upload
+                    </button>
+                    <button class="btn btn-primary" onclick="openProductModal()">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Product
+                    </button>
+                </div>
+            </div>
             <div id="alertContainer"></div>
             <div class="grid grid-4" id="productsGrid">
                 <!-- Products will be loaded here -->
@@ -172,6 +204,35 @@
                     <label>Stock Quantity *</label>
                     <input type="number" id="productStock" min="0" required placeholder="0">
                 </div>
+
+                <!-- Advanced Options Section -->
+                <div id="advancedOptionsSection" style="display: none; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+                    <h3 style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--primary-color);">Advanced Options</h3>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label>Product Status</label>
+                        <select id="productStatus">
+                            <option value="active">Active (Visible in marketplace)</option>
+                            <option value="inactive">Inactive (Hidden from marketplace)</option>
+                            <option value="draft">Draft (Not yet published)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 12px;">
+                        <label>SKU / Product Code (Optional)</label>
+                        <input type="text" id="productSKU" placeholder="e.g., PROD-001">
+                        <small style="color: #6b7280; display: block; margin-top: 4px;">Unique identifier for inventory tracking</small>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                            <input type="checkbox" id="productFeatured" style="width: auto; cursor: pointer;">
+                            <span>Mark as Featured Product</span>
+                        </label>
+                        <small style="color: #6b7280; display: block; margin-top: 4px; margin-left: 28px;">Featured products appear at the top of search results</small>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
                         <span>Product Images *</span>
@@ -189,8 +250,30 @@
                     <input type="file" id="fileInput" accept="image/*" multiple style="display: none;" onchange="handleFileSelect(event)">
                     <div id="imagePreview" class="grid grid-4 mt-10"></div>
                 </div>
+
+                <!-- Product Info (shown only in edit mode) -->
+                <div id="productInfoSection" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 12px; margin-bottom: 16px;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+                        <div>
+                            <span style="color: #6b7280;">Created:</span>
+                            <span id="productCreatedDate" style="font-weight: 600; margin-left: 4px;">-</span>
+                        </div>
+                        <div>
+                            <span style="color: #6b7280;">Last Updated:</span>
+                            <span id="productUpdatedDate" style="font-weight: 600; margin-left: 4px;">-</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="flex gap-10">
                     <button type="button" class="btn btn-secondary" onclick="closeProductModal()">Cancel</button>
+                    <button type="button" id="duplicateBtn" class="btn" onclick="duplicateProduct()" style="background: #3b82f6; color: white; display: none;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                        </svg>
+                        Duplicate
+                    </button>
                     <button type="submit" class="btn btn-primary" style="flex: 1;">Save Product</button>
                 </div>
             </form>
@@ -237,9 +320,41 @@
         </div>
     </div>
 
+    <!-- Bulk Upload Modal -->
+    <div class="modal" id="bulkUploadModal">
+        <div class="modal-content" style="max-width: 900px;">
+            <div class="modal-header">
+                <h2>Bulk Upload Products</h2>
+                <button class="close-modal" onclick="closeBulkUploadModal()">&times;</button>
+            </div>
+            <div style="background: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 8px; padding: 12px; margin-bottom: 20px;">
+                <p style="margin: 0; font-size: 14px; color: #075985;">
+                    <strong>💡 Tip:</strong> Add multiple products at once. Each product can have multiple images.
+                </p>
+            </div>
+            <form id="bulkUploadForm" onsubmit="handleBulkUpload(event)">
+                <div id="bulkProductsContainer">
+                    <!-- Product forms will be added here -->
+                </div>
+                <button type="button" class="btn btn-secondary" onclick="addProductForm()" style="width: 100%; margin-bottom: 20px;">
+                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                        <line x1="12" y1="5" x2="12" y2="19"/>
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Another Product
+                </button>
+                <div class="flex gap-10">
+                    <button type="button" class="btn btn-secondary" onclick="closeBulkUploadModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="flex: 1;" id="bulkUploadBtn">Upload All Products</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-init.js"></script>
+    <script src="js/cache-manager.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/scroll-effects.js"></script>
@@ -249,6 +364,45 @@
         let selectedImages = [];
         let editingProductId = null;
         let currentUserId = null;
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('mobileMenuToggle');
+
+            mobileMenu.classList.toggle('active');
+            toggle.classList.toggle('active');
+
+            // Prevent background scroll when menu is open
+            if (mobileMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('mobileMenuToggle');
+
+            if (mobileMenu && toggle && mobileMenu.classList.contains('active')) {
+                if (!mobileMenu.contains(event.target) && !toggle.contains(event.target)) {
+                    mobileMenu.classList.remove('active');
+                    toggle.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+        });
+
+        // Populate mobile menu
+        function populateMobileMenu() {
+            const headerNav = document.getElementById('headerNav');
+            const mobileMenuContent = document.getElementById('mobileMenuContent');
+            if (headerNav && mobileMenuContent) {
+                mobileMenuContent.innerHTML = headerNav.innerHTML;
+            }
+        }
 
         // Check authentication and account status
         async function checkAuth() {
@@ -309,7 +463,7 @@
             }
         }
 
-        // Load products for current user only
+        // Load products for current user only with Cache
         async function loadProducts() {
             if (!currentUserId) {
                 const authSuccess = await checkAuth();
@@ -317,14 +471,35 @@
             }
 
             try {
-                const result = await productManager.getProductsBySeller(currentUserId);
-                if (result.success) {
-                    products = result.data || [];
-                } else {
-                    const stored = localStorage.getItem('sellerProducts');
-                    const allProducts = stored ? JSON.parse(stored) : [];
-                    products = allProducts.filter(p => p.seller_id === currentUserId);
+                // Try to get from cache first
+                const cachedProducts = await cacheManager.fetchWithCache(
+                    'PRODUCTS',
+                    `seller_${currentUserId}`,
+                    async () => {
+                        const result = await productManager.getProductsBySeller(currentUserId);
+                        if (result.success) {
+                            return result.data || [];
+                        } else {
+                            const stored = localStorage.getItem('sellerProducts');
+                            const allProducts = stored ? JSON.parse(stored) : [];
+                            return allProducts.filter(p => p.seller_id === currentUserId);
+                        }
+                    },
+                    cacheManager.TTL.PRODUCTS
+                );
+
+                products = cachedProducts;
+
+                // Preload product images
+                const imageUrls = products.flatMap(p =>
+                    Array.isArray(p.images) ? p.images : []
+                ).filter(url => url);
+
+                if (imageUrls.length > 0) {
+                    cacheManager.preloadImages(imageUrls, 'SELLER_PRODUCT_IMAGE')
+                        .catch(err => console.warn('Image preload error:', err));
                 }
+
                 renderProducts();
                 updateStats();
             } catch (error) {
@@ -353,21 +528,58 @@
             grid.style.display = 'grid';
             emptyState.style.display = 'none';
 
-            grid.innerHTML = products.map(product => `
-                <div class="product-card scroll-fade">
+            grid.innerHTML = products.map(product => {
+                const status = product.status || 'active';
+                const statusColors = {
+                    active: { bg: '#10b981', text: 'Active' },
+                    inactive: { bg: '#6b7280', text: 'Inactive' },
+                    draft: { bg: '#f59e0b', text: 'Draft' }
+                };
+                const statusConfig = statusColors[status] || statusColors.active;
+
+                return `
+                <div class="product-card scroll-fade" style="position: relative;">
+                    ${product.featured ? `
+                        <div style="position: absolute; top: 8px; left: 8px; background: var(--accent-color); color: #111; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 700; z-index: 1; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                            ⭐ FEATURED
+                        </div>
+                    ` : ''}
+                    <div style="position: absolute; top: 8px; right: 8px; background: ${statusConfig.bg}; color: white; padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600; z-index: 1;">
+                        ${statusConfig.text}
+                    </div>
                     <img src="${product.images[0]}" alt="${product.name}" class="product-image">
                     <div class="product-title">${product.name}</div>
+                    ${product.sku ? `
+                        <div style="font-size: 12px; color: #6b7280; margin-top: 4px;">SKU: ${product.sku}</div>
+                    ` : ''}
                     <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
                     <div class="product-description">${product.description}</div>
                     <div style="margin-top: 12px; font-size: 13px; color: var(--text-secondary);">
                         Stock: ${product.stock} | Category: ${product.category}
                     </div>
+                    ${product.images && product.images.length > 1 ? `
+                        <div style="margin-top: 8px; font-size: 12px; color: var(--text-secondary);">
+                            📷 ${product.images.length} images
+                        </div>
+                    ` : ''}
                     <div class="flex gap-10 mt-10">
-                        <button class="btn btn-secondary" style="flex: 1; padding: 8px;" onclick="editProduct('${product.id}')">Edit</button>
-                        <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteProduct('${product.id}')">Delete</button>
+                        <button class="btn btn-secondary" style="flex: 1; padding: 8px;" onclick="editProduct('${product.id}')">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                            </svg>
+                            Edit
+                        </button>
+                        <button class="btn btn-danger" style="flex: 1; padding: 8px;" onclick="deleteProduct('${product.id}')">
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                <polyline points="3 6 5 6 21 6"/>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                            </svg>
+                            Delete
+                        </button>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
 
             // Trigger scroll effects for product cards
             if (window.scrollEffects) {
@@ -409,11 +621,29 @@
             document.getElementById('productForm').reset();
             selectedImages = [];
             document.getElementById('imagePreview').innerHTML = '';
+
+            // Hide advanced sections for new products (can be shown with toggle if needed)
+            document.getElementById('advancedOptionsSection').style.display = 'none';
+            document.getElementById('duplicateBtn').style.display = 'none';
+            document.getElementById('productInfoSection').style.display = 'none';
+
+            // Set default status for new products
+            document.getElementById('productStatus').value = 'active';
+
             document.getElementById('productModal').classList.add('active');
         }
 
         function closeProductModal() {
             document.getElementById('productModal').classList.remove('active');
+            document.getElementById('productForm').reset();
+            selectedImages = [];
+            document.getElementById('imagePreview').innerHTML = '';
+            editingProductId = null;
+
+            // Reset advanced sections
+            document.getElementById('advancedOptionsSection').style.display = 'none';
+            document.getElementById('duplicateBtn').style.display = 'none';
+            document.getElementById('productInfoSection').style.display = 'none';
         }
 
         function editProduct(id) {
@@ -421,17 +651,74 @@
             if (!product) return;
 
             editingProductId = id;
+
+            // Update modal title and UI
             document.getElementById('modalTitle').textContent = 'Edit Product';
+
+            // Basic fields
             document.getElementById('productName').value = product.name;
             document.getElementById('productPrice').value = product.price;
             document.getElementById('productCategory').value = product.category;
             document.getElementById('productDescription').value = product.description;
             document.getElementById('productStock').value = product.stock;
 
-            selectedImages = product.images;
+            // Advanced fields
+            document.getElementById('productStatus').value = product.status || 'active';
+            document.getElementById('productSKU').value = product.sku || '';
+            document.getElementById('productFeatured').checked = product.featured || false;
+
+            // Show advanced options and duplicate button in edit mode
+            document.getElementById('advancedOptionsSection').style.display = 'block';
+            document.getElementById('duplicateBtn').style.display = 'inline-flex';
+            document.getElementById('productInfoSection').style.display = 'block';
+
+            // Format and show dates
+            if (product.created_at) {
+                const created = new Date(product.created_at);
+                document.getElementById('productCreatedDate').textContent = created.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric'
+                });
+            }
+            if (product.updated_at) {
+                const updated = new Date(product.updated_at);
+                document.getElementById('productUpdatedDate').textContent = updated.toLocaleDateString('en-US', {
+                    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+            } else if (product.created_at) {
+                document.getElementById('productUpdatedDate').textContent = 'Not modified';
+            }
+
+            // Load existing images
+            selectedImages = Array.isArray(product.images) ? [...product.images] : [];
             renderImagePreviews();
 
             document.getElementById('productModal').classList.add('active');
+        }
+
+        // Duplicate product
+        function duplicateProduct() {
+            if (!editingProductId) return;
+
+            // Clear the editing ID so it saves as new product
+            editingProductId = null;
+
+            // Update UI
+            document.getElementById('modalTitle').textContent = 'Add New Product (Duplicated)';
+            document.getElementById('duplicateBtn').style.display = 'none';
+            document.getElementById('productInfoSection').style.display = 'none';
+
+            // Add " (Copy)" to the product name
+            const currentName = document.getElementById('productName').value;
+            document.getElementById('productName').value = currentName + ' (Copy)';
+
+            // Clear SKU to avoid duplicate SKU conflicts
+            document.getElementById('productSKU').value = '';
+
+            // Keep all other fields as they are (images, description, price, etc.)
+            // Set status to draft for review
+            document.getElementById('productStatus').value = 'draft';
+
+            showAlert('Product duplicated! Review details and click "Save Product" to create a copy.', 'info');
         }
 
         async function deleteProduct(id) {
@@ -442,6 +729,9 @@
                     if (result.success) {
                         products = products.filter(p => p.id !== id);
                         saveProducts();
+                        // Invalidate cache
+                        cacheManager.invalidateProducts();
+                        await loadProducts();
                         showAlert('Product deleted successfully', 'success');
                     } else {
                         showAlert(result.error || 'Failed to delete product', 'error');
@@ -499,9 +789,33 @@
             const imageCount = document.getElementById('imageCount');
 
             preview.innerHTML = selectedImages.map((img, idx) => `
-                <div style="position: relative;">
-                    <img src="${img}" style="width: 100%; height: 100px; object-fit: cover; border-radius: 6px;">
-                    <button type="button" onclick="removeImage(${idx})" style="position: absolute; top: 5px; right: 5px; background: var(--error-color); color: white; border: none; border-radius: 50%; width: 25px; height: 25px; cursor: pointer; font-size: 16px;">&times;</button>
+                <div style="position: relative; border: ${idx === 0 ? '3px solid var(--accent-color)' : '2px solid #e5e7eb'}; border-radius: 8px; overflow: hidden;">
+                    <img src="${img}" style="width: 100%; height: 100px; object-fit: cover; display: block;">
+
+                    ${idx === 0 ? `
+                        <div style="position: absolute; top: 5px; left: 5px; background: var(--accent-color); color: #111; padding: 3px 8px; border-radius: 4px; font-size: 11px; font-weight: 700;">PRIMARY</div>
+                    ` : ''}
+
+                    <button type="button" onclick="removeImage(${idx})" style="position: absolute; top: 5px; right: 5px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; padding: 0;">&times;</button>
+
+                    ${selectedImages.length > 1 ? `
+                        <div style="position: absolute; bottom: 5px; right: 5px; display: flex; gap: 4px;">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="moveImageUp(${idx})" title="Move left" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            ${idx < selectedImages.length - 1 ? `
+                                <button type="button" onclick="moveImageDown(${idx})" title="Move right" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
 
@@ -514,6 +828,20 @@
         function removeImage(index) {
             selectedImages.splice(index, 1);
             renderImagePreviews();
+        }
+
+        function moveImageUp(index) {
+            if (index > 0) {
+                [selectedImages[index - 1], selectedImages[index]] = [selectedImages[index], selectedImages[index - 1]];
+                renderImagePreviews();
+            }
+        }
+
+        function moveImageDown(index) {
+            if (index < selectedImages.length - 1) {
+                [selectedImages[index], selectedImages[index + 1]] = [selectedImages[index + 1], selectedImages[index]];
+                renderImagePreviews();
+            }
         }
 
         // Handle product submit
@@ -532,7 +860,10 @@
                 description: document.getElementById('productDescription').value,
                 stock: parseInt(document.getElementById('productStock').value),
                 images: selectedImages,
-                seller_id: currentUserId
+                seller_id: currentUserId,
+                status: document.getElementById('productStatus').value,
+                sku: document.getElementById('productSKU').value || null,
+                featured: document.getElementById('productFeatured').checked
             };
 
             showLoading();
@@ -560,6 +891,9 @@
 
                 if (result.success) {
                     saveProducts();
+                    // Invalidate cache so next load fetches fresh data
+                    cacheManager.invalidateProducts();
+                    await loadProducts(); // Reload products
                     closeProductModal();
                 }
             } catch (error) {
@@ -596,6 +930,294 @@
                 closePaymentModal();
                 hideLoading();
             }, 1000);
+        }
+
+        // ============================================
+        // BULK UPLOAD FUNCTIONS
+        // ============================================
+
+        let bulkProducts = [];
+        let productFormCounter = 0;
+
+        function openBulkUploadModal() {
+            bulkProducts = [];
+            productFormCounter = 0;
+            document.getElementById('bulkProductsContainer').innerHTML = '';
+            addProductForm(); // Add first product form
+            document.getElementById('bulkUploadModal').classList.add('active');
+        }
+
+        function closeBulkUploadModal() {
+            document.getElementById('bulkUploadModal').classList.remove('active');
+            bulkProducts = [];
+            productFormCounter = 0;
+        }
+
+        function addProductForm() {
+            const formId = productFormCounter++;
+            const container = document.getElementById('bulkProductsContainer');
+
+            const productFormHTML = `
+                <div class="bulk-product-form" id="bulkProduct${formId}" style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 20px; margin-bottom: 20px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0; color: var(--primary-color);">Product #${formId + 1}</h3>
+                        ${bulkProducts.length > 0 ? `
+                            <button type="button" class="btn btn-danger" onclick="removeProductForm(${formId})" style="padding: 6px 12px;">
+                                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <line x1="18" y1="6" x2="6" y2="18"/>
+                                    <line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                                Remove
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                        <div class="form-group">
+                            <label>Product Name *</label>
+                            <input type="text" id="bulkName${formId}" required placeholder="Enter product name">
+                        </div>
+                        <div class="form-group">
+                            <label>Price (JMD) *</label>
+                            <input type="number" id="bulkPrice${formId}" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <select id="bulkCategory${formId}" required>
+                                <option value="">Select category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="home">Home & Garden</option>
+                                <option value="sports">Sports & Outdoors</option>
+                                <option value="books">Books</option>
+                                <option value="toys">Toys & Games</option>
+                                <option value="beauty">Beauty & Personal Care</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Quantity *</label>
+                            <input type="number" id="bulkStock${formId}" min="0" required placeholder="0">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="bulkDescription${formId}" rows="3" required placeholder="Describe your product"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>Product Images *</span>
+                            <span id="bulkImageCount${formId}" style="font-size: 13px; color: var(--text-secondary); font-weight: normal;">0 images</span>
+                        </label>
+                        <div class="file-upload" onclick="document.getElementById('bulkFileInput${formId}').click()" style="cursor: pointer;">
+                            <svg width="36" height="36" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="margin: 0 auto 8px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <p style="margin: 0; font-size: 14px;">Click to upload images</p>
+                            <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">Multiple images supported</p>
+                        </div>
+                        <input type="file" id="bulkFileInput${formId}" accept="image/*" multiple style="display: none;" onchange="handleBulkFileSelect(event, ${formId})">
+                        <div id="bulkImagePreview${formId}" class="grid grid-4 mt-10"></div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', productFormHTML);
+            bulkProducts[formId] = { images: [] };
+        }
+
+        function removeProductForm(formId) {
+            const form = document.getElementById(`bulkProduct${formId}`);
+            if (form) {
+                form.remove();
+                delete bulkProducts[formId];
+
+                // Renumber remaining products
+                const forms = document.querySelectorAll('.bulk-product-form');
+                forms.forEach((form, idx) => {
+                    const heading = form.querySelector('h3');
+                    if (heading) {
+                        heading.textContent = `Product #${idx + 1}`;
+                    }
+                });
+            }
+        }
+
+        function handleBulkFileSelect(event, formId) {
+            const files = event.target.files;
+            Array.from(files).forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        if (!bulkProducts[formId]) bulkProducts[formId] = { images: [] };
+                        bulkProducts[formId].images.push(e.target.result);
+                        renderBulkImagePreviews(formId);
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        function renderBulkImagePreviews(formId) {
+            const preview = document.getElementById(`bulkImagePreview${formId}`);
+            const imageCount = document.getElementById(`bulkImageCount${formId}`);
+            const images = bulkProducts[formId]?.images || [];
+
+            preview.innerHTML = images.map((img, idx) => `
+                <div style="position: relative; border: ${idx === 0 ? '3px solid var(--accent-color)' : '2px solid #e5e7eb'}; border-radius: 8px; overflow: hidden;">
+                    <img src="${img}" style="width: 100%; height: 80px; object-fit: cover; display: block;">
+
+                    ${idx === 0 ? `
+                        <div style="position: absolute; top: 3px; left: 3px; background: var(--accent-color); color: #111; padding: 2px 6px; border-radius: 3px; font-size: 9px; font-weight: 700;">PRIMARY</div>
+                    ` : ''}
+
+                    <button type="button" onclick="removeBulkImage(${formId}, ${idx})" style="position: absolute; top: 3px; right: 3px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 20px; height: 20px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; padding: 0;">&times;</button>
+
+                    ${images.length > 1 ? `
+                        <div style="position: absolute; bottom: 3px; right: 3px; display: flex; gap: 3px;">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="moveBulkImageUp(${formId}, ${idx})" title="Move left" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 3px; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            ${idx < images.length - 1 ? `
+                                <button type="button" onclick="moveBulkImageDown(${formId}, ${idx})" title="Move right" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 3px; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            const count = images.length;
+            imageCount.textContent = `${count} image${count !== 1 ? 's' : ''}`;
+            imageCount.style.color = count > 0 ? 'var(--success-color)' : 'var(--text-secondary)';
+        }
+
+        function removeBulkImage(formId, imageIndex) {
+            if (bulkProducts[formId] && bulkProducts[formId].images) {
+                bulkProducts[formId].images.splice(imageIndex, 1);
+                renderBulkImagePreviews(formId);
+            }
+        }
+
+        function moveBulkImageUp(formId, index) {
+            const images = bulkProducts[formId]?.images;
+            if (images && index > 0) {
+                [images[index - 1], images[index]] = [images[index], images[index - 1]];
+                renderBulkImagePreviews(formId);
+            }
+        }
+
+        function moveBulkImageDown(formId, index) {
+            const images = bulkProducts[formId]?.images;
+            if (images && index < images.length - 1) {
+                [images[index], images[index + 1]] = [images[index + 1], images[index]];
+                renderBulkImagePreviews(formId);
+            }
+        }
+
+        async function handleBulkUpload(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('bulkUploadBtn');
+            btn.disabled = true;
+            btn.textContent = 'Uploading...';
+
+            showLoading();
+
+            try {
+                const productsToUpload = [];
+
+                // Collect all product data
+                for (const [formId, product] of Object.entries(bulkProducts)) {
+                    if (!product) continue;
+
+                    const name = document.getElementById(`bulkName${formId}`)?.value;
+                    const price = document.getElementById(`bulkPrice${formId}`)?.value;
+                    const category = document.getElementById(`bulkCategory${formId}`)?.value;
+                    const description = document.getElementById(`bulkDescription${formId}`)?.value;
+                    const stock = document.getElementById(`bulkStock${formId}`)?.value;
+
+                    if (!name || !price || !category || !description || !stock) continue;
+
+                    if (!product.images || product.images.length === 0) {
+                        showAlert(`Product "${name}" must have at least one image`, 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Upload All Products';
+                        hideLoading();
+                        return;
+                    }
+
+                    productsToUpload.push({
+                        name,
+                        price: parseFloat(price),
+                        category,
+                        description,
+                        stock: parseInt(stock),
+                        images: product.images,
+                        seller_id: currentUserId
+                    });
+                }
+
+                if (productsToUpload.length === 0) {
+                    showAlert('Please add at least one product with all required fields', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Upload All Products';
+                    hideLoading();
+                    return;
+                }
+
+                // Upload all products
+                let successCount = 0;
+                let failCount = 0;
+
+                for (const productData of productsToUpload) {
+                    try {
+                        const result = await productManager.addProduct(productData, currentUserId);
+                        if (result.success) {
+                            successCount++;
+                            products.push(result.data[0]);
+                        } else {
+                            failCount++;
+                            console.error(`Failed to upload ${productData.name}:`, result.error);
+                        }
+                    } catch (error) {
+                        failCount++;
+                        console.error(`Error uploading ${productData.name}:`, error);
+                    }
+                }
+
+                // Show results
+                if (successCount > 0) {
+                    showAlert(`Successfully uploaded ${successCount} product${successCount > 1 ? 's' : ''}!`, 'success');
+                    // Invalidate cache to force fresh data
+                    cacheManager.invalidateProducts();
+                    await loadProducts();
+                    closeBulkUploadModal();
+                }
+
+                if (failCount > 0) {
+                    showAlert(`${failCount} product${failCount > 1 ? 's' : ''} failed to upload. Check console for details.`, 'error');
+                }
+
+            } catch (error) {
+                console.error('Bulk upload error:', error);
+                showAlert('Error uploading products: ' + error.message, 'error');
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Upload All Products';
+                hideLoading();
+            }
         }
 
         // Utility functions
@@ -638,6 +1260,7 @@
         // Initialize
         window.addEventListener('load', () => {
             loadProducts();
+            populateMobileMenu();
         });
     </script>
 
@@ -746,10 +1369,16 @@
 
             <div class="footer-copyright">
                 &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                    <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.9;">A SUBSIDIARY OF</span>
+                    <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
+                </div>
             </div>
         </div>
     </div>
 </footer>
 
+<!-- Vercel Analytics -->
+<script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

@@ -675,32 +675,44 @@
             }
         }
 
-        // Load custom auth background
+        // Load custom auth background - Optimized with fallback
         async function loadAuthBackground() {
             try {
-                const result = await HomepageDB.getAuthBackground();
-                if (result.success && result.data) {
-                    document.body.style.backgroundImage = `url(${result.data})`;
-                    // Hide default bubbles if custom background is set
+                // Try localStorage first (instant)
+                let authBg = localStorage.getItem('authBackground');
+
+                if (authBg) {
+                    document.body.style.backgroundImage = `url(${authBg})`;
                     const bubbles = document.querySelector('.background-bubbles');
                     if (bubbles) bubbles.style.display = 'none';
+                    console.log('✅ Auth background: Loaded from localStorage');
+                } else if (typeof HomepageDB !== 'undefined') {
+                    // Fallback to database
+                    const result = await HomepageDB.getAuthBackground();
+                    if (result.success && result.data) {
+                        document.body.style.backgroundImage = `url(${result.data})`;
+                        localStorage.setItem('authBackground', result.data);
+                        const bubbles = document.querySelector('.background-bubbles');
+                        if (bubbles) bubbles.style.display = 'none';
+                        console.log('✅ Auth background: Loaded from database');
+                    }
                 }
             } catch (error) {
-                console.log('No custom auth background set, using default');
+                console.log('ℹ️ No custom auth background set, using default');
             }
         }
 
-        // Hide loading screen when page loads
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.getElementById('loadingScreen').classList.add('hidden');
-            }, 1500);
+        // Initialize - Use DOMContentLoaded for faster loading
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide loading screen immediately
+            document.getElementById('loadingScreen').classList.add('hidden');
 
-            // Load custom background
-            if (typeof HomepageDB !== 'undefined') {
-                loadAuthBackground();
-            }
+            // Load custom background instantly
+            loadAuthBackground();
         });
     </script>
+
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

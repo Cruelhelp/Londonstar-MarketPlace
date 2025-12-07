@@ -367,6 +367,13 @@
             <div class="logo-container" onclick="window.location.href='index.html'">
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
+            <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </button>
             <div class="search-bar">
                 <input type="text" id="globalSearchInput" placeholder="Search products..." onkeyup="searchProducts()">
                 <button onclick="searchProducts()">
@@ -379,6 +386,12 @@
             <nav class="header-nav" id="headerNav">
                 <!-- Nav items will be loaded dynamically based on login status -->
             </nav>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobileMenu">
+            <div id="mobileMenuContent">
+                <!-- Populated by JavaScript -->
+            </div>
         </div>
     </header>
 
@@ -461,18 +474,20 @@
 
     <!-- Product Detail Modal -->
     <div class="modal" id="productModal">
-        <div class="modal-content" style="max-width: 800px;">
+        <div class="modal-content" style="max-width: 1200px; max-height: 90vh; overflow-y: auto;">
             <div class="modal-header">
-                <h2 id="modalProductName">Product Details</h2>
+                <h2 id="modalProductName" style="font-size: 24px; font-weight: 700;">Product Details</h2>
                 <button class="close-modal" onclick="closeProductModal()">&times;</button>
             </div>
-            <div id="productDetails"></div>
+            <div id="productDetails" style="padding: 30px;"></div>
         </div>
     </div>
 
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/cache-manager.js"></script>
+    <script src="js/global-preloader.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/scroll-effects.js"></script>
 
@@ -482,19 +497,26 @@
         let cart = [];
         let currentCategory = 'all';
 
-        // Load products from Supabase
+        // Load products from global preloader cache
         async function loadProducts() {
-            try {
-                const { data: products, error } = await supabase
-                    .from('products')
-                    .select('*')
-                    .eq('status', 'active')
-                    .order('created_at', { ascending: false });
+            // Show loading spinner
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = `
+                <div class="spinner-container" style="grid-column: 1 / -1;">
+                    <div class="spinner large"></div>
+                </div>
+            `;
 
-                if (error) throw error;
+            try {
+                // Wait for global preloader to finish
+                await globalPreloader.preloadAll();
+
+                // Get products from global preloader (already cached)
+                const products = globalPreloader.getProducts();
 
                 allProducts = products || [];
                 filteredProducts = [...allProducts];
+
                 renderProducts();
             } catch (error) {
                 console.error('Error loading products:', error);
@@ -529,10 +551,14 @@
                 let imageHTML;
                 if (hasMultipleImages) {
                     imageHTML = `
-                        <div class="product-carousel" data-product-id="${product.id}">
+                        <div class="product-carousel image-loading" data-product-id="${product.id}">
+                            <div class="image-loader"></div>
                             <div class="carousel-container">
                                 ${images.map((img, imgIdx) => `
-                                    <img src="${img}" alt="${product.name}" class="carousel-image ${imgIdx === 0 ? 'active' : ''}" data-index="${imgIdx}">
+                                    <img src="${img}" alt="${product.name}"
+                                         class="carousel-image ${imgIdx === 0 ? 'active' : ''}"
+                                         data-index="${imgIdx}"
+                                         onload="if(${imgIdx}===0){this.closest('.product-carousel').classList.remove('image-loading'); this.closest('.product-carousel').querySelector('.image-loader')?.remove();}">
                                 `).join('')}
                             </div>
                             <button class="carousel-btn prev" onclick="event.stopPropagation(); prevImage('${product.id}')" aria-label="Previous image">
@@ -553,7 +579,15 @@
                         </div>
                     `;
                 } else {
-                    imageHTML = `<img src="${images[0] || 'images/placeholder.png'}" alt="${product.name}" class="product-image">`;
+                    imageHTML = `
+                        <div class="image-loading" style="position: relative;">
+                            <div class="image-loader"></div>
+                            <img src="${images[0] || 'images/placeholder.png'}"
+                                 alt="${product.name}"
+                                 class="product-image"
+                                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.querySelector('.image-loader')?.remove();">
+                        </div>
+                    `;
                 }
 
                 return `
@@ -682,45 +716,259 @@
             if (!product) return;
 
             const images = Array.isArray(product.images) ? product.images : [];
-            const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+            const firstImage = images[0] || 'images/placeholder.png';
+            const hasMultipleImages = images.length > 1;
 
             document.getElementById('modalProductName').textContent = product.name;
+
             document.getElementById('productDetails').innerHTML = `
-                <div class="grid grid-2" style="gap: 30px;">
-                    <div>
-                        <img src="${firstImage}" style="width: 100%; border-radius: 8px;">
-                        ${images.length > 1 ? `
-                            <div class="grid grid-4 mt-10" style="gap: 10px;">
-                                ${images.slice(1).map(img => `<img src="${img}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px; cursor: pointer;">`).join('')}
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
+                    <!-- Left Column - Image Gallery -->
+                    <div style="position: sticky; top: 0;">
+                        <!-- Main Image Display -->
+                        <div style="position: relative; background: #f9fafb; border-radius: 12px; overflow: hidden; margin-bottom: 16px; aspect-ratio: 1/1;">
+                            <img id="mainProductImage" src="${firstImage}" alt="${product.name}"
+                                style="width: 100%; height: 100%; object-fit: contain; cursor: zoom-in;"
+                                onclick="event.stopPropagation();">
+
+                            ${hasMultipleImages ? `
+                                <button class="modal-carousel-btn prev" onclick="event.stopPropagation(); changeMainImage(-1)"
+                                    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10;">
+                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                                <button class="modal-carousel-btn next" onclick="event.stopPropagation(); changeMainImage(1)"
+                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10;">
+                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                                <div class="modal-image-counter" style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.75); color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">
+                                    <span id="currentImageIndex">1</span> / ${images.length}
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- Thumbnail Gallery -->
+                        ${hasMultipleImages ? `
+                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px;">
+                                ${images.map((img, idx) => `
+                                    <div class="product-thumbnail ${idx === 0 ? 'active' : ''}"
+                                        data-index="${idx}"
+                                        onclick="event.stopPropagation(); selectThumbnail(${idx})"
+                                        style="position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid ${idx === 0 ? 'var(--accent-color)' : '#e5e7eb'}; transition: all 0.2s;">
+                                        <img src="${img}" alt="${product.name} - Image ${idx + 1}"
+                                            style="width: 100%; height: 100%; object-fit: cover;">
+                                    </div>
+                                `).join('')}
                             </div>
                         ` : ''}
                     </div>
-                    <div>
-                        <div class="product-price" style="font-size: 32px; margin-bottom: 15px;">J$${parseFloat(product.price).toFixed(2)}</div>
-                        <div style="margin-bottom: 15px;">
-                            <span class="badge ${product.stock > 0 ? 'badge-success' : 'badge-danger'}">
-                                ${product.stock > 0 ? `In Stock (${product.stock} available)` : 'Out of Stock'}
-                            </span>
-                        </div>
+
+                    <!-- Right Column - Product Details -->
+                    <div style="display: flex; flex-direction: column;">
+                        <!-- Price Section -->
                         <div style="margin-bottom: 20px;">
-                            <strong>Category:</strong> ${product.category}
+                            <div style="font-size: 36px; font-weight: 700; color: var(--accent-color); margin-bottom: 10px;">
+                                J$${parseFloat(product.price).toFixed(2)}
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span class="badge ${product.stock > 0 ? 'badge-success' : 'badge-danger'}" style="font-size: 13px; padding: 6px 12px;">
+                                    ${product.stock > 0 ? `✓ In Stock (${product.stock} available)` : '✗ Out of Stock'}
+                                </span>
+                                ${product.featured ? `
+                                    <span class="badge" style="background: var(--accent-color); color: #111; font-size: 13px; padding: 6px 12px;">
+                                        ⭐ Featured
+                                    </span>
+                                ` : ''}
+                            </div>
                         </div>
-                        <div style="margin-bottom: 25px; line-height: 1.6;">
-                            <strong>Description:</strong><br>
-                            ${product.description}
+
+                        <!-- Category -->
+                        <div style="margin-bottom: 25px; padding: 15px; background: #f9fafb; border-radius: 8px; border-left: 4px solid var(--accent-color);">
+                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Category</div>
+                            <div style="font-size: 16px; font-weight: 600; color: var(--primary-color); text-transform: capitalize;">${product.category}</div>
                         </div>
-                        <button class="btn btn-primary" style="width: 100%;" onclick="addToCart('${product.id}'); closeProductModal();">
-                            Add to Cart
-                        </button>
+
+                        <!-- Description -->
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="font-size: 16px; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Product Description</h3>
+                            <div style="line-height: 1.8; color: #374151; font-size: 15px;">
+                                ${product.description}
+                            </div>
+                        </div>
+
+                        <!-- Product Info Grid -->
+                        <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 12px;">
+                            <h3 style="font-size: 14px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Product Information</h3>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                                <div style="padding: 10px; background: white; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Stock Status</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: ${product.stock > 0 ? '#10b981' : '#ef4444'};">
+                                        ${product.stock > 0 ? 'Available' : 'Out of Stock'}
+                                    </div>
+                                </div>
+                                <div style="padding: 10px; background: white; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Quantity</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: var(--primary-color);">
+                                        ${product.stock} units
+                                    </div>
+                                </div>
+                                ${product.sku ? `
+                                    <div style="padding: 10px; background: white; border-radius: 6px;">
+                                        <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">SKU</div>
+                                        <div style="font-size: 14px; font-weight: 600; color: var(--primary-color);">
+                                            ${product.sku}
+                                        </div>
+                                    </div>
+                                ` : ''}
+                                <div style="padding: 10px; background: white; border-radius: 6px;">
+                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Images</div>
+                                    <div style="font-size: 14px; font-weight: 600; color: var(--primary-color);">
+                                        ${images.length} photo${images.length !== 1 ? 's' : ''}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Add to Cart Button -->
+                        <div style="margin-top: auto;">
+                            <button class="btn btn-primary"
+                                style="width: 100%; padding: 16px; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;"
+                                onclick="addToCart('${product.id}'); closeProductModal();"
+                                ${product.stock <= 0 ? 'disabled' : ''}>
+                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <circle cx="9" cy="21" r="1"/>
+                                    <circle cx="20" cy="21" r="1"/>
+                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                                </svg>
+                                ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
+                            </button>
+                            <div style="text-align: center; margin-top: 12px; font-size: 13px; color: #6b7280;">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                    <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
+                                    <circle cx="12" cy="10" r="3"/>
+                                </svg>
+                                Ships from Jamaica
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
 
+            // Store current images for navigation
+            window.currentProductImages = images;
+            window.currentImageIndex = 0;
+
             document.getElementById('productModal').classList.add('active');
+        }
+
+        // Image gallery functions
+        function changeMainImage(direction) {
+            const images = window.currentProductImages;
+            if (!images || images.length <= 1) return;
+
+            window.currentImageIndex = (window.currentImageIndex + direction + images.length) % images.length;
+            updateMainImage();
+        }
+
+        function selectThumbnail(index) {
+            window.currentImageIndex = index;
+            updateMainImage();
+        }
+
+        function updateMainImage() {
+            const images = window.currentProductImages;
+            const index = window.currentImageIndex;
+
+            // Update main image
+            const mainImg = document.getElementById('mainProductImage');
+            if (mainImg) {
+                mainImg.src = images[index];
+            }
+
+            // Update counter
+            const counter = document.getElementById('currentImageIndex');
+            if (counter) {
+                counter.textContent = index + 1;
+            }
+
+            // Update thumbnail borders
+            const thumbnails = document.querySelectorAll('.product-thumbnail');
+            thumbnails.forEach((thumb, idx) => {
+                if (idx === index) {
+                    thumb.classList.add('active');
+                    thumb.style.border = '3px solid var(--accent-color)';
+                } else {
+                    thumb.classList.remove('active');
+                    thumb.style.border = '3px solid #e5e7eb';
+                }
+            });
         }
 
         function closeProductModal() {
             document.getElementById('productModal').classList.remove('active');
+        }
+
+        // Modal Carousel Navigation Functions
+        function prevModalImage() {
+            const carousel = document.getElementById('modalCarousel');
+            if (!carousel) return;
+
+            const images = carousel.querySelectorAll('.modal-carousel-image');
+            const dots = carousel.querySelectorAll('.modal-dot');
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            const prevIndex = (currentIndex - 1 + images.length) % images.length;
+
+            images[currentIndex].classList.remove('active');
+            images[prevIndex].classList.add('active');
+            dots[currentIndex].classList.remove('active');
+            dots[prevIndex].classList.add('active');
+
+            updateModalImageCounter(prevIndex + 1);
+        }
+
+        function nextModalImage() {
+            const carousel = document.getElementById('modalCarousel');
+            if (!carousel) return;
+
+            const images = carousel.querySelectorAll('.modal-carousel-image');
+            const dots = carousel.querySelectorAll('.modal-dot');
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+            const nextIndex = (currentIndex + 1) % images.length;
+
+            images[currentIndex].classList.remove('active');
+            images[nextIndex].classList.add('active');
+            dots[currentIndex].classList.remove('active');
+            dots[nextIndex].classList.add('active');
+
+            updateModalImageCounter(nextIndex + 1);
+        }
+
+        function goToModalImage(index) {
+            const carousel = document.getElementById('modalCarousel');
+            if (!carousel) return;
+
+            const images = carousel.querySelectorAll('.modal-carousel-image');
+            const dots = carousel.querySelectorAll('.modal-dot');
+            const currentIndex = Array.from(images).findIndex(img => img.classList.contains('active'));
+
+            if (currentIndex !== index) {
+                images[currentIndex].classList.remove('active');
+                images[index].classList.add('active');
+                dots[currentIndex].classList.remove('active');
+                dots[index].classList.add('active');
+
+                updateModalImageCounter(index + 1);
+            }
+        }
+
+        function updateModalImageCounter(current) {
+            const counter = document.getElementById('modalImageCounter');
+            if (counter) {
+                counter.textContent = current;
+            }
         }
 
         // Cart functions
@@ -764,7 +1012,7 @@
                 // Show feedback
                 showLoading();
                 document.querySelector('#loadingScreen .loading-text').textContent = 'Added to cart!';
-                setTimeout(hideLoading, 800);
+                hideLoading();
             } catch (error) {
                 console.error('Error adding to cart:', error);
                 alert('Error adding item to cart. Please try again.');
@@ -903,21 +1151,35 @@
                 });
             }
 
-            // Handle product view
-            const productId = params.get('product');
+            // Handle product view (supports both 'product' and 'productId' parameters)
+            const productId = params.get('product') || params.get('productId');
             if (productId) {
-                setTimeout(() => {
-                    viewProduct(productId);
+                // Wait for products to be loaded, then open modal
+                const waitForProducts = setInterval(() => {
+                    if (allProducts && allProducts.length > 0) {
+                        clearInterval(waitForProducts);
 
-                    // Handle add to cart action
-                    const action = params.get('action');
-                    if (action === 'addToCart') {
-                        setTimeout(() => {
-                            addToCart(productId);
-                            closeProductModal();
-                        }, 500);
+                        // Open product modal
+                        viewProduct(productId);
+
+                        // Handle add to cart action
+                        const action = params.get('action');
+                        if (action === 'addToCart') {
+                            setTimeout(() => {
+                                addToCart(productId);
+                                closeProductModal();
+                            }, 300);
+                        }
                     }
-                }, 500);
+                }, 50); // Check every 50ms until products are loaded
+
+                // Timeout after 3 seconds
+                setTimeout(() => {
+                    clearInterval(waitForProducts);
+                    if (!allProducts || allProducts.length === 0) {
+                        console.error('Products failed to load for modal');
+                    }
+                }, 3000);
             }
         }
 
@@ -992,7 +1254,43 @@
                     </a>
                 `;
             }
+
+            // Populate mobile menu with header nav content
+            const mobileMenuContent = document.getElementById('mobileMenuContent');
+            if (mobileMenuContent) {
+                mobileMenuContent.innerHTML = headerNav.innerHTML;
+            }
         }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('mobileMenuToggle');
+
+            mobileMenu.classList.toggle('active');
+            toggle.classList.toggle('active');
+
+            // Prevent background scroll when menu is open
+            if (mobileMenu.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = '';
+            }
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function(event) {
+            const mobileMenu = document.getElementById('mobileMenu');
+            const toggle = document.getElementById('mobileMenuToggle');
+
+            if (mobileMenu && toggle && mobileMenu.classList.contains('active')) {
+                if (!mobileMenu.contains(event.target) && !toggle.contains(event.target)) {
+                    mobileMenu.classList.remove('active');
+                    toggle.classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }
+        });
 
         // Handle logout
         async function handleLogout() {
@@ -1024,66 +1322,87 @@
             }
         }
 
-        // Initialize
-        // Load Marketplace Hero Background and Text Colors
+        // Load Marketplace Hero Background - Ultra-fast with preloaded data
         async function loadMarketplaceHeroBackground() {
-            try {
-                const { data, error } = await supabase
-                    .from('platform_settings')
-                    .select('setting_value')
-                    .eq('setting_key', 'marketplace_hero_background')
-                    .single();
+            const heroEl = document.querySelector('.hero-section');
+            if (!heroEl) return;
 
-                if (error || !data || !data.setting_value) return;
+            // Add loading class to show spinner
+            heroEl.classList.add('loading');
 
-                const settings = data.setting_value;
-                const heroEl = document.querySelector('.hero-section');
+            // Wait for global preloader to complete
+            await globalPreloader.preloadAll();
 
-                if (settings.images && settings.images.length > 0) {
-                    heroEl.style.backgroundImage = `url(${settings.images[0]})`;
-                }
-            } catch (error) {
-                console.error('Error loading marketplace hero background:', error);
+            // Get from global preloader (already loaded in parallel)
+            const settings = globalPreloader.getMarketplaceHero();
+
+            // If no background configured, use default gradient
+            if (!settings || !settings.images || settings.images.length === 0) {
+                heroEl.classList.remove('loading');
+                heroEl.style.background = 'linear-gradient(to right, #c2410c 0%, #f97316 50%, #fb923c 100%)';
+                console.log('ℹ️ No marketplace hero background configured - using default gradient');
+
+                // Load text colors even without custom background
+                loadMarketplaceTextColors();
+                return;
             }
 
-            // Load text colors
-            try {
-                const { data, error } = await supabase
-                    .from('platform_settings')
-                    .select('setting_value')
-                    .eq('setting_key', 'marketplace_text_colors')
-                    .single();
+            // Load custom background image
+            const loadImage = (imageUrl) => {
+                const img = new Image();
+                img.onload = () => {
+                    heroEl.style.backgroundImage = `url(${imageUrl})`;
+                    heroEl.classList.remove('loading');
+                    console.log('✅ Marketplace hero: Loaded instantly from preloader');
+                };
+                img.onerror = () => {
+                    // Fallback to default gradient on error
+                    heroEl.classList.remove('loading');
+                    heroEl.style.background = 'linear-gradient(to right, #c2410c 0%, #f97316 50%, #fb923c 100%)';
+                    console.warn('⚠️ Marketplace hero image failed to load - using default gradient');
+                };
+                img.src = imageUrl;
+            };
 
-                if (!error && data && data.setting_value) {
+            loadImage(settings.images[0]);
+
+            // Load text colors
+            loadMarketplaceTextColors();
+        }
+
+        function loadMarketplaceTextColors() {
+            try {
+                const colorSettings = localStorage.getItem('marketplaceTextColors');
+                if (colorSettings) {
+                    const colors = JSON.parse(colorSettings);
                     const titleEl = document.querySelector('.hero-section h1');
                     const subtitleEl = document.querySelector('.hero-section p');
 
-                    if (titleEl && data.setting_value.titleColor) {
-                        titleEl.style.color = data.setting_value.titleColor;
+                    if (titleEl && colors.titleColor) {
+                        titleEl.style.color = colors.titleColor;
                     }
-                    if (subtitleEl && data.setting_value.subtitleColor) {
-                        subtitleEl.style.color = data.setting_value.subtitleColor;
+                    if (subtitleEl && colors.subtitleColor) {
+                        subtitleEl.style.color = colors.subtitleColor;
                     }
                 }
             } catch (error) {
-                console.error('Error loading marketplace text colors:', error);
+                console.warn('Error loading marketplace text colors:', error);
             }
         }
 
-        window.addEventListener('load', () => {
+        // Initialize - Use DOMContentLoaded for faster loading
+        document.addEventListener('DOMContentLoaded', () => {
             loadHeaderNav();
             loadProducts();
             loadCart();
             handleURLParams();
             loadMarketplaceHeroBackground();
 
-            // Set up real-time search for marketplace page
-            setTimeout(() => {
-                const searchInput = document.getElementById('globalSearchInput');
-                if (searchInput) {
-                    searchInput.addEventListener('keyup', searchProducts);
-                }
-            }, 100); // Wait for header to load
+            // Set up real-time search immediately
+            const searchInput = document.getElementById('globalSearchInput');
+            if (searchInput) {
+                searchInput.addEventListener('keyup', searchProducts);
+            }
         });
     </script>
 
@@ -1109,28 +1428,6 @@
                         <li><a href="seller.html">Seller Dashboard</a></li>
                         <li><a href="auth.html">Start Selling</a></li>
                         <li><a href="seller-profile.html">Seller Profile</a></li>
-                        <li><a href="#">Seller Tools</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>Customer Service</h3>
-                    <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Track Your Order</a></li>
-                        <li><a href="#">Returns & Refunds</a></li>
-                        <li><a href="#">Shipping Info</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>About Us</h3>
-                    <ul>
-                        <li><a href="#">About London Marketplace</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press Center</a></li>
-                        <li><a href="#">Sustainability</a></li>
                     </ul>
                 </div>
 
@@ -1139,18 +1436,17 @@
                     <ul>
                         <li><a href="auth.html">Sign In</a></li>
                         <li><a href="auth.html">Create Account</a></li>
-                        <li><a href="#">My Orders</a></li>
-                        <li><a href="#">Wishlist</a></li>
+                        <li><a href="profile.html">My Profile</a></li>
+                        <li><a href="orders.html">My Orders</a></li>
                     </ul>
                 </div>
 
                 <div class="footer-column">
-                    <h3>Resources</h3>
+                    <h3>About</h3>
                     <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Accessibility</a></li>
+                        <li><a href="home.html">Home</a></li>
+                        <li><a href="marketplace.html">Marketplace</a></li>
+                        <li><a href="admin.html">Admin</a></li>
                     </ul>
                 </div>
             </div>
@@ -1160,18 +1456,18 @@
                     <img src="images/logo-new.svg" alt="London Marketplace">
                 </div>
 
-                <div class="footer-links">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Cookie Policy</a>
-                    <a href="#">Accessibility</a>
-                </div>
-
                 <div class="footer-copyright">
-                    &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+                    &copy; 2025 London Star Marketplace. All rights reserved.
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                        <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.9;">A SUBSIDIARY OF</span>
+                        <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
+                    </div>
                 </div>
             </div>
         </div>
     </footer>
+
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

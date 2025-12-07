@@ -372,13 +372,23 @@
         <div class="tab-content" id="products">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
                 <h1 style="margin: 0;">Product Management</h1>
-                <button class="btn btn-primary" onclick="openAddProductModal()" style="padding: 12px 24px;">
-                    <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
-                        <line x1="12" y1="5" x2="12" y2="19"/>
-                        <line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    Add Product
-                </button>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="openAdminBulkUploadModal()" style="padding: 12px 24px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                            <polyline points="17 8 12 3 7 8"/>
+                            <line x1="12" y1="3" x2="12" y2="15"/>
+                        </svg>
+                        Bulk Upload
+                    </button>
+                    <button class="btn btn-primary" onclick="openAddProductModal()" style="padding: 12px 24px;">
+                        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                            <line x1="12" y1="5" x2="12" y2="19"/>
+                            <line x1="5" y1="12" x2="19" y2="12"/>
+                        </svg>
+                        Add Product
+                    </button>
+                </div>
             </div>
 
             <!-- Products Search -->
@@ -1112,9 +1122,103 @@
                         </select>
                     </div>
 
+                    <!-- Advanced Options Section (for editing existing products) -->
+                    <div id="advancedOptionsSection" style="display: none; margin-top: 24px; padding-top: 24px; border-top: 2px solid #e5e7eb;">
+                        <h3 style="font-size: 18px; font-weight: 600; color: var(--primary-color); margin-bottom: 16px;">Advanced Options</h3>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label>Product Status</label>
+                                <select id="productStatus">
+                                    <option value="active">Active (Visible in marketplace)</option>
+                                    <option value="inactive">Inactive (Hidden from marketplace)</option>
+                                    <option value="draft">Draft (Not yet published)</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>SKU / Product Code (Optional)</label>
+                                <input type="text" id="productSKU" placeholder="e.g., PROD-001">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label style="display: flex; align-items: center; cursor: pointer;">
+                                <input type="checkbox" id="productFeatured" style="width: 18px; height: 18px; margin-right: 8px; accent-color: var(--accent-color); cursor: pointer;">
+                                <span style="font-weight: 500;">Mark as Featured Product</span>
+                            </label>
+                            <small style="color: #6b7280; display: block; margin-top: 4px; margin-left: 26px;">Featured products appear prominently in the marketplace</small>
+                        </div>
+                    </div>
+
+                    <!-- Product Info Section (for editing existing products) -->
+                    <div id="productInfoSection" style="display: none; margin-top: 24px; padding: 16px; background: #f9fafb; border-radius: 8px; border: 1px solid #e5e7eb;">
+                        <h3 style="font-size: 16px; font-weight: 600; color: var(--primary-color); margin-bottom: 12px;">Product Information</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; font-size: 14px;">
+                            <div>
+                                <span style="color: #6b7280;">Created:</span>
+                                <span id="productCreatedDate" style="font-weight: 500; margin-left: 8px; color: var(--primary-color);">-</span>
+                            </div>
+                            <div>
+                                <span style="color: #6b7280;">Last Updated:</span>
+                                <span id="productUpdatedDate" style="font-weight: 500; margin-left: 8px; color: var(--primary-color);">-</span>
+                            </div>
+                        </div>
+                    </div>
+
                     <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px;">
+                        <button type="button" id="duplicateBtn" class="btn btn-secondary" onclick="duplicateAdminProduct()" style="display: none; margin-right: auto;">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"/>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/>
+                            </svg>
+                            Duplicate
+                        </button>
                         <button type="button" class="btn" onclick="closeAddProductModal()" style="background: #6b7280;">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Product</button>
+                        <button type="submit" class="btn btn-primary" id="submitProductBtn">Add Product</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Bulk Upload Modal -->
+    <div id="adminBulkUploadModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 1000px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h2>Bulk Upload Products</h2>
+                <button class="close-modal" onclick="closeAdminBulkUploadModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="background: #e0f2fe; border: 1px solid #7dd3fc; border-radius: 8px; padding: 16px; margin-bottom: 24px;">
+                    <p style="margin: 0; color: #0c4a6e;"><strong>💡 Admin Tip:</strong> Add multiple products at once. You can assign each product to a specific seller or leave as admin-owned.</p>
+                </div>
+
+                <form id="adminBulkUploadForm" onsubmit="handleAdminBulkUpload(event)">
+                    <div id="adminBulkProductsContainer">
+                        <!-- Product forms will be added dynamically -->
+                    </div>
+
+                    <div style="display: flex; gap: 12px; margin-top: 24px;">
+                        <button type="button" class="btn btn-secondary" onclick="addAdminProductForm()">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;">
+                                <line x1="12" y1="5" x2="12" y2="19"/>
+                                <line x1="5" y1="12" x2="19" y2="12"/>
+                            </svg>
+                            Add Another Product
+                        </button>
+                    </div>
+
+                    <div style="display: flex; gap: 12px; justify-content: flex-end; margin-top: 24px; padding-top: 24px; border-top: 2px solid #e5e7eb;">
+                        <button type="button" class="btn" onclick="closeAdminBulkUploadModal()" style="background: #6b7280;">Cancel</button>
+                        <button type="submit" class="btn btn-primary" id="adminBulkUploadBtn">
+                            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            Upload All Products
+                        </button>
                     </div>
                 </form>
             </div>
@@ -1196,6 +1300,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-init.js"></script>
+    <script src="js/cache-manager.js"></script>
+    <script src="js/global-preloader.js"></script>
     <script src="js/supabase-homepage.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/toast.js"></script>
@@ -1397,6 +1503,8 @@
                         price,
                         stock,
                         status,
+                        sku,
+                        featured,
                         images,
                         seller_id,
                         seller:seller_id (
@@ -1416,20 +1524,39 @@
                 tbody.innerHTML = products.map(product => {
                     const images = Array.isArray(product.images) ? product.images : [];
                     const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
+                    const imageCount = images.length > 1 ? `<small style="color: #6b7280; display: block; margin-top: 2px;">📷 ${images.length} images</small>` : '';
+                    const skuBadge = product.sku ? `<small style="color: #6b7280; display: block; margin-top: 2px;">SKU: ${product.sku}</small>` : '';
+                    const featuredBadge = product.featured ? `<span class="badge" style="background: var(--accent-color); color: #111; font-size: 10px; margin-left: 4px;">⭐ FEATURED</span>` : '';
 
                     return `
                     <tr>
-                        <td><img src="${firstImage}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;"></td>
-                        <td>${product.name}</td>
+                        <td>
+                            <img src="${firstImage}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
+                            ${imageCount}
+                        </td>
+                        <td>
+                            ${product.name}${featuredBadge}
+                            ${skuBadge}
+                        </td>
                         <td>${product.category}</td>
                         <td>J$${parseFloat(product.price).toFixed(2)}</td>
                         <td>${product.stock}</td>
                         <td>${product.seller?.email || 'Unknown'}</td>
-                        <td><span class="badge ${product.status === 'active' ? 'badge-success' : 'badge-warning'}">${product.status || 'active'}</span></td>
+                        <td><span class="badge ${product.status === 'active' ? 'badge-success' : product.status === 'draft' ? 'badge-warning' : 'badge-secondary'}">${product.status || 'active'}</span></td>
                         <td>
-                            <div class="action-buttons">
-                                <button class="btn btn-secondary btn-sm" onclick="editStock('${product.id}', ${product.stock})">Edit Stock</button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')">Delete</button>
+                            <div class="action-buttons" style="display: flex; gap: 6px; flex-wrap: wrap;">
+                                <button class="btn btn-primary btn-sm" onclick="editAdminProduct('${product.id}')" title="Edit product">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;">
+                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                                    </svg>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')" title="Delete product">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;">
+                                        <polyline points="3 6 5 6 21 6"/>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                    </svg>
+                                </button>
                             </div>
                         </td>
                     </tr>
@@ -1518,9 +1645,24 @@
             }
         }
 
+        // Track editing product ID
+        let editingProductId = null;
+
         // Open add product modal
         async function openAddProductModal() {
+            editingProductId = null;
             const modal = document.getElementById('addProductModal');
+            const modalTitle = modal.querySelector('h2');
+            const submitBtn = document.getElementById('submitProductBtn');
+
+            modalTitle.textContent = 'Add New Product';
+            submitBtn.textContent = 'Add Product';
+
+            // Hide advanced sections for new products
+            document.getElementById('advancedOptionsSection').style.display = 'none';
+            document.getElementById('productInfoSection').style.display = 'none';
+            document.getElementById('duplicateBtn').style.display = 'none';
+
             modal.style.display = 'flex';
 
             // Load sellers for dropdown
@@ -1556,9 +1698,7 @@
             }
 
             productImagesData = [];
-            const previewContainer = document.getElementById('productImagesPreview');
             const previewSection = document.getElementById('productImagesPreviewContainer');
-            previewContainer.innerHTML = '';
 
             let processed = 0;
 
@@ -1580,16 +1720,8 @@
                     productImagesData.push(e.target.result);
                     processed++;
 
-                    // Create preview
-                    const previewDiv = document.createElement('div');
-                    previewDiv.style.cssText = 'position: relative; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden;';
-                    previewDiv.innerHTML = `
-                        <img src="${e.target.result}" style="width: 100%; height: 100px; object-fit: cover;">
-                        <button type="button" onclick="removeProductImage(${productImagesData.length - 1})" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px;">×</button>
-                    `;
-                    previewContainer.appendChild(previewDiv);
-
                     if (processed === files.length) {
+                        renderProductImagePreviews();
                         previewSection.style.display = 'block';
                     }
                 };
@@ -1597,25 +1729,67 @@
             });
         }
 
+        function renderProductImagePreviews() {
+            const previewContainer = document.getElementById('productImagesPreview');
+
+            previewContainer.innerHTML = productImagesData.map((img, idx) => `
+                <div style="position: relative; border: ${idx === 0 ? '3px solid var(--accent-color)' : '2px solid #e5e7eb'}; border-radius: 8px; overflow: hidden;">
+                    <img src="${img}" style="width: 100%; height: 100px; object-fit: cover; display: block;">
+
+                    ${idx === 0 ? `
+                        <div style="position: absolute; top: 5px; left: 5px; background: var(--accent-color); color: #111; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">PRIMARY</div>
+                    ` : ''}
+
+                    <button type="button" onclick="removeProductImage(${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; padding: 0;">&times;</button>
+
+                    ${productImagesData.length > 1 ? `
+                        <div style="position: absolute; bottom: 5px; right: 5px; display: flex; gap: 4px;">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="moveProductImageUp(${idx})" title="Move left" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            ${idx < productImagesData.length - 1 ? `
+                                <button type="button" onclick="moveProductImageDown(${idx})" title="Move right" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
         function removeProductImage(index) {
             productImagesData.splice(index, 1);
             const input = document.getElementById('productImages');
             input.value = '';
 
-            // Re-render previews
-            const previewContainer = document.getElementById('productImagesPreview');
             const previewSection = document.getElementById('productImagesPreviewContainer');
 
             if (productImagesData.length === 0) {
                 previewSection.style.display = 'none';
-                previewContainer.innerHTML = '';
+                document.getElementById('productImagesPreview').innerHTML = '';
             } else {
-                previewContainer.innerHTML = productImagesData.map((img, idx) => `
-                    <div style="position: relative; border: 2px solid #e5e7eb; border-radius: 8px; overflow: hidden;">
-                        <img src="${img}" style="width: 100%; height: 100px; object-fit: cover;">
-                        <button type="button" onclick="removeProductImage(${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(220, 38, 38, 0.9); color: white; border: none; border-radius: 4px; padding: 4px 8px; cursor: pointer; font-size: 11px;">×</button>
-                    </div>
-                `).join('');
+                renderProductImagePreviews();
+            }
+        }
+
+        function moveProductImageUp(index) {
+            if (index > 0) {
+                [productImagesData[index - 1], productImagesData[index]] = [productImagesData[index], productImagesData[index - 1]];
+                renderProductImagePreviews();
+            }
+        }
+
+        function moveProductImageDown(index) {
+            if (index < productImagesData.length - 1) {
+                [productImagesData[index], productImagesData[index + 1]] = [productImagesData[index + 1], productImagesData[index]];
+                renderProductImagePreviews();
             }
         }
 
@@ -1624,8 +1798,134 @@
             modal.style.display = 'none';
             document.getElementById('addProductForm').reset();
             productImagesData = [];
+            editingProductId = null;
             document.getElementById('productImagesPreviewContainer').style.display = 'none';
             document.getElementById('productImagesPreview').innerHTML = '';
+
+            // Reset advanced fields
+            document.getElementById('productStatus').value = 'active';
+            document.getElementById('productSKU').value = '';
+            document.getElementById('productFeatured').checked = false;
+
+            // Hide advanced sections
+            document.getElementById('advancedOptionsSection').style.display = 'none';
+            document.getElementById('productInfoSection').style.display = 'none';
+            document.getElementById('duplicateBtn').style.display = 'none';
+        }
+
+        // Edit existing product
+        async function editAdminProduct(productId) {
+            try {
+                // Fetch product data
+                const { data: product, error } = await supabase
+                    .from('products')
+                    .select('*, seller:seller_id(email, full_name)')
+                    .eq('id', productId)
+                    .single();
+
+                if (error) throw error;
+
+                // Set editing mode
+                editingProductId = productId;
+
+                // Update modal title
+                const modal = document.getElementById('addProductModal');
+                const modalTitle = modal.querySelector('h2');
+                const submitBtn = document.getElementById('submitProductBtn');
+
+                modalTitle.textContent = 'Edit Product';
+                submitBtn.textContent = 'Update Product';
+
+                // Populate basic fields
+                document.getElementById('productName').value = product.name;
+                document.getElementById('productCategory').value = product.category;
+                document.getElementById('productPrice').value = product.price;
+                document.getElementById('productStock').value = product.stock;
+                document.getElementById('productDescription').value = product.description;
+                document.getElementById('productSeller').value = product.seller_id || '';
+
+                // Populate advanced fields
+                document.getElementById('productStatus').value = product.status || 'active';
+                document.getElementById('productSKU').value = product.sku || '';
+                document.getElementById('productFeatured').checked = product.featured || false;
+
+                // Show advanced sections
+                document.getElementById('advancedOptionsSection').style.display = 'block';
+                document.getElementById('duplicateBtn').style.display = 'inline-flex';
+                document.getElementById('productInfoSection').style.display = 'block';
+
+                // Show product dates
+                if (product.created_at) {
+                    const created = new Date(product.created_at);
+                    document.getElementById('productCreatedDate').textContent = created.toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    });
+                }
+                if (product.updated_at) {
+                    const updated = new Date(product.updated_at);
+                    document.getElementById('productUpdatedDate').textContent = updated.toLocaleDateString('en-US', {
+                        year: 'numeric', month: 'short', day: 'numeric'
+                    });
+                }
+
+                // Load existing images
+                productImagesData = Array.isArray(product.images) ? [...product.images] : [];
+                if (productImagesData.length > 0) {
+                    document.getElementById('productImagesPreviewContainer').style.display = 'block';
+                    renderProductImagePreviews();
+                }
+
+                // Load sellers for dropdown
+                const { data: sellers, error: sellersError } = await supabase
+                    .from('users')
+                    .select('id, email, full_name')
+                    .eq('role', 'seller')
+                    .eq('status', 'approved');
+
+                if (!sellersError && sellers) {
+                    const sellerSelect = document.getElementById('productSeller');
+                    sellerSelect.innerHTML = '<option value="">Admin Account</option>' +
+                        sellers.map(seller => `<option value="${seller.id}">${seller.full_name || seller.email}</option>`).join('');
+                    sellerSelect.value = product.seller_id || '';
+                }
+
+                // Show modal
+                modal.style.display = 'flex';
+
+            } catch (error) {
+                console.error('Error loading product:', error);
+                showError('Error loading product: ' + error.message);
+            }
+        }
+
+        // Duplicate product
+        function duplicateAdminProduct() {
+            if (!editingProductId) return;
+
+            // Clear editing ID so it saves as new
+            editingProductId = null;
+
+            // Update modal title
+            const modalTitle = document.querySelector('#addProductModal h2');
+            const submitBtn = document.getElementById('submitProductBtn');
+            modalTitle.textContent = 'Add New Product (Duplicated)';
+            submitBtn.textContent = 'Add Product';
+
+            // Hide duplicate button and product info
+            document.getElementById('duplicateBtn').style.display = 'none';
+            document.getElementById('productInfoSection').style.display = 'none';
+
+            // Modify product name
+            const currentName = document.getElementById('productName').value;
+            document.getElementById('productName').value = currentName + ' (Copy)';
+
+            // Clear SKU to avoid conflicts
+            document.getElementById('productSKU').value = '';
+
+            // Set status to draft
+            document.getElementById('productStatus').value = 'draft';
+
+            showSuccess('Product duplicated! Review details and click "Add Product" to create a copy.');
         }
 
         // Handle add product form submission
@@ -1633,8 +1933,9 @@
             event.preventDefault();
 
             const submitBtn = event.target.querySelector('button[type="submit"]');
+            const isEditing = editingProductId !== null;
             submitBtn.disabled = true;
-            submitBtn.textContent = 'Adding...';
+            submitBtn.textContent = isEditing ? 'Updating...' : 'Adding...';
 
             try {
                 // Get form data
@@ -1649,7 +1950,7 @@
                 if (productImagesData.length === 0) {
                     showWarning('Please upload at least one product image');
                     submitBtn.disabled = false;
-                    submitBtn.textContent = 'Add Product';
+                    submitBtn.textContent = isEditing ? 'Update Product' : 'Add Product';
                     return;
                 }
 
@@ -1661,34 +1962,436 @@
                     throw new Error('Unable to determine seller ID');
                 }
 
-                // Insert product into Supabase with uploaded images
-                const { data, error } = await supabase
-                    .from('products')
-                    .insert({
-                        name: name,
-                        category: category,
-                        price: price,
-                        stock: stock,
-                        description: description,
-                        images: productImagesData,
-                        seller_id: finalSellerId,
-                        status: 'active'
-                    })
-                    .select();
+                // Prepare product data
+                const productData = {
+                    name: name,
+                    category: category,
+                    price: price,
+                    stock: stock,
+                    description: description,
+                    images: productImagesData,
+                    seller_id: finalSellerId,
+                    status: document.getElementById('productStatus').value,
+                    sku: document.getElementById('productSKU').value || null,
+                    featured: document.getElementById('productFeatured').checked
+                };
 
-                if (error) throw error;
+                let error, data;
 
-                showSuccess('Product added successfully!');
+                if (isEditing) {
+                    // Update existing product
+                    ({ data, error } = await supabase
+                        .from('products')
+                        .update(productData)
+                        .eq('id', editingProductId)
+                        .select());
+
+                    if (error) throw error;
+
+                    showSuccess('Product updated successfully!');
+
+                    // Invalidate cache
+                    if (window.cacheManager) {
+                        cacheManager.invalidateProducts();
+                    }
+                } else {
+                    // Insert new product
+                    ({ data, error } = await supabase
+                        .from('products')
+                        .insert(productData)
+                        .select());
+
+                    if (error) throw error;
+
+                    showSuccess('Product added successfully!');
+
+                    // Invalidate cache
+                    if (window.cacheManager) {
+                        cacheManager.invalidateProducts();
+                    }
+                }
+
                 closeAddProductModal();
                 loadProducts();
                 loadDashboard(); // Refresh dashboard stats
 
             } catch (error) {
-                console.error('Error adding product:', error);
-                showError('Error adding product: ' + error.message);
+                console.error('Error saving product:', error);
+                showError('Error saving product: ' + error.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.textContent = 'Add Product';
+                submitBtn.textContent = isEditing ? 'Update Product' : 'Add Product';
+            }
+        }
+
+        // ============================================
+        // ADMIN BULK UPLOAD SECTION
+        // ============================================
+
+        let adminBulkProducts = {};
+        let adminProductFormCounter = 0;
+        let allSellers = []; // Will be populated when modal opens
+
+        // Open admin bulk upload modal
+        async function openAdminBulkUploadModal() {
+            // Load sellers list
+            await loadSellersForBulk();
+
+            // Reset state
+            adminBulkProducts = {};
+            adminProductFormCounter = 0;
+
+            // Add first product form
+            addAdminProductForm();
+
+            // Show modal
+            document.getElementById('adminBulkUploadModal').style.display = 'flex';
+        }
+
+        // Close admin bulk upload modal
+        function closeAdminBulkUploadModal() {
+            document.getElementById('adminBulkUploadModal').style.display = 'none';
+            document.getElementById('adminBulkProductsContainer').innerHTML = '';
+            adminBulkProducts = {};
+            adminProductFormCounter = 0;
+        }
+
+        // Load sellers for bulk upload dropdown
+        async function loadSellersForBulk() {
+            try {
+                const { data: users, error } = await supabase
+                    .from('users')
+                    .select('id, email, full_name, role')
+                    .in('role', ['seller', 'admin'])
+                    .eq('status', 'approved')
+                    .order('full_name');
+
+                if (error) throw error;
+                allSellers = users || [];
+            } catch (error) {
+                console.error('Error loading sellers:', error);
+                allSellers = [];
+            }
+        }
+
+        // Add product form
+        function addAdminProductForm() {
+            const formId = adminProductFormCounter++;
+            const container = document.getElementById('adminBulkProductsContainer');
+
+            // Build seller options
+            const adminUserId = localStorage.getItem('userId');
+            let sellerOptions = `<option value="${adminUserId}">Admin Account (You)</option>`;
+            allSellers.forEach(seller => {
+                const displayName = seller.full_name || seller.email;
+                sellerOptions += `<option value="${seller.id}">${displayName} (${seller.role})</option>`;
+            });
+
+            const productFormHTML = `
+                <div class="bulk-product-form" id="adminBulkProduct${formId}" style="background: #f9fafb; border: 2px solid #e5e7eb; border-radius: 12px; padding: 24px; margin-bottom: 20px; position: relative;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <h3 style="margin: 0; color: var(--primary-color);">Product #${formId + 1}</h3>
+                        ${Object.keys(adminBulkProducts).length > 0 ? `
+                            <button type="button" class="btn" onclick="removeAdminProductForm(${formId})" style="background: #ef4444; color: white; padding: 6px 12px; font-size: 13px;">
+                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                                    <polyline points="3 6 5 6 21 6"/>
+                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                                </svg>
+                                Remove
+                            </button>
+                        ` : ''}
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Product Name *</label>
+                            <input type="text" id="adminBulkName${formId}" placeholder="Enter product name" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label>Price (JMD) *</label>
+                            <input type="number" id="adminBulkPrice${formId}" placeholder="0.00" step="0.01" min="0" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label>Category *</label>
+                            <select id="adminBulkCategory${formId}" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <option value="">Select category</option>
+                                <option value="electronics">Electronics</option>
+                                <option value="fashion">Fashion</option>
+                                <option value="home">Home & Garden</option>
+                                <option value="sports">Sports & Outdoors</option>
+                                <option value="books">Books & Media</option>
+                                <option value="toys">Toys & Games</option>
+                                <option value="beauty">Beauty & Personal Care</option>
+                                <option value="automotive">Automotive</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label>Stock Quantity *</label>
+                            <input type="number" id="adminBulkStock${formId}" placeholder="0" min="0" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        </div>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label>Description *</label>
+                        <textarea id="adminBulkDescription${formId}" placeholder="Product description" rows="3" required style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; resize: vertical;"></textarea>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 16px;">
+                        <label>Assign to Seller</label>
+                        <select id="adminBulkSeller${formId}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                            ${sellerOptions}
+                        </select>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                        <div class="form-group" style="margin: 0;">
+                            <label>Product Status</label>
+                            <select id="adminBulkStatus${formId}" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group" style="margin: 0;">
+                            <label>SKU (Optional)</label>
+                            <input type="text" id="adminBulkSKU${formId}" placeholder="e.g., PROD-001" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px;">
+                        </div>
+
+                        <div class="form-group" style="margin: 0; display: flex; align-items: center; padding-top: 28px;">
+                            <label style="display: flex; align-items: center; cursor: pointer; margin: 0;">
+                                <input type="checkbox" id="adminBulkFeatured${formId}" style="width: 18px; height: 18px; margin-right: 8px; accent-color: var(--accent-color); cursor: pointer;">
+                                <span style="font-weight: 500;">Featured</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span>Product Images *</span>
+                            <span id="adminBulkImageCount${formId}" style="color: #6b7280; font-size: 13px;">0 images</span>
+                        </label>
+                        <input type="file" id="adminBulkFileInput${formId}" accept="image/*" multiple onchange="handleAdminBulkFileSelect(event, ${formId})" style="width: 100%; padding: 10px; border: 2px dashed #d1d5db; border-radius: 6px; background: white; cursor: pointer;">
+                        <small style="color: #6b7280; display: block; margin-top: 6px;">Select multiple images (max 5MB each)</small>
+                        <div id="adminBulkImagePreview${formId}" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 12px; margin-top: 12px;">
+                            <!-- Image previews -->
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            container.insertAdjacentHTML('beforeend', productFormHTML);
+            adminBulkProducts[formId] = { images: [] };
+        }
+
+        // Remove product form
+        function removeAdminProductForm(formId) {
+            document.getElementById(`adminBulkProduct${formId}`).remove();
+            delete adminBulkProducts[formId];
+
+            // Renumber remaining forms
+            const remainingForms = Object.keys(adminBulkProducts);
+            remainingForms.forEach((id, index) => {
+                const formElement = document.getElementById(`adminBulkProduct${id}`);
+                const heading = formElement.querySelector('h3');
+                if (heading) {
+                    heading.textContent = `Product #${index + 1}`;
+                }
+            });
+        }
+
+        // Handle file selection for bulk upload
+        function handleAdminBulkFileSelect(event, formId) {
+            const files = Array.from(event.target.files);
+            const maxSize = 5 * 1024 * 1024; // 5MB
+
+            files.forEach(file => {
+                if (file.size > maxSize) {
+                    showWarning(`Image ${file.name} is too large. Maximum size is 5MB.`);
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (!adminBulkProducts[formId]) {
+                        adminBulkProducts[formId] = { images: [] };
+                    }
+                    adminBulkProducts[formId].images.push(e.target.result);
+                    renderAdminBulkImagePreviews(formId);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Render image previews
+        function renderAdminBulkImagePreviews(formId) {
+            const preview = document.getElementById(`adminBulkImagePreview${formId}`);
+            const imageCount = document.getElementById(`adminBulkImageCount${formId}`);
+            const images = adminBulkProducts[formId]?.images || [];
+
+            preview.innerHTML = images.map((img, idx) => `
+                <div style="position: relative; border: ${idx === 0 ? '3px solid var(--accent-color)' : '2px solid #e5e7eb'}; border-radius: 8px; overflow: hidden;">
+                    <img src="${img}" style="width: 100%; height: 100px; object-fit: cover; display: block;">
+
+                    ${idx === 0 ? `
+                        <div style="position: absolute; top: 4px; left: 4px; background: var(--accent-color); color: #111; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 700;">PRIMARY</div>
+                    ` : ''}
+
+                    <button type="button" onclick="removeAdminBulkImage(${formId}, ${idx})" style="position: absolute; top: 4px; right: 4px; background: rgba(239, 68, 68, 0.9); color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 16px; line-height: 1; padding: 0;">&times;</button>
+
+                    ${images.length > 1 ? `
+                        <div style="position: absolute; bottom: 5px; right: 5px; display: flex; gap: 4px;">
+                            ${idx > 0 ? `
+                                <button type="button" onclick="moveAdminBulkImageUp(${formId}, ${idx})" title="Move left" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="15 18 9 12 15 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                            ${idx < images.length - 1 ? `
+                                <button type="button" onclick="moveAdminBulkImageDown(${formId}, ${idx})" title="Move right" style="background: rgba(0, 0, 0, 0.7); color: white; border: none; border-radius: 4px; width: 28px; height: 28px; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <polyline points="9 18 15 12 9 6"></polyline>
+                                    </svg>
+                                </button>
+                            ` : ''}
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+
+            // Update image count
+            const count = images.length;
+            imageCount.textContent = `${count} image${count !== 1 ? 's' : ''}`;
+            imageCount.style.color = count > 0 ? '#10b981' : '#6b7280';
+        }
+
+        // Remove bulk image
+        function removeAdminBulkImage(formId, imgIndex) {
+            if (adminBulkProducts[formId] && adminBulkProducts[formId].images) {
+                adminBulkProducts[formId].images.splice(imgIndex, 1);
+                renderAdminBulkImagePreviews(formId);
+            }
+        }
+
+        // Move bulk image up (left)
+        function moveAdminBulkImageUp(formId, index) {
+            const images = adminBulkProducts[formId]?.images;
+            if (images && index > 0) {
+                [images[index - 1], images[index]] = [images[index], images[index - 1]];
+                renderAdminBulkImagePreviews(formId);
+            }
+        }
+
+        // Move bulk image down (right)
+        function moveAdminBulkImageDown(formId, index) {
+            const images = adminBulkProducts[formId]?.images;
+            if (images && index < images.length - 1) {
+                [images[index], images[index + 1]] = [images[index + 1], images[index]];
+                renderAdminBulkImagePreviews(formId);
+            }
+        }
+
+        // Handle bulk upload
+        async function handleAdminBulkUpload(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('adminBulkUploadBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px; animation: spin 1s linear infinite;"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg> Uploading...';
+
+            try {
+                const productsToUpload = [];
+
+                // Collect all product data
+                for (const [formId, product] of Object.entries(adminBulkProducts)) {
+                    if (!product) continue;
+
+                    const name = document.getElementById(`adminBulkName${formId}`)?.value;
+                    const price = document.getElementById(`adminBulkPrice${formId}`)?.value;
+                    const category = document.getElementById(`adminBulkCategory${formId}`)?.value;
+                    const description = document.getElementById(`adminBulkDescription${formId}`)?.value;
+                    const stock = document.getElementById(`adminBulkStock${formId}`)?.value;
+                    const sellerId = document.getElementById(`adminBulkSeller${formId}`)?.value;
+                    const status = document.getElementById(`adminBulkStatus${formId}`)?.value || 'active';
+                    const sku = document.getElementById(`adminBulkSKU${formId}`)?.value || null;
+                    const featured = document.getElementById(`adminBulkFeatured${formId}`)?.checked || false;
+
+                    if (!name || !price || !category || !description || !stock || !sellerId) continue;
+
+                    if (!product.images || product.images.length === 0) {
+                        showWarning(`Product "${name}" must have at least one image`);
+                        btn.disabled = false;
+                        btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload All Products';
+                        return;
+                    }
+
+                    productsToUpload.push({
+                        name,
+                        price: parseFloat(price),
+                        category,
+                        description,
+                        stock: parseInt(stock),
+                        images: product.images,
+                        seller_id: sellerId,
+                        status: status,
+                        sku: sku,
+                        featured: featured
+                    });
+                }
+
+                if (productsToUpload.length === 0) {
+                    showWarning('Please add at least one product with all required fields');
+                    btn.disabled = false;
+                    btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload All Products';
+                    return;
+                }
+
+                // Upload all products
+                let successCount = 0;
+                let failCount = 0;
+
+                for (const productData of productsToUpload) {
+                    try {
+                        const { error } = await supabase
+                            .from('products')
+                            .insert(productData);
+
+                        if (error) {
+                            failCount++;
+                            console.error(`Failed to upload ${productData.name}:`, error);
+                        } else {
+                            successCount++;
+                        }
+                    } catch (error) {
+                        failCount++;
+                        console.error(`Error uploading ${productData.name}:`, error);
+                    }
+                }
+
+                // Show results
+                if (successCount > 0) {
+                    showSuccess(`Successfully uploaded ${successCount} product${successCount > 1 ? 's' : ''}!`);
+                    // Invalidate cache to force fresh data
+                    cacheManager.invalidateProducts();
+                    await loadProducts();
+                    loadDashboard(); // Refresh dashboard stats
+                    closeAdminBulkUploadModal();
+                }
+
+                if (failCount > 0) {
+                    showWarning(`${failCount} product${failCount > 1 ? 's' : ''} failed to upload. Check console for details.`);
+                }
+
+            } catch (error) {
+                console.error('Bulk upload error:', error);
+                showError('Error uploading products: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 6px;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Upload All Products';
             }
         }
 
@@ -3315,8 +4018,8 @@ CREATE POLICY "Admins can delete any user"
         // INITIALIZE
         // ============================================
 
-        // Load dashboard on page load
-        window.addEventListener('load', () => {
+        // Load dashboard on page load - Use DOMContentLoaded for faster loading
+        document.addEventListener('DOMContentLoaded', () => {
             // Settings form handlers
             const generalSettingsForm = document.getElementById('generalSettingsForm');
             if (generalSettingsForm) {
@@ -3357,6 +4060,7 @@ CREATE POLICY "Admins can delete any user"
         });
     </script>
 
-
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>

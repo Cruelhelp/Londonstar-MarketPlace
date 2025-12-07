@@ -65,9 +65,6 @@ class SupabaseInitializer {
     // Create user profile after signup
     async createUserProfile(userId, email, userData = {}) {
         try {
-            // Wait for trigger to create basic profile
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
             // Check if profile exists (trigger should have created it)
             const { data: existingProfile } = await this.supabase
                 .from('users')

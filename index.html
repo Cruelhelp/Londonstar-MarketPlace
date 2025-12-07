@@ -1083,7 +1083,11 @@
                 <img src="images/logo-icon-new.svg" alt="London Marketplace">
             </div>
             <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()">
-                ☰
+                <div class="hamburger-icon">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
             </button>
             <div class="search-bar">
                 <input type="text" id="globalSearchInput" placeholder="Search products..." onkeypress="if(event.key==='Enter') performSearch()">
@@ -1307,93 +1311,94 @@
     <footer class="global-footer">
         <div class="footer-container">
             <div class="footer-main">
+                <!-- Shop Column -->
                 <div class="footer-column">
                     <h3>Shop</h3>
                     <ul>
-                        <li><a href="marketplace.html">All Products</a></li>
+                        <li><a href="marketplace.html">Browse Products</a></li>
                         <li><a href="marketplace.html?category=electronics">Electronics</a></li>
                         <li><a href="marketplace.html?category=fashion">Fashion</a></li>
                         <li><a href="marketplace.html?category=home">Home & Garden</a></li>
-                        <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
-                        <li><a href="marketplace.html?category=books">Books</a></li>
-                        <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
-                        <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
                     </ul>
                 </div>
 
+                <!-- Sell Column -->
                 <div class="footer-column">
                     <h3>Sell</h3>
                     <ul>
+                        <li><a href="seller-registration.html">Become a Seller</a></li>
                         <li><a href="seller.html">Seller Dashboard</a></li>
-                        <li><a href="auth.html">Start Selling</a></li>
-                        <li><a href="seller-profile.html">Seller Profile</a></li>
-                        <li><a href="#">Seller Tools</a></li>
-                        <li><a href="#">Seller University</a></li>
-                        <li><a href="#">Advertising</a></li>
+                        <li><a href="seller-profile.html">My Shop</a></li>
                     </ul>
                 </div>
 
-                <div class="footer-column">
-                    <h3>Customer Service</h3>
-                    <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Track Your Order</a></li>
-                        <li><a href="#">Returns & Refunds</a></li>
-                        <li><a href="#">Shipping Info</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">FAQs</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>About Us</h3>
-                    <ul>
-                        <li><a href="#">About London Marketplace</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press Center</a></li>
-                        <li><a href="#">Sustainability</a></li>
-                        <li><a href="#">Blog</a></li>
-                    </ul>
-                </div>
-
+                <!-- Account Column -->
                 <div class="footer-column">
                     <h3>Account</h3>
                     <ul>
-                        <li><a href="auth.html">Sign In</a></li>
-                        <li><a href="auth.html">Create Account</a></li>
-                        <li><a href="#">My Orders</a></li>
-                        <li><a href="#">Wishlist</a></li>
-                        <li><a href="#">Account Settings</a></li>
+                        <li><a href="auth.html">Sign In / Register</a></li>
+                        <li><a href="orders.html">My Orders</a></li>
+                        <li><a href="cart.html">Shopping Cart</a></li>
+                        <li><a href="profile.html">Account Settings</a></li>
                     </ul>
                 </div>
 
+                <!-- Support Column -->
                 <div class="footer-column">
-                    <h3>Resources</h3>
+                    <h3>Support</h3>
                     <ul>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Accessibility</a></li>
-                        <li><a href="#">Sitemap</a></li>
+                        <li><a href="mailto:support@londonstarmarketplace.com">Contact Us</a></li>
+                        <li><a href="orders.html">Track Order</a></li>
+                        <li><a href="checkout.html">Checkout</a></li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Social & Bottom Section -->
             <div class="footer-bottom">
-                <div class="footer-logo">
-                    <img src="images/logo-new.svg" alt="London Marketplace">
+                <div class="footer-bottom-content">
+                    <div class="footer-logo-section">
+                        <img src="images/logo-new.svg" alt="London Marketplace" class="footer-logo">
+                        <p class="footer-tagline">Premium Marketplace for Quality Products</p>
+                    </div>
+
+                    <div class="footer-social">
+                        <h4>Follow Us</h4>
+                        <div class="social-links">
+                            <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                                </svg>
+                            </a>
+                            <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                                </svg>
+                            </a>
+                            <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">
+                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
+                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="footer-links">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Cookie Policy</a>
-                    <a href="#">Accessibility</a>
-                    <a href="#">Interest-Based Ads</a>
-                </div>
-
-                <div class="footer-copyright">
-                    &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
+                <div class="footer-legal">
+                    <p class="footer-copyright">
+                        &copy; 2025 London Star Marketplace. All rights reserved.
+                    </p>
+                    <div style="margin: 25px 0 20px 0; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
+                        <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; color: rgba(255,255,255,0.9);">A SUBSIDIARY OF</span>
+                        <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
+                    </div>
+                    <div class="footer-legal-links">
+                        <a href="mailto:support@londonstarmarketplace.com">Contact</a>
+                        <span>•</span>
+                        <a href="index.html">Home</a>
+                        <span>•</span>
+                        <a href="marketplace.html">Shop</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1433,29 +1438,36 @@
 
         // Load hot/trending products into promo banner
         async function loadHotProducts() {
-            try {
-                const { data: products, error } = await supabase
-                    .from('products')
-                    .select('*')
-                    .eq('status', 'active')
-                    .order('views', { ascending: false })
-                    .limit(3);
-
-                if (error) throw error;
-
-                if (!products || products.length === 0) {
-                    // Load by most recent if no views data
-                    const { data: recentProducts } = await supabase
-                        .from('products')
-                        .select('*')
-                        .eq('status', 'active')
-                        .order('created_at', { ascending: false })
-                        .limit(3);
-
-                    renderHotProducts(recentProducts || []);
-                } else {
-                    renderHotProducts(products);
+            // Show loading spinners on promo items
+            for (let i = 1; i <= 3; i++) {
+                const promoItem = document.getElementById(`promo${i}`);
+                if (promoItem) {
+                    promoItem.innerHTML = '<div class="spinner-container"><div class="spinner"></div></div>';
                 }
+            }
+
+            try {
+                // Wait for global preloader to finish
+                await globalPreloader.preloadAll();
+
+                // Get products from global preloader cache
+                const allProducts = globalPreloader.getProducts();
+
+                if (!allProducts || allProducts.length === 0) {
+                    return;
+                }
+
+                // Sort by views (or created_at if no views)
+                const sorted = [...allProducts].sort((a, b) => {
+                    const viewsA = a.views || 0;
+                    const viewsB = b.views || 0;
+                    if (viewsA === viewsB) {
+                        return new Date(b.created_at) - new Date(a.created_at);
+                    }
+                    return viewsB - viewsA;
+                });
+
+                renderHotProducts(sorted.slice(0, 3));
             } catch (error) {
                 console.error('Error loading hot products:', error);
             }
@@ -1476,7 +1488,14 @@
                 promoItem.innerHTML = `
                     <div class="promo-item-badge">${badges[index] || '🔥 HOT'}</div>
                     <div class="promo-item-content">
-                        <img src="${firstImage}" alt="${product.name}" class="promo-item-image" onerror="this.src='images/placeholder.png'">
+                        <div class="image-loading" style="position: relative;">
+                            <div class="image-loader"></div>
+                            <img src="${firstImage}"
+                                 alt="${product.name}"
+                                 class="promo-item-image"
+                                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.querySelector('.image-loader')?.remove();"
+                                 onerror="this.parentElement.querySelector('.image-loader')?.remove(); this.src='images/placeholder.png';">
+                        </div>
                         <div class="promo-item-title">${product.name}</div>
                         <div class="promo-item-price">J$${parseFloat(product.price).toFixed(2)}</div>
                         <div class="promo-item-description">${truncatedDesc}</div>
@@ -1485,54 +1504,70 @@
                 `;
 
                 promoItem.onclick = () => {
-                    window.location.href = `marketplace.html?product=${product.id}`;
+                    window.location.href = `marketplace.html?productId=${product.id}`;
                 };
             });
+
+            // Trigger scroll effects for promo items
+            if (window.scrollEffects) {
+                window.scrollEffects.addScrollFade('.promo-item');
+            }
         }
 
         async function loadFeaturedProducts() {
             const featuredGrid = document.getElementById('featuredProducts');
             const emptyState = document.getElementById('emptyState');
 
+            // Show loading spinner
+            featuredGrid.innerHTML = `
+                <div class="spinner-container" style="grid-column: 1 / -1;">
+                    <div class="spinner large"></div>
+                </div>
+            `;
+
             try {
-                const { data: products, error } = await supabase
-                    .from('products')
-                    .select('*')
-                    .eq('status', 'active')
-                    .order('created_at', { ascending: false })
-                    .limit(8);
+                // Wait for global preloader to finish
+                await globalPreloader.preloadAll();
 
-                if (error) throw error;
+                // Get products from global preloader cache
+                const allProducts = globalPreloader.getProducts();
 
-                if (!products || products.length === 0) {
+                if (!allProducts || allProducts.length === 0) {
                     featuredGrid.style.display = 'none';
                     emptyState.style.display = 'block';
                     return;
                 }
+
+                // Get the 8 most recent products
+                const products = allProducts.slice(0, 8);
 
                 featuredGrid.innerHTML = products.map(product => {
                     const images = Array.isArray(product.images) ? product.images : [];
                     const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
 
                     return `
-                    <div class="product-card scroll-fade" onclick="viewProduct('${product.id}')">
-                        <img src="${firstImage}" alt="${product.name}" class="product-image">
+                    <div class="product-card scroll-fade" onclick="window.location.href='marketplace.html?productId=${product.id}'" style="cursor: pointer;">
+                        <div class="image-loading" style="position: relative;">
+                            <div class="image-loader"></div>
+                            <img src="${firstImage}"
+                                 alt="${product.name}"
+                                 class="product-image"
+                                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.querySelector('.image-loader')?.remove();">
+                        </div>
                         <div class="product-title">${product.name}</div>
                         <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
                         <div class="product-description">${product.description}</div>
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="event.stopPropagation(); addToCartGuest('${product.id}')">
+                        <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="event.stopPropagation(); window.location.href='marketplace.html?productId=${product.id}&action=addToCart'">
                             Add to Cart
                         </button>
                     </div>
                     `;
                 }).join('');
 
-                // Trigger scroll effects for new product cards
-                setTimeout(() => {
-                    if (window.scrollEffects) {
-                        window.scrollEffects.addScrollFade('.product-card');
-                    }
-                }, 100);
+                // Trigger scroll effects immediately
+                if (window.scrollEffects) {
+                    window.scrollEffects.addScrollFade('.product-card');
+                }
             } catch (error) {
                 console.error('Error loading featured products:', error);
                 featuredGrid.style.display = 'none';
@@ -1572,40 +1607,62 @@
             window.location.href = `marketplace.html?product=${productId}&action=addToCart`;
         }
 
-        // Load Hero Background Image
+        // Load Hero Background - Ultra-fast with preloaded data
         async function loadHeroBackground() {
+            const heroEl = document.querySelector('.hero-banner');
+            if (!heroEl) return;
+
+            // Add loading class
+            heroEl.classList.add('loading');
+
             try {
-                const { data, error } = await supabase
-                    .from('platform_settings')
-                    .select('setting_value')
-                    .eq('setting_key', 'hero_background')
-                    .single();
+                // Wait for preloader to finish
+                await globalPreloader.preloadAll();
 
-                if (error || !data || !data.setting_value) return;
+                // Get from global preloader (already loaded in parallel)
+                const settings = globalPreloader.getIndexHero();
 
-                const settings = data.setting_value;
-                const heroEl = document.querySelector('.hero-banner');
+                if (!settings || !settings.images || settings.images.length === 0) {
+                    heroEl.classList.remove('loading');
+                    console.log('ℹ️ No hero background configured - using default');
+                    // Set a default gradient background
+                    heroEl.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                    return;
+                }
 
-                if (settings.isSlideshow && settings.images && settings.images.length > 0) {
-                    // Slideshow mode
+                // Load immediately with image preload
+                const loadImage = (imageUrl) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        heroEl.style.backgroundImage = `url(${imageUrl})`;
+                        heroEl.classList.remove('loading');
+                        console.log('✅ Homepage hero: Loaded');
+                    };
+                    img.onerror = () => {
+                        heroEl.classList.remove('loading');
+                        heroEl.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                        console.warn('⚠️ Hero background failed to load, using default');
+                    };
+                    img.src = imageUrl;
+                };
+
+                if (settings.isSlideshow && settings.images.length > 1) {
                     let currentIndex = 0;
                     const images = settings.images;
 
                     function changeBackground() {
-                        heroEl.style.backgroundImage = `url(${images[currentIndex]})`;
+                        loadImage(images[currentIndex]);
                         currentIndex = (currentIndex + 1) % images.length;
                     }
 
-                    // Set initial image
                     changeBackground();
-
-                    // Change every 5 seconds
                     setInterval(changeBackground, 5000);
-                } else if (settings.images && settings.images.length > 0) {
-                    // Static mode
-                    heroEl.style.backgroundImage = `url(${settings.images[0]})`;
+                } else {
+                    loadImage(settings.images[0]);
                 }
             } catch (error) {
+                heroEl.classList.remove('loading');
+                heroEl.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
                 console.error('Error loading hero background:', error);
             }
         }
@@ -1733,12 +1790,13 @@
             const toggle = document.getElementById('mobileMenuToggle');
 
             mobileMenu.classList.toggle('active');
+            toggle.classList.toggle('active');
 
-            // Change icon
+            // Prevent background scroll when menu is open
             if (mobileMenu.classList.contains('active')) {
-                toggle.textContent = '✕';
+                document.body.style.overflow = 'hidden';
             } else {
-                toggle.textContent = '☰';
+                document.body.style.overflow = '';
             }
         }
 
@@ -1748,9 +1806,10 @@
             const toggle = document.getElementById('mobileMenuToggle');
 
             if (mobileMenu && toggle && mobileMenu.classList.contains('active')) {
-                if (!mobileMenu.contains(event.target) && event.target !== toggle) {
+                if (!mobileMenu.contains(event.target) && !toggle.contains(event.target)) {
                     mobileMenu.classList.remove('active');
-                    toggle.textContent = '☰';
+                    toggle.classList.remove('active');
+                    document.body.style.overflow = '';
                 }
             }
         });
@@ -1788,8 +1847,8 @@
             });
         }
 
-        // Initialize
-        window.addEventListener('load', () => {
+        // Initialize - Use DOMContentLoaded for faster loading
+        document.addEventListener('DOMContentLoaded', () => {
             loadHeaderNav();
             loadHeroBackground();
             loadHomepageCards();
@@ -1802,6 +1861,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
+    <script src="js/cache-manager.js"></script>
+    <script src="js/global-preloader.js"></script>
     <script src="js/scroll-effects.js"></script>
+
+    <!-- Vercel Analytics -->
+    <script defer src="/_vercel/insights/script.js"></script>
 </body>
 </html>
