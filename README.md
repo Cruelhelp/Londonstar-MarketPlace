@@ -95,4 +95,4 @@ npm run open    # Start and open in browser
 ---
 
 **Maintained by**: Ruel McNeil
-**Organization**: Ministry of Finance & the Public Service, Jamaica
+**Organization**: CLI SENPEI
