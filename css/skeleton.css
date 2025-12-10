@@ -1,0 +1,380 @@
+/**
+ * SKELETON LOADING SCREENS
+ * London Star Marketplace - Content-shaped placeholders
+ */
+
+/* ==========================================
+   BASE SKELETON STYLES
+   ========================================== */
+
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--gray-200);
+  pointer-events: none;
+}
+
+.skeleton::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+/* ==========================================
+   SKELETON SHAPES
+   ========================================== */
+
+.skeleton-line {
+  height: 1em;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-line:last-child {
+  margin-bottom: 0;
+}
+
+.skeleton-circle {
+  border-radius: 50%;
+}
+
+.skeleton-rect {
+  border-radius: var(--radius-md);
+}
+
+/* ==========================================
+   SKELETON TEXT VARIATIONS
+   ========================================== */
+
+.skeleton-title {
+  height: 1.5em;
+  width: 70%;
+  margin-bottom: var(--space-3);
+}
+
+.skeleton-subtitle {
+  height: 1.2em;
+  width: 50%;
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-text {
+  height: 1em;
+  width: 100%;
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-text-short {
+  width: 60%;
+}
+
+.skeleton-text-medium {
+  width: 80%;
+}
+
+.skeleton-text-full {
+  width: 100%;
+}
+
+/* ==========================================
+   SKELETON COMPONENTS
+   ========================================== */
+
+/* Product Card Skeleton */
+.skeleton-product-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-md);
+}
+
+.skeleton-image {
+  width: 100%;
+  aspect-ratio: 1;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-image::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-price {
+  height: 1.5em;
+  width: 40%;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-description {
+  height: 3em;
+  width: 100%;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--space-3);
+}
+
+.skeleton-button {
+  height: 2.5em;
+  width: 100%;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-lg);
+}
+
+/* Table Row Skeleton */
+.skeleton-table-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.skeleton-table-cell {
+  height: 1.5em;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-sm);
+}
+
+/* Avatar Skeleton */
+.skeleton-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--gray-200);
+  position: relative;
+  overflow: hidden;
+}
+
+.skeleton-avatar::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.6) 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.skeleton-avatar-lg {
+  width: 64px;
+  height: 64px;
+}
+
+.skeleton-avatar-sm {
+  width: 32px;
+  height: 32px;
+}
+
+/* Card Skeleton */
+.skeleton-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-xl);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-md);
+}
+
+.skeleton-card-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.skeleton-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* List Item Skeleton */
+.skeleton-list-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-2);
+}
+
+.skeleton-list-item-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background-color: var(--gray-200);
+  flex-shrink: 0;
+}
+
+.skeleton-list-item-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* ==========================================
+   SPECIFIC COMPONENT SKELETONS
+   ========================================== */
+
+/* Product Grid Skeleton */
+.skeleton-product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: var(--space-5);
+  padding: var(--space-4);
+}
+
+/* Cart Item Skeleton */
+.skeleton-cart-item {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-3);
+}
+
+.skeleton-cart-item-image {
+  width: 80px;
+  height: 80px;
+  background-color: var(--gray-200);
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+.skeleton-cart-item-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* Header Skeleton */
+.skeleton-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--primary-900);
+}
+
+.skeleton-logo {
+  width: 60px;
+  height: 60px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-md);
+}
+
+.skeleton-search-bar {
+  flex: 1;
+  height: 40px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-full);
+}
+
+.skeleton-nav-items {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.skeleton-nav-item {
+  width: 60px;
+  height: 30px;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius-sm);
+}
+
+/* ==========================================
+   SKELETON FADE OUT
+   ========================================== */
+
+.skeleton.fade-out {
+  animation: fadeOut var(--duration-normal) var(--ease-out) forwards;
+}
+
+@keyframes skeletonFadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* ==========================================
+   RESPONSIVE SKELETON ADJUSTMENTS
+   ========================================== */
+
+@media (max-width: 768px) {
+  .skeleton-product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-3);
+  }
+
+  .skeleton-cart-item {
+    flex-direction: column;
+  }
+
+  .skeleton-cart-item-image {
+    width: 100%;
+    height: 150px;
+  }
+}
+
+/* ==========================================
+   ACCESSIBILITY
+   ========================================== */
+
+/* Respect user's motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after,
+  .skeleton-image::after,
+  .skeleton-avatar::after {
+    animation: none;
+  }
+}
+
+/* Screen reader announcement */
+.skeleton-loading-text {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

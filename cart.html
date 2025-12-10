@@ -6,6 +6,12 @@
     <title>Shopping Cart - London Star Marketplace</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/toast-notifications.css">
+    <link rel="stylesheet" href="css/footer-minimal.css">
     <style>
         body {
             background: #f5f5f5;
@@ -345,6 +351,14 @@
                 <p>Add some products to get started!</p>
                 <a href="marketplace.html" class="continue-shopping">Continue Shopping</a>
             </div>
+
+            <!-- Saved for Later Section -->
+            <div id="savedItemsSection" style="margin-top: 40px; display: none;">
+                <h2 style="font-size: 24px; color: var(--primary-color); margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid #e5e7eb;">
+                    Saved for Later (<span id="savedItemCount">0</span>)
+                </h2>
+                <div id="savedItemsContainer"></div>
+            </div>
         </div>
 
         <!-- Sidebar -->
@@ -382,6 +396,11 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase-config.js"></script>
     <script src="js/session-manager.js"></script>
+
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         let currentUserId = null;
         let cartItems = [];
@@ -476,7 +495,11 @@
             container.style.display = 'block';
             emptyCart.style.display = 'none';
 
-            container.innerHTML = cartItems.map(item => {
+            // Clear container safely
+            container.textContent = '';
+
+            // Render cart items using safe DOM manipulation
+            cartItems.forEach(item => {
                 const product = item.products;
                 const images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
                 const imageUrl = images && images.length > 0 ? images[0] : 'images/placeholder.png';
@@ -484,34 +507,96 @@
                 const totalPrice = (product.price * item.quantity).toFixed(2);
                 const inStock = product.stock > 0;
 
-                return `
-                    <div class="cart-item" data-item-id="${item.id}">
-                        <div class="item-image">
-                            <img src="${imageUrl}" alt="${product.name}">
-                        </div>
-                        <div class="item-details">
-                            <div class="item-title">${product.name}</div>
-                            <div class="item-seller">Sold by: ${seller?.full_name || 'Unknown Seller'}</div>
-                            <div class="item-stock ${inStock ? '' : 'out-of-stock'}">
-                                ${inStock ? 'In Stock' : 'Out of Stock'}
-                            </div>
-                            <div class="item-actions">
-                                <div class="qty-selector">
-                                    <label>Qty:</label>
-                                    <select onchange="updateQuantity('${item.id}', this.value)" ${!inStock ? 'disabled' : ''}>
-                                        ${[...Array(Math.min(product.stock, 10))].map((_, i) =>
-                                            `<option value="${i + 1}" ${item.quantity === i + 1 ? 'selected' : ''}>${i + 1}</option>`
-                                        ).join('')}
-                                    </select>
-                                </div>
-                                <button class="action-link" onclick="removeItem('${item.id}')">Delete</button>
-                                <button class="action-link" onclick="saveForLater('${item.id}')">Save for later</button>
-                            </div>
-                        </div>
-                        <div class="item-price">$${totalPrice}</div>
-                    </div>
-                `;
-            }).join('');
+                const cartItemDiv = DOMBuilder.div({
+                    className: 'cart-item',
+                    data: { itemId: item.id }
+                });
+
+                // Item image
+                const imageDiv = DOMBuilder.div({ className: 'item-image' });
+                const img = DOMBuilder.img({
+                    attrs: {
+                        src: imageUrl,
+                        alt: product.name  // SAFE - alt attribute
+                    }
+                });
+                imageDiv.appendChild(img);
+                cartItemDiv.appendChild(imageDiv);
+
+                // Item details
+                const detailsDiv = DOMBuilder.div({ className: 'item-details' });
+
+                // Product name (SAFE - textContent prevents XSS)
+                const title = DOMBuilder.div({
+                    className: 'item-title',
+                    text: product.name
+                });
+                detailsDiv.appendChild(title);
+
+                // Seller name (SAFE - textContent prevents XSS)
+                const sellerDiv = DOMBuilder.div({
+                    className: 'item-seller',
+                    text: `Sold by: ${seller?.full_name || 'Unknown Seller'}`
+                });
+                detailsDiv.appendChild(sellerDiv);
+
+                // Stock status
+                const stockDiv = DOMBuilder.div({
+                    className: inStock ? 'item-stock' : 'item-stock out-of-stock',
+                    text: inStock ? 'In Stock' : 'Out of Stock'
+                });
+                detailsDiv.appendChild(stockDiv);
+
+                // Item actions
+                const actionsDiv = DOMBuilder.div({ className: 'item-actions' });
+
+                // Quantity selector
+                const qtyDiv = DOMBuilder.div({ className: 'qty-selector' });
+                const qtyLabel = document.createElement('label');
+                qtyLabel.textContent = 'Qty:';
+                qtyDiv.appendChild(qtyLabel);
+
+                const qtySelect = document.createElement('select');
+                qtySelect.onchange = (e) => updateQuantity(item.id, e.target.value);
+                if (!inStock) qtySelect.disabled = true;
+
+                for (let i = 1; i <= Math.min(product.stock, 10); i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    if (item.quantity === i) option.selected = true;
+                    qtySelect.appendChild(option);
+                }
+                qtyDiv.appendChild(qtySelect);
+                actionsDiv.appendChild(qtyDiv);
+
+                // Action buttons
+                const deleteBtn = DOMBuilder.button({
+                    className: 'action-link',
+                    text: 'Delete',
+                    onClick: () => removeItem(item.id)
+                });
+                actionsDiv.appendChild(deleteBtn);
+
+                const saveBtn = DOMBuilder.button({
+                    className: 'action-link',
+                    text: 'Save for later',
+                    onClick: () => saveForLater(item.id)
+                });
+                actionsDiv.appendChild(saveBtn);
+
+                detailsDiv.appendChild(actionsDiv);
+                cartItemDiv.appendChild(detailsDiv);
+
+                // Item price
+                const priceDiv = DOMBuilder.div({
+                    className: 'item-price',
+                    text: `$${totalPrice}`
+                });
+                cartItemDiv.appendChild(priceDiv);
+
+                container.appendChild(cartItemDiv);
+            });
 
             updateSummary();
         }
@@ -566,7 +651,14 @@
 
         // Remove item
         async function removeItem(itemId) {
-            if (!confirm('Remove this item from your cart?')) return;
+            const confirmed = await toast.confirm({
+                message: 'Remove this item from your cart?',
+                confirmText: 'Remove',
+                cancelText: 'Cancel',
+                type: 'warning'
+            });
+
+            if (!confirmed) return;
 
             try {
                 // Get user-specific cart
@@ -579,30 +671,277 @@
                 // Remove from local cart display
                 cartItems = cartItems.filter(i => i.id !== itemId);
                 renderCart();
-                showAlert('Item removed from cart', 'success');
+                toast.success('Item removed from cart');
 
             } catch (error) {
                 console.error('Error removing item:', error);
-                showAlert('Error removing item', 'error');
+                toast.error('Error removing item');
             }
         }
 
-        // Save for later (placeholder)
-        function saveForLater(itemId) {
-            alert('Save for later feature coming soon!');
+        // Save for later
+        async function saveForLater(itemId) {
+            try {
+                // Get the item from cart
+                const item = cartItems.find(i => i.id === itemId);
+                if (!item) {
+                    toast.error('Item not found in cart');
+                    return;
+                }
+
+                // Get user ID
+                const userId = localStorage.getItem('userId');
+                const savedKey = userId ? `saved_items_${userId}` : 'saved_items_guest';
+                const cartKey = userId ? `cart_${userId}` : 'cart_guest';
+
+                // Get existing saved items
+                let savedItems = JSON.parse(localStorage.getItem(savedKey) || '[]');
+
+                // Check if item already saved
+                const alreadySaved = savedItems.some(i => i.id === itemId);
+                if (alreadySaved) {
+                    toast.info('This item is already saved for later');
+                    return;
+                }
+
+                // Add to saved items
+                savedItems.push({
+                    id: item.id,
+                    product_id: item.product_id,
+                    saved_at: new Date().toISOString()
+                });
+                localStorage.setItem(savedKey, JSON.stringify(savedItems));
+
+                // Remove from cart
+                let userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+                userCart = userCart.filter(i => i.id !== itemId);
+                localStorage.setItem(cartKey, JSON.stringify(userCart));
+
+                // Update display
+                cartItems = cartItems.filter(i => i.id !== itemId);
+                renderCart();
+
+                toast.success('Item saved for later! You can find it in your saved items.');
+
+                // Reload saved items to show the new item
+                await loadSavedItems();
+
+            } catch (error) {
+                console.error('Error saving item:', error);
+                toast.error('Error saving item for later');
+            }
+        }
+
+        // Load saved items
+        let savedItems = [];
+        async function loadSavedItems() {
+            try {
+                const userId = localStorage.getItem('userId');
+                const savedKey = userId ? `saved_items_${userId}` : 'saved_items_guest';
+                const savedData = JSON.parse(localStorage.getItem(savedKey) || '[]');
+
+                if (savedData.length === 0) {
+                    document.getElementById('savedItemsSection').style.display = 'none';
+                    return;
+                }
+
+                // Fetch product details for saved items
+                const productIds = savedData.map(item => item.product_id);
+                const { data: products, error } = await supabase
+                    .from('products')
+                    .select('*, users!products_seller_id_fkey(id, full_name)')
+                    .in('id', productIds);
+
+                if (error) throw error;
+
+                // Map saved items with product details
+                savedItems = savedData.map(saved => {
+                    const product = products.find(p => p.id === saved.product_id);
+                    return product ? { ...saved, products: product, users: product.users } : null;
+                }).filter(item => item !== null);
+
+                renderSavedItems();
+
+            } catch (error) {
+                console.error('Error loading saved items:', error);
+            }
+        }
+
+        // Render saved items
+        function renderSavedItems() {
+            const container = document.getElementById('savedItemsContainer');
+            const section = document.getElementById('savedItemsSection');
+            const countSpan = document.getElementById('savedItemCount');
+
+            if (savedItems.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+
+            section.style.display = 'block';
+            countSpan.textContent = savedItems.length;
+            container.textContent = '';
+
+            savedItems.forEach(item => {
+                const product = item.products;
+                const seller = item.users;
+                const imageUrl = product.images?.[0] || 'images/placeholder.jpg';
+
+                // Create item card (similar to cart item)
+                const itemDiv = DOMBuilder.div({ className: 'cart-item' });
+
+                // Image
+                const imgDiv = DOMBuilder.div({ className: 'item-image' });
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = product.name;
+                img.loading = 'lazy';
+                imgDiv.appendChild(img);
+                itemDiv.appendChild(imgDiv);
+
+                // Details
+                const detailsDiv = DOMBuilder.div({ className: 'item-details' });
+
+                // Title
+                const title = DOMBuilder.div({
+                    className: 'item-title',
+                    text: product.name
+                });
+                detailsDiv.appendChild(title);
+
+                // Seller
+                const sellerDiv = DOMBuilder.div({
+                    className: 'item-seller',
+                    text: `Sold by: ${seller?.full_name || 'Unknown Seller'}`
+                });
+                detailsDiv.appendChild(sellerDiv);
+
+                // Stock status
+                const inStock = product.stock > 0;
+                const stockDiv = DOMBuilder.div({
+                    className: inStock ? 'item-stock' : 'item-stock out-of-stock',
+                    text: inStock ? 'In Stock' : 'Out of Stock'
+                });
+                detailsDiv.appendChild(stockDiv);
+
+                // Saved date
+                const savedDate = new Date(item.saved_at).toLocaleDateString();
+                const dateDiv = DOMBuilder.div({
+                    className: 'item-seller',
+                    text: `Saved on: ${savedDate}`
+                });
+                detailsDiv.appendChild(dateDiv);
+
+                // Actions
+                const actionsDiv = DOMBuilder.div({ className: 'item-actions' });
+
+                const moveToCartBtn = DOMBuilder.button({
+                    className: 'action-link',
+                    text: 'Move to Cart',
+                    onClick: () => moveToCart(item.id, product.id),
+                    style: 'color: var(--accent-color); font-weight: 600;'
+                });
+                actionsDiv.appendChild(moveToCartBtn);
+
+                const removeBtn = DOMBuilder.button({
+                    className: 'action-link',
+                    text: 'Remove',
+                    onClick: () => removeSavedItem(item.id)
+                });
+                actionsDiv.appendChild(removeBtn);
+
+                detailsDiv.appendChild(actionsDiv);
+                itemDiv.appendChild(detailsDiv);
+
+                // Price
+                const priceDiv = DOMBuilder.div({
+                    className: 'item-price',
+                    text: `J$${product.price.toFixed(2)}`
+                });
+                itemDiv.appendChild(priceDiv);
+
+                container.appendChild(itemDiv);
+            });
+        }
+
+        // Move item back to cart
+        async function moveToCart(savedItemId, productId) {
+            try {
+                const userId = localStorage.getItem('userId');
+                const savedKey = userId ? `saved_items_${userId}` : 'saved_items_guest';
+                const cartKey = userId ? `cart_${userId}` : 'cart_guest';
+
+                // Remove from saved items
+                let savedData = JSON.parse(localStorage.getItem(savedKey) || '[]');
+                savedData = savedData.filter(i => i.id !== savedItemId);
+                localStorage.setItem(savedKey, JSON.stringify(savedData));
+
+                // Add to cart
+                let userCart = JSON.parse(localStorage.getItem(cartKey) || '[]');
+
+                // Check if already in cart
+                const existing = userCart.find(i => i.product_id === productId);
+                if (existing) {
+                    toast.info('This item is already in your cart');
+                } else {
+                    userCart.push({
+                        id: `cart-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        product_id: productId,
+                        quantity: 1
+                    });
+                    localStorage.setItem(cartKey, JSON.stringify(userCart));
+                    toast.success('Item moved to cart!');
+                }
+
+                // Reload both sections
+                await loadCart();
+                await loadSavedItems();
+
+            } catch (error) {
+                console.error('Error moving to cart:', error);
+                toast.error('Error moving item to cart');
+            }
+        }
+
+        // Remove saved item
+        async function removeSavedItem(savedItemId) {
+            const confirmed = await toast.confirm({
+                message: 'Remove this item from saved items?',
+                confirmText: 'Remove',
+                cancelText: 'Cancel',
+                type: 'warning'
+            });
+
+            if (!confirmed) return;
+
+            try {
+                const userId = localStorage.getItem('userId');
+                const savedKey = userId ? `saved_items_${userId}` : 'saved_items_guest';
+
+                let savedData = JSON.parse(localStorage.getItem(savedKey) || '[]');
+                savedData = savedData.filter(i => i.id !== savedItemId);
+                localStorage.setItem(savedKey, JSON.stringify(savedData));
+
+                await loadSavedItems();
+                toast.success('Item removed from saved items');
+
+            } catch (error) {
+                console.error('Error removing saved item:', error);
+                toast.error('Error removing saved item');
+            }
         }
 
         // Proceed to checkout
         function proceedToCheckout() {
             if (cartItems.length === 0) {
-                alert('Your cart is empty');
+                toast.warning('Your cart is empty');
                 return;
             }
 
             // Check if all items are in stock
             const outOfStock = cartItems.filter(item => item.products.stock < item.quantity);
             if (outOfStock.length > 0) {
-                alert('Some items in your cart are out of stock. Please remove them before proceeding.');
+                toast.error('Some items in your cart are out of stock. Please remove them before proceeding.');
                 return;
             }
 
@@ -636,6 +975,7 @@
         window.addEventListener('load', async () => {
             checkAuth(); // Sets currentUserId if logged in
             await loadCart(); // Works for both guest and registered users
+            await loadSavedItems(); // Load saved items
 
             setTimeout(() => {
                 document.getElementById('loadingScreen').classList.add('hidden');
@@ -643,118 +983,119 @@
         });
     </script>
 
-    <!-- Footer -->
-    <footer class="global-footer">
-        <div class="footer-container">
-            <div class="footer-main">
-                <div class="footer-column">
-                    <h3>Shop</h3>
-                    <ul>
-                        <li><a href="marketplace.html">All Products</a></li>
-                        <li><a href="marketplace.html?category=electronics">Electronics</a></li>
-                        <li><a href="marketplace.html?category=fashion">Fashion</a></li>
-                        <li><a href="marketplace.html?category=home">Home & Garden</a></li>
-                        <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
-                        <li><a href="marketplace.html?category=books">Books</a></li>
-                        <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
-                        <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
-                    </ul>
-                </div>
 
-                <div class="footer-column">
-                    <h3>Sell</h3>
-                    <ul>
-                        <li><a href="seller.html">Seller Dashboard</a></li>
-                        <li><a href="seller-registration.html">Start Selling</a></li>
-                        <li><a href="#">Seller Tools</a></li>
-                        <li><a href="#">Seller University</a></li>
-                        <li><a href="#">Advertising</a></li>
-                        <li><a href="#">Pricing</a></li>
-                        <li><a href="#">Resources</a></li>
-                    </ul>
+<!-- Minimalistic Global Footer -->
+<footer class="global-footer">
+    <div class="footer-container">
+        <!-- Footer Main: About + Navigation -->
+        <div class="footer-main">
+            <!-- About Column -->
+            <div class="footer-column footer-about">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Star Marketplace">
                 </div>
-
-                <div class="footer-column">
-                    <h3>Customer Service</h3>
-                    <ul>
-                        <li><a href="#">Help Center</a></li>
-                        <li><a href="#">Track Your Order</a></li>
-                        <li><a href="#">Returns & Refunds</a></li>
-                        <li><a href="#">Shipping Info</a></li>
-                        <li><a href="#">Payment Methods</a></li>
-                        <li><a href="#">Contact Us</a></li>
-                        <li><a href="#">FAQs</a></li>
-                        <li><a href="#">Report an Issue</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>About Us</h3>
-                    <ul>
-                        <li><a href="#">About London Marketplace</a></li>
-                        <li><a href="#">Careers</a></li>
-                        <li><a href="#">Press Center</a></li>
-                        <li><a href="#">Investor Relations</a></li>
-                        <li><a href="#">Sustainability</a></li>
-                        <li><a href="#">Community Impact</a></li>
-                        <li><a href="#">Blog</a></li>
-                        <li><a href="#">Success Stories</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>Account</h3>
-                    <ul>
-                        <li><a href="auth.html">Sign In</a></li>
-                        <li><a href="auth.html">Create Account</a></li>
-                        <li><a href="#">My Orders</a></li>
-                        <li><a href="#">Wishlist</a></li>
-                        <li><a href="#">Account Settings</a></li>
-                        <li><a href="#">Gift Cards</a></li>
-                        <li><a href="#">Subscriptions</a></li>
-                        <li><a href="#">Notifications</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>Resources</h3>
-                    <ul>
-                        <li><a href="#">Buyer Protection</a></li>
-                        <li><a href="#">Trust & Safety</a></li>
-                        <li><a href="#">Privacy Policy</a></li>
-                        <li><a href="#">Terms of Service</a></li>
-                        <li><a href="#">Cookie Policy</a></li>
-                        <li><a href="#">Accessibility</a></li>
-                        <li><a href="#">Sitemap</a></li>
-                        <li><a href="#">Mobile App</a></li>
-                    </ul>
+                <p class="footer-about-text">
+                    Your premier destination for quality products from trusted sellers worldwide.
+                    Shop with confidence and discover amazing deals every day.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Twitter">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="YouTube">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
 
-            <div class="footer-bottom">
-                <div class="footer-logo">
-                    <img src="images/logo-new.svg" alt="London Marketplace">
-                </div>
+            <!-- Shop Column -->
+            <div class="footer-column">
+                <h3>Shop</h3>
+                <ul>
+                    <li><a href="marketplace.html">All Products</a></li>
+                    <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                    <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                    <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                    <li><a href="marketplace.html?category=sports">Sports</a></li>
+                </ul>
+            </div>
 
-                <div class="footer-links">
-                    <a href="#">Privacy</a>
-                    <a href="#">Terms</a>
-                    <a href="#">Cookie Policy</a>
-                    <a href="#">Accessibility</a>
-                    <a href="#">Do Not Sell My Personal Information</a>
-                    <a href="#">Interest-Based Ads</a>
-                </div>
+            <!-- Sell Column -->
+            <div class="footer-column">
+                <h3>Sell</h3>
+                <ul>
+                    <li><a href="seller.html">Dashboard</a></li>
+                    <li><a href="seller-registration.html">Start Selling</a></li>
+                    <li><a href="seller-profile.html">Your Store</a></li>
+                    <li><a href="orders.html">Orders</a></li>
+                </ul>
+            </div>
 
-                <div class="footer-copyright">
-                    &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                        <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.9;">A SUBSIDIARY OF</span>
-                        <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
-                    </div>
-                </div>
+            <!-- Account Column -->
+            <div class="footer-column">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="auth.html">Sign In</a></li>
+                    <li><a href="profile.html">My Profile</a></li>
+                    <li><a href="orders.html">My Orders</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                </ul>
+            </div>
+
+            <!-- Support Column -->
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="index.html">Help Center</a></li>
+                    <li><a href="index.html">Contact Us</a></li>
+                    <li><a href="index.html">Shipping Info</a></li>
+                    <li><a href="index.html">Returns</a></li>
+                </ul>
             </div>
         </div>
-    </footer>
+
+        <!-- Footer Bottom: Copyright & Legal -->
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                &copy; 2025 London Star Marketplace. All rights reserved.
+            </div>
+            <div class="footer-legal-links">
+                <a href="index.html">Privacy Policy</a>
+                <span>•</span>
+                <a href="index.html">Terms of Service</a>
+                <span>•</span>
+                <a href="index.html">Cookie Policy</a>
+            </div>
+        </div>
+
+        <!-- Parent Company Section -->
+        <div class="footer-parent">
+            <div class="footer-parent-label">A Subsidiary Of</div>
+            <img src="images/logols.png" alt="London Star Records" class="footer-parent-logo">
+        </div>
+    </div>
+</footer>
+
+    <!-- Premium UI Components -->
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/skeleton-loader.js"></script>
+    <script src="js/image-loader.js"></script>
+    <script src="js/quantity-spinner.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

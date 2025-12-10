@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - London Star Marketplace</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
     <style>
         .orders-page {
             min-height: 100vh;
@@ -338,6 +343,10 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/session-manager.js"></script>
 
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         // Use global sessionManager and supabase from their respective files
         let allOrders = [];
@@ -471,32 +480,73 @@
             ordersList.style.display = 'flex';
             emptyState.style.display = 'none';
 
-            ordersList.innerHTML = filteredOrders.map(order => `
-                <div class="order-card">
-                    <div class="order-header">
-                        <div class="order-info">
-                            <div class="order-number">Order #${order.id.slice(0, 8).toUpperCase()}</div>
-                            <div class="order-date">Placed on ${new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-                        </div>
-                        <span class="order-status ${order.status}">${order.status.toUpperCase()}</span>
-                    </div>
+            // Clear orders list safely
+            ordersList.textContent = '';
 
-                    <div class="order-items">
-                        ${renderOrderItems(order)}
-                    </div>
+            // Render orders using safe DOM manipulation
+            filteredOrders.forEach(order => {
+                const orderCard = DOMBuilder.div({ className: 'order-card' });
 
-                    <div class="order-footer">
-                        <div class="order-total">Total: $${parseFloat(order.total || 0).toFixed(2)}</div>
-                        <div class="order-actions">
-                            <button class="btn-view" onclick="viewOrderDetails('${order.id}')">View Details</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+                // Order header
+                const orderHeader = DOMBuilder.div({ className: 'order-header' });
+
+                const orderInfo = DOMBuilder.div({ className: 'order-info' });
+
+                // Order number (SAFE - textContent prevents XSS)
+                const orderNumber = DOMBuilder.div({
+                    className: 'order-number',
+                    text: `Order #${order.id.slice(0, 8).toUpperCase()}`
+                });
+                orderInfo.appendChild(orderNumber);
+
+                // Order date
+                const orderDate = DOMBuilder.div({
+                    className: 'order-date',
+                    text: `Placed on ${new Date(order.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}`
+                });
+                orderInfo.appendChild(orderDate);
+
+                orderHeader.appendChild(orderInfo);
+
+                // Order status (SAFE - textContent prevents XSS)
+                const orderStatus = document.createElement('span');
+                orderStatus.className = `order-status ${order.status}`;
+                orderStatus.textContent = order.status.toUpperCase();
+                orderHeader.appendChild(orderStatus);
+
+                orderCard.appendChild(orderHeader);
+
+                // Order items
+                const orderItems = DOMBuilder.div({ className: 'order-items' });
+                renderOrderItems(order, orderItems);
+                orderCard.appendChild(orderItems);
+
+                // Order footer
+                const orderFooter = DOMBuilder.div({ className: 'order-footer' });
+
+                const orderTotal = DOMBuilder.div({
+                    className: 'order-total',
+                    text: `Total: $${parseFloat(order.total || 0).toFixed(2)}`
+                });
+                orderFooter.appendChild(orderTotal);
+
+                const orderActions = DOMBuilder.div({ className: 'order-actions' });
+                const viewBtn = DOMBuilder.button({
+                    className: 'btn-view',
+                    text: 'View Details',
+                    onClick: () => viewOrderDetails(order.id)
+                });
+                orderActions.appendChild(viewBtn);
+
+                orderFooter.appendChild(orderActions);
+                orderCard.appendChild(orderFooter);
+
+                ordersList.appendChild(orderCard);
+            });
         }
 
-        // Render order items
-        function renderOrderItems(order) {
+        // Render order items (SAFE - now appends DOM elements)
+        function renderOrderItems(order, container) {
             // Parse items JSONB array
             let items = order.items || [];
 
@@ -506,30 +556,69 @@
                     items = JSON.parse(items);
                 } catch (e) {
                     console.error('Error parsing order items:', e);
-                    return '<div class="item-meta">Order details unavailable</div>';
+                    const errorMsg = DOMBuilder.div({
+                        className: 'item-meta',
+                        text: 'Order details unavailable'
+                    });
+                    container.appendChild(errorMsg);
+                    return;
                 }
             }
 
             if (!Array.isArray(items) || items.length === 0) {
-                return '<div class="item-meta">No items in this order</div>';
+                const noItems = DOMBuilder.div({
+                    className: 'item-meta',
+                    text: 'No items in this order'
+                });
+                container.appendChild(noItems);
+                return;
             }
 
             // Render all items in the order
-            return items.map(item => {
+            items.forEach(item => {
                 const images = typeof item.images === 'string' ? JSON.parse(item.images) : item.images;
                 const firstImage = Array.isArray(images) && images.length > 0 ? images[0] : '';
 
-                return `
-                    <div class="order-item">
-                        <img src="${firstImage || 'images/placeholder.png'}" alt="${item.name || 'Product'}" class="item-image">
-                        <div class="item-details">
-                            <div class="item-name">${item.name || 'Product'}</div>
-                            <div class="item-meta">Quantity: ${item.quantity || 1}</div>
-                        </div>
-                        <div class="item-price">J$${parseFloat(item.price || 0).toFixed(2)}</div>
-                    </div>
-                `;
-            }).join('');
+                const orderItem = DOMBuilder.div({ className: 'order-item' });
+
+                // Item image
+                const img = DOMBuilder.img({
+                    attrs: {
+                        src: firstImage || 'images/placeholder.png',
+                        alt: item.name || 'Product'  // SAFE - alt attribute
+                    },
+                    className: 'item-image'
+                });
+                orderItem.appendChild(img);
+
+                // Item details
+                const itemDetails = DOMBuilder.div({ className: 'item-details' });
+
+                // Item name (SAFE - textContent prevents XSS)
+                const itemName = DOMBuilder.div({
+                    className: 'item-name',
+                    text: item.name || 'Product'
+                });
+                itemDetails.appendChild(itemName);
+
+                // Item quantity
+                const itemMeta = DOMBuilder.div({
+                    className: 'item-meta',
+                    text: `Quantity: ${item.quantity || 1}`
+                });
+                itemDetails.appendChild(itemMeta);
+
+                orderItem.appendChild(itemDetails);
+
+                // Item price
+                const itemPrice = DOMBuilder.div({
+                    className: 'item-price',
+                    text: `J$${parseFloat(item.price || 0).toFixed(2)}`
+                });
+                orderItem.appendChild(itemPrice);
+
+                container.appendChild(orderItem);
+            });
         }
 
         // Filter orders by status
@@ -570,6 +659,11 @@
             alert(message);
         }
     </script>
+
+    <!-- Premium UI Components -->
+    <script src="js/skeleton-loader.js"></script>
+    <script src="js/rating-component.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Profile - London Star Marketplace</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
     <style>
         .profile-page {
             min-height: 100vh;
@@ -508,6 +513,10 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/session-manager.js"></script>
 
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         // Use global sessionManager and supabase from their respective files
         const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
@@ -524,7 +533,7 @@
             }, 1000);
         });
 
-        // Load header navigation
+        // Load header navigation (SAFE - using createElement to prevent XSS)
         async function loadHeaderNav() {
             const userEmail = localStorage.getItem('userEmail') || sessionStorage.getItem('userEmail');
             const userName = localStorage.getItem('userName') || sessionStorage.getItem('userName');
@@ -532,40 +541,75 @@
 
             const displayName = userName || userEmail?.split('@')[0] || 'User';
 
-            headerNav.innerHTML = `
-                <span class="nav-link" style="color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;">
-                    <span style="font-size: 11px; font-weight: 400;">Welcome</span>
-                    <span style="font-size: 13px; font-weight: 600;">${displayName}</span>
-                </span>
-                <a href="marketplace.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                    <span style="font-size: 11px; font-weight: 400;">Browse</span>
-                    <span style="font-size: 13px; font-weight: 600;">Products</span>
-                </a>
-                <a href="orders.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                    <span style="font-size: 11px; font-weight: 400;">My</span>
-                    <span style="font-size: 13px; font-weight: 600;">Orders</span>
-                </a>
-                <a href="profile.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                    <span style="font-size: 11px; font-weight: 400;">My</span>
-                    <span style="font-size: 13px; font-weight: 600;">Profile</span>
-                </a>
-                <a href="cart.html" class="nav-icon-btn">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="9" cy="21" r="1"/>
-                        <circle cx="20" cy="21" r="1"/>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                    </svg>
-                    <span style="font-size: 12px; font-weight: 600;">Cart</span>
-                </a>
-                <button class="nav-icon-btn" onclick="handleLogout()" style="background: transparent; border: none; cursor: pointer;">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                        <polyline points="16 17 21 12 16 7"/>
-                        <line x1="21" y1="12" x2="9" y2="12"/>
-                    </svg>
-                    <span style="font-size: 12px; font-weight: 500;">Logout</span>
-                </button>
-            `;
+            // Clear header nav safely
+            headerNav.textContent = '';
+
+            // Welcome message with displayName (SAFE - textContent prevents XSS)
+            const welcomeSpan = document.createElement('span');
+            welcomeSpan.className = 'nav-link';
+            welcomeSpan.style.cssText = 'color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;';
+
+            const welcomeLabel = document.createElement('span');
+            welcomeLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+            welcomeLabel.textContent = 'Welcome';
+            welcomeSpan.appendChild(welcomeLabel);
+
+            const displayNameSpan = document.createElement('span');
+            displayNameSpan.style.cssText = 'font-size: 13px; font-weight: 600;';
+            displayNameSpan.textContent = displayName;  // SAFE
+            welcomeSpan.appendChild(displayNameSpan);
+            headerNav.appendChild(welcomeSpan);
+
+            // Browse Products link
+            const browseLink = DOMBuilder.a({
+                attrs: { href: 'marketplace.html' },
+                className: 'nav-link',
+                style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start' },
+                children: [
+                    DOMBuilder.span({ style: { fontSize: '11px', fontWeight: '400' }, text: 'Browse' }),
+                    DOMBuilder.span({ style: { fontSize: '13px', fontWeight: '600' }, text: 'Products' })
+                ]
+            });
+            headerNav.appendChild(browseLink);
+
+            // My Orders link
+            const ordersLink = DOMBuilder.a({
+                attrs: { href: 'orders.html' },
+                className: 'nav-link',
+                style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start' },
+                children: [
+                    DOMBuilder.span({ style: { fontSize: '11px', fontWeight: '400' }, text: 'My' }),
+                    DOMBuilder.span({ style: { fontSize: '13px', fontWeight: '600' }, text: 'Orders' })
+                ]
+            });
+            headerNav.appendChild(ordersLink);
+
+            // My Profile link
+            const profileLink = DOMBuilder.a({
+                attrs: { href: 'profile.html' },
+                className: 'nav-link',
+                style: { display: 'flex', flexDirection: 'column', alignItems: 'flex-start' },
+                children: [
+                    DOMBuilder.span({ style: { fontSize: '11px', fontWeight: '400' }, text: 'My' }),
+                    DOMBuilder.span({ style: { fontSize: '13px', fontWeight: '600' }, text: 'Profile' })
+                ]
+            });
+            headerNav.appendChild(profileLink);
+
+            // Cart link with SVG
+            const cartLink = document.createElement('a');
+            cartLink.href = 'cart.html';
+            cartLink.className = 'nav-icon-btn';
+            cartLink.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg><span style="font-size: 12px; font-weight: 600;">Cart</span>';
+            headerNav.appendChild(cartLink);
+
+            // Logout button with SVG
+            const logoutBtn = document.createElement('button');
+            logoutBtn.className = 'nav-icon-btn';
+            logoutBtn.style.cssText = 'background: transparent; border: none; cursor: pointer;';
+            logoutBtn.onclick = handleLogout;
+            logoutBtn.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span style="font-size: 12px; font-weight: 500;">Logout</span>';
+            headerNav.appendChild(logoutBtn);
         }
 
         // Handle logout
@@ -773,6 +817,10 @@
             alert(message);
         }
     </script>
+
+    <!-- Premium UI Components -->
+    <script src="js/form-validator.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

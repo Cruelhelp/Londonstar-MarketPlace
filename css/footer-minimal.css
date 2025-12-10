@@ -1,0 +1,258 @@
+/**
+ * Minimalistic Footer Design
+ * London Star Marketplace - Clean & Simple
+ */
+
+/* ============================================
+   FOOTER CONTAINER
+   ============================================ */
+
+.global-footer {
+    background: #0f1419;
+    color: #e5e7eb;
+    margin-top: 80px;
+    position: relative;
+}
+
+.global-footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--accent-color);
+}
+
+.footer-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 40px;
+}
+
+/* ============================================
+   FOOTER MAIN - NAVIGATION COLUMNS
+   ============================================ */
+
+.footer-main {
+    padding: 60px 0 40px;
+    display: grid;
+    grid-template-columns: 2.5fr 1fr 1fr 1fr 1fr;
+    gap: 60px;
+}
+
+/* About Column */
+.footer-about {
+    max-width: 400px;
+}
+
+.footer-logo {
+    margin-bottom: 32px;
+}
+
+.footer-logo img {
+    height: 200px;
+    width: auto;
+}
+
+.footer-about-text {
+    font-size: 14px;
+    line-height: 1.7;
+    color: #9ca3af;
+    margin-bottom: 24px;
+}
+
+/* Social Icons */
+.footer-social {
+    display: flex;
+    gap: 12px;
+}
+
+.social-icon {
+    width: 36px;
+    height: 36px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #9ca3af;
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.social-icon:hover {
+    background: var(--accent-color);
+    color: white;
+    transform: translateY(-3px);
+}
+
+.social-icon svg {
+    width: 18px;
+    height: 18px;
+}
+
+/* Link Columns */
+.footer-column h3 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0 0 20px 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.footer-column ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.footer-column ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column a {
+    color: #9ca3af;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.3s ease;
+    display: inline-block;
+}
+
+.footer-column a:hover {
+    color: var(--accent-color);
+}
+
+/* ============================================
+   FOOTER BOTTOM - COPYRIGHT
+   ============================================ */
+
+.footer-bottom {
+    padding: 30px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.footer-copyright {
+    font-size: 14px;
+    color: #6b7280;
+}
+
+.footer-legal-links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.footer-legal-links a {
+    color: #6b7280;
+    text-decoration: none;
+    font-size: 13px;
+    transition: color 0.3s ease;
+}
+
+.footer-legal-links a:hover {
+    color: var(--accent-color);
+}
+
+.footer-legal-links span {
+    color: rgba(255, 255, 255, 0.15);
+}
+
+/* ============================================
+   PARENT COMPANY SECTION
+   ============================================ */
+
+.footer-parent {
+    text-align: center;
+    padding: 30px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.footer-parent-label {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    color: #6b7280;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+}
+
+.footer-parent-logo {
+    height: 55px;
+    filter: brightness(0) invert(1);
+    opacity: 0.85;
+    transition: opacity 0.3s ease;
+}
+
+.footer-parent-logo:hover {
+    opacity: 1;
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 1200px) {
+    .footer-main {
+        grid-template-columns: 2fr 1fr 1fr 1fr;
+        gap: 50px;
+    }
+}
+
+@media (max-width: 992px) {
+    .footer-main {
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 40px;
+    }
+
+    .footer-about {
+        grid-column: 1 / -1;
+        max-width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    .footer-container {
+        padding: 0 20px;
+    }
+
+    .footer-main {
+        padding: 50px 0 30px;
+        grid-template-columns: 1fr 1fr;
+        gap: 40px;
+    }
+
+    .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 24px 0;
+    }
+
+    .footer-legal-links {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .footer-legal-links span {
+        display: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .footer-main {
+        grid-template-columns: 1fr;
+        gap: 30px;
+    }
+
+    .footer-social {
+        justify-content: flex-start;
+        flex-wrap: wrap;
+    }
+}

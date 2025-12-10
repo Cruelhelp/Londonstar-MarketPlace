@@ -6,6 +6,10 @@
     <title>Checkout - London Star Marketplace</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
     <style>
         body {
             background: #f5f5f5;
@@ -433,6 +437,11 @@
     <script src="js/supabase-config.js"></script>
     <script src="js/supabase-init.js"></script>
     <script src="js/session-manager.js"></script>
+
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         let currentUserId = null;
         let isGuest = true;
@@ -503,24 +512,55 @@
             const preview = document.getElementById('cartPreview');
 
             if (cartItems.length === 0) {
-                preview.innerHTML = '<p style="color: #6b7280; text-align: center; padding: 20px;">Your cart is empty</p>';
+                preview.textContent = '';
+                const emptyMsg = DOMBuilder.p({
+                    style: { color: '#6b7280', textAlign: 'center', padding: '20px' },
+                    text: 'Your cart is empty'
+                });
+                preview.appendChild(emptyMsg);
                 return;
             }
 
-            preview.innerHTML = cartItems.map(item => {
+            // Clear preview safely
+            preview.textContent = '';
+
+            // Render cart items using safe DOM manipulation
+            cartItems.forEach(item => {
                 const image = item.images && item.images.length > 0 ? item.images[0] : 'images/placeholder.jpg';
-                return `
-                    <div class="preview-item">
-                        <div class="preview-image">
-                            <img src="${image}" alt="${item.name}">
-                        </div>
-                        <div class="preview-details">
-                            <div class="preview-name">${item.name}</div>
-                            <div class="preview-qty-price">Qty: ${item.quantity} × J$${item.price.toFixed(2)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+
+                const previewItem = DOMBuilder.div({ className: 'preview-item' });
+
+                // Preview image
+                const imageDiv = DOMBuilder.div({ className: 'preview-image' });
+                const img = DOMBuilder.img({
+                    attrs: {
+                        src: image,
+                        alt: item.name  // SAFE - alt attribute
+                    }
+                });
+                imageDiv.appendChild(img);
+                previewItem.appendChild(imageDiv);
+
+                // Preview details
+                const detailsDiv = DOMBuilder.div({ className: 'preview-details' });
+
+                // Product name (SAFE - textContent prevents XSS)
+                const nameDiv = DOMBuilder.div({
+                    className: 'preview-name',
+                    text: item.name
+                });
+                detailsDiv.appendChild(nameDiv);
+
+                // Quantity and price
+                const qtyPriceDiv = DOMBuilder.div({
+                    className: 'preview-qty-price',
+                    text: `Qty: ${item.quantity} × J$${item.price.toFixed(2)}`
+                });
+                detailsDiv.appendChild(qtyPriceDiv);
+
+                previewItem.appendChild(detailsDiv);
+                preview.appendChild(previewItem);
+            });
         }
 
         // Calculate order summary
@@ -683,6 +723,10 @@
             }, 1000);
         });
     </script>
+
+    <!-- Premium UI Components -->
+    <script src="js/form-validator.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

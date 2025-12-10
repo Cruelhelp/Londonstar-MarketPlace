@@ -6,6 +6,12 @@
     <title>London Marketplace - Shop Premium Products</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/toast-notifications.css">
+    <link rel="stylesheet" href="css/footer-minimal.css">
     <style>
         .hero-section {
             background: linear-gradient(to right, #c2410c 0%, #f97316 50%, #fb923c 100%);
@@ -57,12 +63,14 @@
             animation: fadeInUp 0.6s ease;
             font-weight: 700;
             text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            color: #ffffff !important;
         }
 
         .hero-section p {
             font-size: 20px;
             opacity: 0.95;
             animation: fadeInUp 0.8s ease;
+            color: #ffffff !important;
         }
 
         @keyframes float {
@@ -491,6 +499,10 @@
     <script src="js/session-manager.js"></script>
     <script src="js/scroll-effects.js"></script>
 
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         let allProducts = [];
         let filteredProducts = [];
@@ -543,65 +555,139 @@
             grid.style.display = 'grid';
             emptyState.style.display = 'none';
 
-            grid.innerHTML = filteredProducts.map((product, idx) => {
+            // Clear grid safely
+            grid.textContent = '';
+
+            // Build product cards using safe DOM manipulation
+            filteredProducts.forEach((product, idx) => {
                 const images = Array.isArray(product.images) ? product.images : [];
                 const hasMultipleImages = images.length > 1;
 
-                // Generate carousel HTML if multiple images, otherwise single image
-                let imageHTML;
-                if (hasMultipleImages) {
-                    imageHTML = `
-                        <div class="product-carousel image-loading" data-product-id="${product.id}">
-                            <div class="image-loader"></div>
-                            <div class="carousel-container">
-                                ${images.map((img, imgIdx) => `
-                                    <img src="${img}" alt="${product.name}"
-                                         class="carousel-image ${imgIdx === 0 ? 'active' : ''}"
-                                         data-index="${imgIdx}"
-                                         onload="if(${imgIdx}===0){this.closest('.product-carousel').classList.remove('image-loading'); this.closest('.product-carousel').querySelector('.image-loader')?.remove();}">
-                                `).join('')}
-                            </div>
-                            <button class="carousel-btn prev" onclick="event.stopPropagation(); prevImage('${product.id}')" aria-label="Previous image">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <polyline points="15 18 9 12 15 6"></polyline>
-                                </svg>
-                            </button>
-                            <button class="carousel-btn next" onclick="event.stopPropagation(); nextImage('${product.id}')" aria-label="Next image">
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <polyline points="9 18 15 12 9 6"></polyline>
-                                </svg>
-                            </button>
-                            <div class="carousel-dots">
-                                ${images.map((_, dotIdx) => `
-                                    <span class="dot ${dotIdx === 0 ? 'active' : ''}" onclick="event.stopPropagation(); goToImage('${product.id}', ${dotIdx})"></span>
-                                `).join('')}
-                            </div>
-                        </div>
-                    `;
-                } else {
-                    imageHTML = `
-                        <div class="image-loading" style="position: relative;">
-                            <div class="image-loader"></div>
-                            <img src="${images[0] || 'images/placeholder.png'}"
-                                 alt="${product.name}"
-                                 class="product-image"
-                                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.querySelector('.image-loader')?.remove();">
-                        </div>
-                    `;
-                }
+                // Create product card
+                const card = document.createElement('div');
+                card.className = 'product-card scroll-fade';
+                card.onclick = () => viewProduct(product.id);
 
-                return `
-                <div class="product-card scroll-fade" onclick="viewProduct('${product.id}')">
-                    ${imageHTML}
-                    <div class="product-title">${product.name}</div>
-                    <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
-                    <div class="product-description">${product.description}</div>
-                    <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="event.stopPropagation(); addToCart('${product.id}')">
-                        Add to Cart
-                    </button>
-                </div>
-                `;
-            }).join('');
+                // Build image section
+                let imageContainer;
+                if (hasMultipleImages) {
+                    // Carousel for multiple images
+                    imageContainer = document.createElement('div');
+                    imageContainer.className = 'product-carousel image-loading';
+                    imageContainer.dataset.productId = product.id;
+
+                    const loader = document.createElement('div');
+                    loader.className = 'image-loader';
+                    imageContainer.appendChild(loader);
+
+                    const carouselContainer = document.createElement('div');
+                    carouselContainer.className = 'carousel-container';
+
+                    images.forEach((img, imgIdx) => {
+                        const imgEl = document.createElement('img');
+                        imgEl.src = img;
+                        imgEl.alt = product.name; // Safe - textContent
+                        imgEl.className = `carousel-image ${imgIdx === 0 ? 'active' : ''}`;
+                        imgEl.dataset.index = imgIdx;
+                        if (imgIdx === 0) {
+                            imgEl.onload = function() {
+                                this.closest('.product-carousel').classList.remove('image-loading');
+                                this.closest('.product-carousel').querySelector('.image-loader')?.remove();
+                            };
+                        }
+                        carouselContainer.appendChild(imgEl);
+                    });
+                    imageContainer.appendChild(carouselContainer);
+
+                    // Previous button
+                    const prevBtn = document.createElement('button');
+                    prevBtn.className = 'carousel-btn prev';
+                    prevBtn.setAttribute('aria-label', 'Previous image');
+                    prevBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+                    prevBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        prevImage(product.id);
+                    };
+                    imageContainer.appendChild(prevBtn);
+
+                    // Next button
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'carousel-btn next';
+                    nextBtn.setAttribute('aria-label', 'Next image');
+                    nextBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+                    nextBtn.onclick = (e) => {
+                        e.stopPropagation();
+                        nextImage(product.id);
+                    };
+                    imageContainer.appendChild(nextBtn);
+
+                    // Dots
+                    const dotsContainer = document.createElement('div');
+                    dotsContainer.className = 'carousel-dots';
+                    images.forEach((_, dotIdx) => {
+                        const dot = document.createElement('span');
+                        dot.className = `dot ${dotIdx === 0 ? 'active' : ''}`;
+                        dot.onclick = (e) => {
+                            e.stopPropagation();
+                            goToImage(product.id, dotIdx);
+                        };
+                        dotsContainer.appendChild(dot);
+                    });
+                    imageContainer.appendChild(dotsContainer);
+                } else {
+                    // Single image
+                    imageContainer = document.createElement('div');
+                    imageContainer.className = 'image-loading';
+                    imageContainer.style.position = 'relative';
+
+                    const loader = document.createElement('div');
+                    loader.className = 'image-loader';
+                    imageContainer.appendChild(loader);
+
+                    const imgEl = document.createElement('img');
+                    imgEl.src = images[0] || 'images/placeholder.png';
+                    imgEl.alt = product.name; // Safe - attribute
+                    imgEl.className = 'product-image';
+                    imgEl.onload = function() {
+                        this.parentElement.classList.remove('image-loading');
+                        this.parentElement.querySelector('.image-loader')?.remove();
+                    };
+                    imageContainer.appendChild(imgEl);
+                }
+                card.appendChild(imageContainer);
+
+                // Product title (SAFE - textContent prevents XSS)
+                const title = document.createElement('div');
+                title.className = 'product-title';
+                title.textContent = product.name;
+                card.appendChild(title);
+
+                // Price
+                const price = document.createElement('div');
+                price.className = 'product-price';
+                price.textContent = `J$${parseFloat(product.price).toFixed(2)}`;
+                card.appendChild(price);
+
+                // Description (SAFE - textContent prevents XSS)
+                const description = document.createElement('div');
+                description.className = 'product-description';
+                description.textContent = product.description;
+                card.appendChild(description);
+
+                // Add to cart button
+                const addBtn = document.createElement('button');
+                addBtn.className = 'btn btn-primary';
+                addBtn.style.width = '100%';
+                addBtn.style.marginTop = '12px';
+                addBtn.textContent = 'Add to Cart';
+                addBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    addToCart(product.id);
+                };
+                card.appendChild(addBtn);
+
+                grid.appendChild(card);
+            });
 
             // Trigger scroll effects for new product cards
             if (window.scrollEffects) {
@@ -710,7 +796,7 @@
             renderProducts();
         }
 
-        // View product details
+        // View product details (XSS-SAFE VERSION)
         function viewProduct(id) {
             const product = allProducts.find(p => p.id === id);
             if (!product) return;
@@ -719,143 +805,239 @@
             const firstImage = images[0] || 'images/placeholder.png';
             const hasMultipleImages = images.length > 1;
 
+            // SAFE: textContent prevents XSS
             document.getElementById('modalProductName').textContent = product.name;
 
-            document.getElementById('productDetails').innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px;">
-                    <!-- Left Column - Image Gallery -->
-                    <div style="position: sticky; top: 0;">
-                        <!-- Main Image Display -->
-                        <div style="position: relative; background: #f9fafb; border-radius: 12px; overflow: hidden; margin-bottom: 16px; aspect-ratio: 1/1;">
-                            <img id="mainProductImage" src="${firstImage}" alt="${product.name}"
-                                style="width: 100%; height: 100%; object-fit: contain; cursor: zoom-in;"
-                                onclick="event.stopPropagation();">
+            // Build modal content safely using DOM manipulation
+            const detailsContainer = document.getElementById('productDetails');
+            detailsContainer.textContent = ''; // Clear safely
 
-                            ${hasMultipleImages ? `
-                                <button class="modal-carousel-btn prev" onclick="event.stopPropagation(); changeMainImage(-1)"
-                                    style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10;">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <polyline points="15 18 9 12 15 6"></polyline>
-                                    </svg>
-                                </button>
-                                <button class="modal-carousel-btn next" onclick="event.stopPropagation(); changeMainImage(1)"
-                                    style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10;">
-                                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                                        <polyline points="9 18 15 12 9 6"></polyline>
-                                    </svg>
-                                </button>
-                                <div class="modal-image-counter" style="position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.75); color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;">
-                                    <span id="currentImageIndex">1</span> / ${images.length}
-                                </div>
-                            ` : ''}
-                        </div>
+            const mainGrid = document.createElement('div');
+            mainGrid.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 40px;';
 
-                        <!-- Thumbnail Gallery -->
-                        ${hasMultipleImages ? `
-                            <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px;">
-                                ${images.map((img, idx) => `
-                                    <div class="product-thumbnail ${idx === 0 ? 'active' : ''}"
-                                        data-index="${idx}"
-                                        onclick="event.stopPropagation(); selectThumbnail(${idx})"
-                                        style="position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid ${idx === 0 ? 'var(--accent-color)' : '#e5e7eb'}; transition: all 0.2s;">
-                                        <img src="${img}" alt="${product.name} - Image ${idx + 1}"
-                                            style="width: 100%; height: 100%; object-fit: cover;">
-                                    </div>
-                                `).join('')}
-                            </div>
-                        ` : ''}
-                    </div>
+            // ===== LEFT COLUMN - Image Gallery =====
+            const leftCol = document.createElement('div');
+            leftCol.style.position = 'sticky';
+            leftCol.style.top = '0';
 
-                    <!-- Right Column - Product Details -->
-                    <div style="display: flex; flex-direction: column;">
-                        <!-- Price Section -->
-                        <div style="margin-bottom: 20px;">
-                            <div style="font-size: 36px; font-weight: 700; color: var(--accent-color); margin-bottom: 10px;">
-                                J$${parseFloat(product.price).toFixed(2)}
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center;">
-                                <span class="badge ${product.stock > 0 ? 'badge-success' : 'badge-danger'}" style="font-size: 13px; padding: 6px 12px;">
-                                    ${product.stock > 0 ? `✓ In Stock (${product.stock} available)` : '✗ Out of Stock'}
-                                </span>
-                                ${product.featured ? `
-                                    <span class="badge" style="background: var(--accent-color); color: #111; font-size: 13px; padding: 6px 12px;">
-                                        ⭐ Featured
-                                    </span>
-                                ` : ''}
-                            </div>
-                        </div>
+            // Main image display
+            const mainImageWrapper = document.createElement('div');
+            mainImageWrapper.style.cssText = 'position: relative; background: #f9fafb; border-radius: 12px; overflow: hidden; margin-bottom: 16px; aspect-ratio: 1/1;';
 
-                        <!-- Category -->
-                        <div style="margin-bottom: 25px; padding: 15px; background: #f9fafb; border-radius: 8px; border-left: 4px solid var(--accent-color);">
-                            <div style="font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Category</div>
-                            <div style="font-size: 16px; font-weight: 600; color: var(--primary-color); text-transform: capitalize;">${product.category}</div>
-                        </div>
+            const mainImage = document.createElement('img');
+            mainImage.id = 'mainProductImage';
+            mainImage.src = firstImage;
+            mainImage.alt = product.name; // SAFE: attribute
+            mainImage.style.cssText = 'width: 100%; height: 100%; object-fit: contain; cursor: zoom-in;';
+            mainImage.onclick = (e) => e.stopPropagation();
+            mainImageWrapper.appendChild(mainImage);
 
-                        <!-- Description -->
-                        <div style="margin-bottom: 30px;">
-                            <h3 style="font-size: 16px; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Product Description</h3>
-                            <div style="line-height: 1.8; color: #374151; font-size: 15px;">
-                                ${product.description}
-                            </div>
-                        </div>
+            // Carousel buttons (if multiple images)
+            if (hasMultipleImages) {
+                const prevBtn = document.createElement('button');
+                prevBtn.className = 'modal-carousel-btn prev';
+                prevBtn.style.cssText = 'position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 10;';
+                prevBtn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>';
+                prevBtn.onclick = (e) => { e.stopPropagation(); changeMainImage(-1); };
+                mainImageWrapper.appendChild(prevBtn);
 
-                        <!-- Product Info Grid -->
-                        <div style="margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 12px;">
-                            <h3 style="font-size: 14px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;">Product Information</h3>
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                                <div style="padding: 10px; background: white; border-radius: 6px;">
-                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Stock Status</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: ${product.stock > 0 ? '#10b981' : '#ef4444'};">
-                                        ${product.stock > 0 ? 'Available' : 'Out of Stock'}
-                                    </div>
-                                </div>
-                                <div style="padding: 10px; background: white; border-radius: 6px;">
-                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Quantity</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: var(--primary-color);">
-                                        ${product.stock} units
-                                    </div>
-                                </div>
-                                ${product.sku ? `
-                                    <div style="padding: 10px; background: white; border-radius: 6px;">
-                                        <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">SKU</div>
-                                        <div style="font-size: 14px; font-weight: 600; color: var(--primary-color);">
-                                            ${product.sku}
-                                        </div>
-                                    </div>
-                                ` : ''}
-                                <div style="padding: 10px; background: white; border-radius: 6px;">
-                                    <div style="font-size: 11px; color: #6b7280; margin-bottom: 4px;">Images</div>
-                                    <div style="font-size: 14px; font-weight: 600; color: var(--primary-color);">
-                                        ${images.length} photo${images.length !== 1 ? 's' : ''}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
+                const nextBtn = document.createElement('button');
+                nextBtn.className = 'modal-carousel-btn next';
+                nextBtn.style.cssText = 'position: absolute; right: 10px; top: 50%; transform: translateY(-50%); z-index: 10;';
+                nextBtn.innerHTML = '<svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+                nextBtn.onclick = (e) => { e.stopPropagation(); changeMainImage(1); };
+                mainImageWrapper.appendChild(nextBtn);
 
-                        <!-- Add to Cart Button -->
-                        <div style="margin-top: auto;">
-                            <button class="btn btn-primary"
-                                style="width: 100%; padding: 16px; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;"
-                                onclick="addToCart('${product.id}'); closeProductModal();"
-                                ${product.stock <= 0 ? 'disabled' : ''}>
-                                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                    <circle cx="9" cy="21" r="1"/>
-                                    <circle cx="20" cy="21" r="1"/>
-                                    <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                                </svg>
-                                ${product.stock > 0 ? 'Add to Cart' : 'Out of Stock'}
-                            </button>
-                            <div style="text-align: center; margin-top: 12px; font-size: 13px; color: #6b7280;">
-                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
-                                    <path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/>
-                                    <circle cx="12" cy="10" r="3"/>
-                                </svg>
-                                Ships from Jamaica
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            `;
+                const counter = document.createElement('div');
+                counter.className = 'modal-image-counter';
+                counter.style.cssText = 'position: absolute; bottom: 15px; right: 15px; background: rgba(0,0,0,0.75); color: white; padding: 6px 12px; border-radius: 20px; font-size: 13px; font-weight: 600;';
+                const counterText = document.createElement('span');
+                counterText.id = 'currentImageIndex';
+                counterText.textContent = '1';
+                counter.appendChild(counterText);
+                counter.appendChild(document.createTextNode(` / ${images.length}`));
+                mainImageWrapper.appendChild(counter);
+            }
+            leftCol.appendChild(mainImageWrapper);
+
+            // Thumbnail gallery
+            if (hasMultipleImages) {
+                const thumbGrid = document.createElement('div');
+                thumbGrid.style.cssText = 'display: grid; grid-template-columns: repeat(auto-fill, minmax(70px, 1fr)); gap: 10px;';
+
+                images.forEach((img, idx) => {
+                    const thumbWrapper = document.createElement('div');
+                    thumbWrapper.className = `product-thumbnail ${idx === 0 ? 'active' : ''}`;
+                    thumbWrapper.dataset.index = idx;
+                    thumbWrapper.style.cssText = `position: relative; aspect-ratio: 1/1; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid ${idx === 0 ? 'var(--accent-color)' : '#e5e7eb'}; transition: all 0.2s;`;
+                    thumbWrapper.onclick = (e) => { e.stopPropagation(); selectThumbnail(idx); };
+
+                    const thumbImg = document.createElement('img');
+                    thumbImg.src = img;
+                    thumbImg.alt = `${product.name} - Image ${idx + 1}`; // SAFE
+                    thumbImg.style.cssText = 'width: 100%; height: 100%; object-fit: cover;';
+                    thumbWrapper.appendChild(thumbImg);
+
+                    thumbGrid.appendChild(thumbWrapper);
+                });
+                leftCol.appendChild(thumbGrid);
+            }
+            mainGrid.appendChild(leftCol);
+
+            // ===== RIGHT COLUMN - Product Details =====
+            const rightCol = document.createElement('div');
+            rightCol.style.cssText = 'display: flex; flex-direction: column;';
+
+            // Price section
+            const priceSection = document.createElement('div');
+            priceSection.style.marginBottom = '20px';
+
+            const priceText = document.createElement('div');
+            priceText.style.cssText = 'font-size: 36px; font-weight: 700; color: var(--accent-color); margin-bottom: 10px;';
+            priceText.textContent = `J$${parseFloat(product.price).toFixed(2)}`;
+            priceSection.appendChild(priceText);
+
+            const badgesRow = document.createElement('div');
+            badgesRow.style.cssText = 'display: flex; gap: 10px; align-items: center;';
+
+            const stockBadge = document.createElement('span');
+            stockBadge.className = `badge ${product.stock > 0 ? 'badge-success' : 'badge-danger'}`;
+            stockBadge.style.cssText = 'font-size: 13px; padding: 6px 12px;';
+            stockBadge.textContent = product.stock > 0 ? `✓ In Stock (${product.stock} available)` : '✗ Out of Stock';
+            badgesRow.appendChild(stockBadge);
+
+            if (product.featured) {
+                const featuredBadge = document.createElement('span');
+                featuredBadge.className = 'badge';
+                featuredBadge.style.cssText = 'background: var(--accent-color); color: #111; font-size: 13px; padding: 6px 12px;';
+                featuredBadge.textContent = '⭐ Featured';
+                badgesRow.appendChild(featuredBadge);
+            }
+            priceSection.appendChild(badgesRow);
+            rightCol.appendChild(priceSection);
+
+            // Category
+            const categoryBox = document.createElement('div');
+            categoryBox.style.cssText = 'margin-bottom: 25px; padding: 15px; background: #f9fafb; border-radius: 8px; border-left: 4px solid var(--accent-color);';
+
+            const categoryLabel = document.createElement('div');
+            categoryLabel.style.cssText = 'font-size: 12px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;';
+            categoryLabel.textContent = 'Category';
+            categoryBox.appendChild(categoryLabel);
+
+            const categoryValue = document.createElement('div');
+            categoryValue.style.cssText = 'font-size: 16px; font-weight: 600; color: var(--primary-color); text-transform: capitalize;';
+            categoryValue.textContent = product.category; // SAFE
+            categoryBox.appendChild(categoryValue);
+            rightCol.appendChild(categoryBox);
+
+            // Description
+            const descSection = document.createElement('div');
+            descSection.style.marginBottom = '30px';
+
+            const descTitle = document.createElement('h3');
+            descTitle.style.cssText = 'font-size: 16px; font-weight: 700; color: var(--primary-color); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;';
+            descTitle.textContent = 'Product Description';
+            descSection.appendChild(descTitle);
+
+            const descText = document.createElement('div');
+            descText.style.cssText = 'line-height: 1.8; color: #374151; font-size: 15px;';
+            descText.textContent = product.description; // SAFE: textContent prevents XSS
+            descSection.appendChild(descText);
+            rightCol.appendChild(descSection);
+
+            // Product info grid
+            const infoGrid = document.createElement('div');
+            infoGrid.style.cssText = 'margin-bottom: 30px; padding: 20px; background: #f9fafb; border-radius: 12px;';
+
+            const infoTitle = document.createElement('h3');
+            infoTitle.style.cssText = 'font-size: 14px; font-weight: 700; color: var(--primary-color); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 0.5px;';
+            infoTitle.textContent = 'Product Information';
+            infoGrid.appendChild(infoTitle);
+
+            const infoItems = document.createElement('div');
+            infoItems.style.cssText = 'display: grid; grid-template-columns: 1fr 1fr; gap: 12px;';
+
+            // Stock status
+            const stockItem = document.createElement('div');
+            stockItem.style.cssText = 'padding: 10px; background: white; border-radius: 6px;';
+            const stockLabel = document.createElement('div');
+            stockLabel.style.cssText = 'font-size: 11px; color: #6b7280; margin-bottom: 4px;';
+            stockLabel.textContent = 'Stock Status';
+            const stockVal = document.createElement('div');
+            stockVal.style.cssText = `font-size: 14px; font-weight: 600; color: ${product.stock > 0 ? '#10b981' : '#ef4444'};`;
+            stockVal.textContent = product.stock > 0 ? 'Available' : 'Out of Stock';
+            stockItem.appendChild(stockLabel);
+            stockItem.appendChild(stockVal);
+            infoItems.appendChild(stockItem);
+
+            // Quantity
+            const qtyItem = document.createElement('div');
+            qtyItem.style.cssText = 'padding: 10px; background: white; border-radius: 6px;';
+            const qtyLabel = document.createElement('div');
+            qtyLabel.style.cssText = 'font-size: 11px; color: #6b7280; margin-bottom: 4px;';
+            qtyLabel.textContent = 'Quantity';
+            const qtyVal = document.createElement('div');
+            qtyVal.style.cssText = 'font-size: 14px; font-weight: 600; color: var(--primary-color);';
+            qtyVal.textContent = `${product.stock} units`;
+            qtyItem.appendChild(qtyLabel);
+            qtyItem.appendChild(qtyVal);
+            infoItems.appendChild(qtyItem);
+
+            // SKU (if exists)
+            if (product.sku) {
+                const skuItem = document.createElement('div');
+                skuItem.style.cssText = 'padding: 10px; background: white; border-radius: 6px;';
+                const skuLabel = document.createElement('div');
+                skuLabel.style.cssText = 'font-size: 11px; color: #6b7280; margin-bottom: 4px;';
+                skuLabel.textContent = 'SKU';
+                const skuVal = document.createElement('div');
+                skuVal.style.cssText = 'font-size: 14px; font-weight: 600; color: var(--primary-color);';
+                skuVal.textContent = product.sku; // SAFE
+                skuItem.appendChild(skuLabel);
+                skuItem.appendChild(skuVal);
+                infoItems.appendChild(skuItem);
+            }
+
+            // Images count
+            const imgItem = document.createElement('div');
+            imgItem.style.cssText = 'padding: 10px; background: white; border-radius: 6px;';
+            const imgLabel = document.createElement('div');
+            imgLabel.style.cssText = 'font-size: 11px; color: #6b7280; margin-bottom: 4px;';
+            imgLabel.textContent = 'Images';
+            const imgVal = document.createElement('div');
+            imgVal.style.cssText = 'font-size: 14px; font-weight: 600; color: var(--primary-color);';
+            imgVal.textContent = `${images.length} photo${images.length !== 1 ? 's' : ''}`;
+            imgItem.appendChild(imgLabel);
+            imgItem.appendChild(imgVal);
+            infoItems.appendChild(imgItem);
+
+            infoGrid.appendChild(infoItems);
+            rightCol.appendChild(infoGrid);
+
+            // Add to cart button
+            const btnSection = document.createElement('div');
+            btnSection.style.marginTop = 'auto';
+
+            const addBtn = document.createElement('button');
+            addBtn.className = 'btn btn-primary';
+            addBtn.style.cssText = 'width: 100%; padding: 16px; font-size: 16px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 10px;';
+            addBtn.disabled = product.stock <= 0;
+            addBtn.onclick = () => { addToCart(product.id); closeProductModal(); };
+            addBtn.innerHTML = '<svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>';
+            addBtn.appendChild(document.createTextNode(product.stock > 0 ? 'Add to Cart' : 'Out of Stock'));
+            btnSection.appendChild(addBtn);
+
+            const shippingInfo = document.createElement('div');
+            shippingInfo.style.cssText = 'text-align: center; margin-top: 12px; font-size: 13px; color: #6b7280;';
+            shippingInfo.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;"><path d="M12 22s-8-4.5-8-11.8A8 8 0 0 1 12 2a8 8 0 0 1 8 8.2c0 7.3-8 11.8-8 11.8z"/><circle cx="12" cy="10" r="3"/></svg>';
+            shippingInfo.appendChild(document.createTextNode('Ships from Jamaica'));
+            btnSection.appendChild(shippingInfo);
+
+            rightCol.appendChild(btnSection);
+            mainGrid.appendChild(rightCol);
+
+            detailsContainer.appendChild(mainGrid);
 
             // Store current images for navigation
             window.currentProductImages = images;
@@ -1009,13 +1191,11 @@
                 cart = userCart;
                 updateCartUI();
 
-                // Show feedback
-                showLoading();
-                document.querySelector('#loadingScreen .loading-text').textContent = 'Added to cart!';
-                hideLoading();
+                // Show feedback with toast
+                toast.success('Added to cart!', 3000);
             } catch (error) {
                 console.error('Error adding to cart:', error);
-                alert('Error adding item to cart. Please try again.');
+                toast.error('Error adding item to cart. Please try again.');
             }
         }
 
@@ -1076,21 +1256,74 @@
             const total = cart.reduce((sum, item) => sum + (parseFloat(item.price) * item.quantity), 0);
             cartTotal.textContent = total.toFixed(2);
 
-            cartItems.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <img src="${item.images[0]}" alt="${item.name}">
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600; margin-bottom: 5px;">${item.name}</div>
-                        <div style="color: var(--accent-color); font-weight: 700; margin-bottom: 8px;">J$${parseFloat(item.price).toFixed(2)}</div>
-                        <div class="flex gap-10" style="align-items: center;">
-                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="updateQuantity('${item.id}', -1)">-</button>
-                            <span style="font-weight: 600;">${item.quantity}</span>
-                            <button class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px;" onclick="updateQuantity('${item.id}', 1)">+</button>
-                            <button class="btn btn-danger" style="padding: 4px 10px; font-size: 12px; margin-left: auto;" onclick="removeFromCart('${item.id}')">Remove</button>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
+            // Build cart items safely (XSS-SAFE VERSION)
+            cartItems.textContent = ''; // Clear safely
+
+            cart.forEach(item => {
+                const cartItemDiv = document.createElement('div');
+                cartItemDiv.className = 'cart-item';
+
+                // Product image
+                const img = document.createElement('img');
+                img.src = item.images[0];
+                img.alt = item.name; // SAFE: attribute
+                cartItemDiv.appendChild(img);
+
+                // Item details container
+                const detailsDiv = document.createElement('div');
+                detailsDiv.style.flex = '1';
+
+                // Product name (SAFE: textContent prevents XSS)
+                const nameDiv = document.createElement('div');
+                nameDiv.style.cssText = 'font-weight: 600; margin-bottom: 5px;';
+                nameDiv.textContent = item.name;
+                detailsDiv.appendChild(nameDiv);
+
+                // Price
+                const priceDiv = document.createElement('div');
+                priceDiv.style.cssText = 'color: var(--accent-color); font-weight: 700; margin-bottom: 8px;';
+                priceDiv.textContent = `J$${parseFloat(item.price).toFixed(2)}`;
+                detailsDiv.appendChild(priceDiv);
+
+                // Controls (quantity buttons)
+                const controlsDiv = document.createElement('div');
+                controlsDiv.className = 'flex gap-10';
+                controlsDiv.style.alignItems = 'center';
+
+                // Decrease button
+                const decreaseBtn = document.createElement('button');
+                decreaseBtn.className = 'btn btn-secondary';
+                decreaseBtn.style.cssText = 'padding: 4px 10px; font-size: 12px;';
+                decreaseBtn.textContent = '-';
+                decreaseBtn.onclick = () => updateQuantity(item.id, -1);
+                controlsDiv.appendChild(decreaseBtn);
+
+                // Quantity display
+                const qtySpan = document.createElement('span');
+                qtySpan.style.fontWeight = '600';
+                qtySpan.textContent = item.quantity;
+                controlsDiv.appendChild(qtySpan);
+
+                // Increase button
+                const increaseBtn = document.createElement('button');
+                increaseBtn.className = 'btn btn-secondary';
+                increaseBtn.style.cssText = 'padding: 4px 10px; font-size: 12px;';
+                increaseBtn.textContent = '+';
+                increaseBtn.onclick = () => updateQuantity(item.id, 1);
+                controlsDiv.appendChild(increaseBtn);
+
+                // Remove button
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn btn-danger';
+                removeBtn.style.cssText = 'padding: 4px 10px; font-size: 12px; margin-left: auto;';
+                removeBtn.textContent = 'Remove';
+                removeBtn.onclick = () => removeFromCart(item.id);
+                controlsDiv.appendChild(removeBtn);
+
+                detailsDiv.appendChild(controlsDiv);
+                cartItemDiv.appendChild(detailsDiv);
+                cartItems.appendChild(cartItemDiv);
+            });
         }
 
         function toggleCart() {
@@ -1099,7 +1332,7 @@
 
         function checkout() {
             if (cart.length === 0) {
-                alert('Your cart is empty!');
+                toast.warning('Your cart is empty!');
                 return;
             }
 
@@ -1109,7 +1342,8 @@
             setTimeout(() => {
                 const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
                 const cartKey = userId ? `cart_${userId}` : 'cart_guest';
-                alert(`Order placed successfully!\nTotal: J$${document.getElementById('cartTotal').textContent}\n\nThank you for shopping at London Star Marketplace!`);
+                const total = document.getElementById('cartTotal').textContent;
+                toast.success(`Order placed successfully! Total: J$${total} - Thank you for shopping at London Star Marketplace!`, 6000);
                 cart = [];
                 localStorage.setItem(cartKey, JSON.stringify(cart));
                 updateCartUI();
@@ -1195,70 +1429,250 @@
                 const displayName = userName || userEmail?.split('@')[0] || 'User';
 
                 // Admin panel link (only for admin users)
-                const adminLink = userRole === 'admin' ? `
-                    <a href="admin.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start; background: rgba(255, 153, 0, 0.1); border-radius: 4px; padding: 8px 12px;">
-                        <span style="font-size: 11px; font-weight: 400;">Admin</span>
-                        <span style="font-size: 13px; font-weight: 600;">Panel</span>
-                    </a>
-                ` : '';
+                // Clear header nav safely
+                headerNav.textContent = '';
 
-                // Logged in user nav
-                headerNav.innerHTML = `
-                    <span class="nav-link" style="color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Welcome</span>
-                        <span style="font-size: 13px; font-weight: 600;">${displayName}</span>
-                    </span>
-                    ${adminLink}
-                    <a href="orders.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">My</span>
-                        <span style="font-size: 13px; font-weight: 600;">Orders</span>
-                    </a>
-                    <a href="cart.html" class="nav-icon-btn" style="position: relative;">
-                        <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <circle cx="9" cy="21" r="1"/>
-                            <circle cx="20" cy="21" r="1"/>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 600;">Cart</span>
-                        <span class="cart-badge" id="cartBadge">0</span>
-                    </a>
-                    <a href="profile.html" class="nav-icon-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 500;">Profile</span>
-                    </a>
-                    <button class="nav-icon-btn" onclick="handleLogout()" style="background: transparent; border: none; cursor: pointer;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                            <polyline points="16 17 21 12 16 7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 500;">Logout</span>
-                    </button>
-                `;
+                // Logged in user nav (SAFE - using createElement to prevent XSS)
+                // Welcome message with displayName
+                const welcomeSpan = document.createElement('span');
+                welcomeSpan.className = 'nav-link';
+                welcomeSpan.style.cssText = 'color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;';
+
+                const welcomeLabel = document.createElement('span');
+                welcomeLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+                welcomeLabel.textContent = 'Welcome';
+                welcomeSpan.appendChild(welcomeLabel);
+
+                const displayNameSpan = document.createElement('span');
+                displayNameSpan.style.cssText = 'font-size: 13px; font-weight: 600;';
+                displayNameSpan.textContent = displayName; // SAFE - textContent prevents XSS
+                welcomeSpan.appendChild(displayNameSpan);
+
+                headerNav.appendChild(welcomeSpan);
+
+                // Admin Panel link (conditional)
+                if (userRole === 'admin') {
+                    const adminLink = document.createElement('a');
+                    adminLink.href = 'admin.html';
+                    adminLink.className = 'nav-link';
+                    adminLink.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start; background: rgba(255, 153, 0, 0.1); border-radius: 4px; padding: 8px 12px;';
+
+                    const adminLabel = document.createElement('span');
+                    adminLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+                    adminLabel.textContent = 'Admin';
+                    adminLink.appendChild(adminLabel);
+
+                    const panelLabel = document.createElement('span');
+                    panelLabel.style.cssText = 'font-size: 13px; font-weight: 600;';
+                    panelLabel.textContent = 'Panel';
+                    adminLink.appendChild(panelLabel);
+
+                    headerNav.appendChild(adminLink);
+                }
+
+                // My Orders link
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'orders.html';
+                ordersLink.className = 'nav-link';
+                ordersLink.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start;';
+
+                const myLabel = document.createElement('span');
+                myLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+                myLabel.textContent = 'My';
+                ordersLink.appendChild(myLabel);
+
+                const ordersLabel = document.createElement('span');
+                ordersLabel.style.cssText = 'font-size: 13px; font-weight: 600;';
+                ordersLabel.textContent = 'Orders';
+                ordersLink.appendChild(ordersLabel);
+
+                headerNav.appendChild(ordersLink);
+
+                // Cart link with icon and badge
+                const cartLink = document.createElement('a');
+                cartLink.href = 'cart.html';
+                cartLink.className = 'nav-icon-btn';
+                cartLink.style.cssText = 'position: relative;';
+
+                const cartSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                cartSvg.setAttribute('width', '24');
+                cartSvg.setAttribute('height', '24');
+                cartSvg.setAttribute('fill', 'none');
+                cartSvg.setAttribute('stroke', 'currentColor');
+                cartSvg.setAttribute('stroke-width', '2');
+                cartSvg.setAttribute('viewBox', '0 0 24 24');
+
+                const circle1 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle1.setAttribute('cx', '9');
+                circle1.setAttribute('cy', '21');
+                circle1.setAttribute('r', '1');
+                cartSvg.appendChild(circle1);
+
+                const circle2 = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                circle2.setAttribute('cx', '20');
+                circle2.setAttribute('cy', '21');
+                circle2.setAttribute('r', '1');
+                cartSvg.appendChild(circle2);
+
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', 'M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6');
+                cartSvg.appendChild(path);
+
+                cartLink.appendChild(cartSvg);
+
+                const cartText = document.createElement('span');
+                cartText.style.cssText = 'font-size: 12px; font-weight: 600;';
+                cartText.textContent = 'Cart';
+                cartLink.appendChild(cartText);
+
+                const cartBadge = document.createElement('span');
+                cartBadge.className = 'cart-badge';
+                cartBadge.id = 'cartBadge';
+                cartBadge.textContent = '0';
+                cartLink.appendChild(cartBadge);
+
+                headerNav.appendChild(cartLink);
+
+                // Profile link
+                const profileLink = document.createElement('a');
+                profileLink.href = 'profile.html';
+                profileLink.className = 'nav-icon-btn';
+
+                const profileSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                profileSvg.setAttribute('width', '24');
+                profileSvg.setAttribute('height', '24');
+                profileSvg.setAttribute('viewBox', '0 0 24 24');
+                profileSvg.setAttribute('fill', 'none');
+
+                const profileCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                profileCircle.setAttribute('cx', '12');
+                profileCircle.setAttribute('cy', '9');
+                profileCircle.setAttribute('r', '3');
+                profileCircle.setAttribute('stroke', 'currentColor');
+                profileCircle.setAttribute('stroke-width', '2');
+                profileCircle.setAttribute('fill', 'none');
+                profileSvg.appendChild(profileCircle);
+
+                const profilePath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                profilePath.setAttribute('d', 'M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6');
+                profilePath.setAttribute('stroke', 'currentColor');
+                profilePath.setAttribute('stroke-width', '2');
+                profilePath.setAttribute('fill', 'none');
+                profileSvg.appendChild(profilePath);
+
+                profileLink.appendChild(profileSvg);
+
+                const profileText = document.createElement('span');
+                profileText.style.cssText = 'font-size: 12px; font-weight: 500;';
+                profileText.textContent = 'Profile';
+                profileLink.appendChild(profileText);
+
+                headerNav.appendChild(profileLink);
+
+                // Logout button
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'nav-icon-btn';
+                logoutBtn.style.cssText = 'background: transparent; border: none; cursor: pointer;';
+                logoutBtn.onclick = handleLogout;
+
+                const logoutSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                logoutSvg.setAttribute('width', '24');
+                logoutSvg.setAttribute('height', '24');
+                logoutSvg.setAttribute('viewBox', '0 0 24 24');
+                logoutSvg.setAttribute('fill', 'none');
+                logoutSvg.setAttribute('stroke', 'currentColor');
+                logoutSvg.setAttribute('stroke-width', '2');
+
+                const logoutPath1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                logoutPath1.setAttribute('d', 'M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4');
+                logoutSvg.appendChild(logoutPath1);
+
+                const logoutPolyline = document.createElementNS('http://www.w3.org/2000/svg', 'polyline');
+                logoutPolyline.setAttribute('points', '16 17 21 12 16 7');
+                logoutSvg.appendChild(logoutPolyline);
+
+                const logoutLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+                logoutLine.setAttribute('x1', '21');
+                logoutLine.setAttribute('y1', '12');
+                logoutLine.setAttribute('x2', '9');
+                logoutLine.setAttribute('y2', '12');
+                logoutSvg.appendChild(logoutLine);
+
+                logoutBtn.appendChild(logoutSvg);
+
+                const logoutText = document.createElement('span');
+                logoutText.style.cssText = 'font-size: 12px; font-weight: 500;';
+                logoutText.textContent = 'Logout';
+                logoutBtn.appendChild(logoutText);
+
+                headerNav.appendChild(logoutBtn);
             } else {
-                // Guest user nav
-                headerNav.innerHTML = `
-                    <a href="seller-registration.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Become a</span>
-                        <span style="font-size: 13px; font-weight: 600;">Seller</span>
-                    </a>
-                    <a href="auth.html" class="nav-icon-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 500;">Sign In</span>
-                    </a>
-                `;
+                // Guest user nav (SAFE - no user data, but using createElement for consistency)
+                headerNav.textContent = '';
+
+                // Become a Seller link
+                const sellerLink = document.createElement('a');
+                sellerLink.href = 'seller-registration.html';
+                sellerLink.className = 'nav-link';
+                sellerLink.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start;';
+
+                const becomeLabel = document.createElement('span');
+                becomeLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+                becomeLabel.textContent = 'Become a';
+                sellerLink.appendChild(becomeLabel);
+
+                const sellerLabel = document.createElement('span');
+                sellerLabel.style.cssText = 'font-size: 13px; font-weight: 600;';
+                sellerLabel.textContent = 'Seller';
+                sellerLink.appendChild(sellerLabel);
+
+                headerNav.appendChild(sellerLink);
+
+                // Sign In link
+                const signInLink = document.createElement('a');
+                signInLink.href = 'auth.html';
+                signInLink.className = 'nav-icon-btn';
+
+                const signInSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+                signInSvg.setAttribute('width', '24');
+                signInSvg.setAttribute('height', '24');
+                signInSvg.setAttribute('viewBox', '0 0 24 24');
+                signInSvg.setAttribute('fill', 'none');
+
+                const signInCircle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                signInCircle.setAttribute('cx', '12');
+                signInCircle.setAttribute('cy', '9');
+                signInCircle.setAttribute('r', '3');
+                signInCircle.setAttribute('stroke', 'currentColor');
+                signInCircle.setAttribute('stroke-width', '2');
+                signInCircle.setAttribute('fill', 'none');
+                signInSvg.appendChild(signInCircle);
+
+                const signInPath = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                signInPath.setAttribute('d', 'M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6');
+                signInPath.setAttribute('stroke', 'currentColor');
+                signInPath.setAttribute('stroke-width', '2');
+                signInPath.setAttribute('fill', 'none');
+                signInSvg.appendChild(signInPath);
+
+                signInLink.appendChild(signInSvg);
+
+                const signInText = document.createElement('span');
+                signInText.style.cssText = 'font-size: 12px; font-weight: 500;';
+                signInText.textContent = 'Sign In';
+                signInLink.appendChild(signInText);
+
+                headerNav.appendChild(signInLink);
             }
 
-            // Populate mobile menu with header nav content
+            // Populate mobile menu with header nav content (SAFE - cloning DOM nodes)
             const mobileMenuContent = document.getElementById('mobileMenuContent');
             if (mobileMenuContent) {
-                mobileMenuContent.innerHTML = headerNav.innerHTML;
+                mobileMenuContent.textContent = '';
+                // Clone all header nav children to mobile menu
+                Array.from(headerNav.childNodes).forEach(node => {
+                    mobileMenuContent.appendChild(node.cloneNode(true));
+                });
             }
         }
 
@@ -1406,66 +1820,121 @@
         });
     </script>
 
-    <!-- Global Footer -->
-    <footer class="global-footer">
-        <div class="footer-container">
-            <div class="footer-main">
-                <div class="footer-column">
-                    <h3>Shop</h3>
-                    <ul>
-                        <li><a href="marketplace.html">All Products</a></li>
-                        <li><a href="marketplace.html?category=electronics">Electronics</a></li>
-                        <li><a href="marketplace.html?category=fashion">Fashion</a></li>
-                        <li><a href="marketplace.html?category=home">Home & Garden</a></li>
-                        <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
-                        <li><a href="marketplace.html?category=books">Books</a></li>
-                    </ul>
-                </div>
 
-                <div class="footer-column">
-                    <h3>Sell</h3>
-                    <ul>
-                        <li><a href="seller.html">Seller Dashboard</a></li>
-                        <li><a href="auth.html">Start Selling</a></li>
-                        <li><a href="seller-profile.html">Seller Profile</a></li>
-                    </ul>
+<!-- Minimalistic Global Footer -->
+<footer class="global-footer">
+    <div class="footer-container">
+        <!-- Footer Main: About + Navigation -->
+        <div class="footer-main">
+            <!-- About Column -->
+            <div class="footer-column footer-about">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Star Marketplace">
                 </div>
-
-                <div class="footer-column">
-                    <h3>Account</h3>
-                    <ul>
-                        <li><a href="auth.html">Sign In</a></li>
-                        <li><a href="auth.html">Create Account</a></li>
-                        <li><a href="profile.html">My Profile</a></li>
-                        <li><a href="orders.html">My Orders</a></li>
-                    </ul>
-                </div>
-
-                <div class="footer-column">
-                    <h3>About</h3>
-                    <ul>
-                        <li><a href="home.html">Home</a></li>
-                        <li><a href="marketplace.html">Marketplace</a></li>
-                        <li><a href="admin.html">Admin</a></li>
-                    </ul>
+                <p class="footer-about-text">
+                    Your premier destination for quality products from trusted sellers worldwide.
+                    Shop with confidence and discover amazing deals every day.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Twitter">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="YouTube">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
 
-            <div class="footer-bottom">
-                <div class="footer-logo">
-                    <img src="images/logo-new.svg" alt="London Marketplace">
-                </div>
+            <!-- Shop Column -->
+            <div class="footer-column">
+                <h3>Shop</h3>
+                <ul>
+                    <li><a href="marketplace.html">All Products</a></li>
+                    <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                    <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                    <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                    <li><a href="marketplace.html?category=sports">Sports</a></li>
+                </ul>
+            </div>
 
-                <div class="footer-copyright">
-                    &copy; 2025 London Star Marketplace. All rights reserved.
-                    <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                        <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.9;">A SUBSIDIARY OF</span>
-                        <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
-                    </div>
-                </div>
+            <!-- Sell Column -->
+            <div class="footer-column">
+                <h3>Sell</h3>
+                <ul>
+                    <li><a href="seller.html">Dashboard</a></li>
+                    <li><a href="seller-registration.html">Start Selling</a></li>
+                    <li><a href="seller-profile.html">Your Store</a></li>
+                    <li><a href="orders.html">Orders</a></li>
+                </ul>
+            </div>
+
+            <!-- Account Column -->
+            <div class="footer-column">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="auth.html">Sign In</a></li>
+                    <li><a href="profile.html">My Profile</a></li>
+                    <li><a href="orders.html">My Orders</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                </ul>
+            </div>
+
+            <!-- Support Column -->
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="index.html">Help Center</a></li>
+                    <li><a href="index.html">Contact Us</a></li>
+                    <li><a href="index.html">Shipping Info</a></li>
+                    <li><a href="index.html">Returns</a></li>
+                </ul>
             </div>
         </div>
-    </footer>
+
+        <!-- Footer Bottom: Copyright & Legal -->
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                &copy; 2025 London Star Marketplace. All rights reserved.
+            </div>
+            <div class="footer-legal-links">
+                <a href="index.html">Privacy Policy</a>
+                <span>•</span>
+                <a href="index.html">Terms of Service</a>
+                <span>•</span>
+                <a href="index.html">Cookie Policy</a>
+            </div>
+        </div>
+
+        <!-- Parent Company Section -->
+        <div class="footer-parent">
+            <div class="footer-parent-label">A Subsidiary Of</div>
+            <img src="images/logols.png" alt="London Star Records" class="footer-parent-logo">
+        </div>
+    </div>
+</footer>
+
+    <!-- Premium UI Components -->
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/skeleton-loader.js"></script>
+    <script src="js/image-loader.js"></script>
+    <script src="js/rating-component.js"></script>
+    <script src="js/breadcrumbs.js"></script>
+    <script src="js/lightbox.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

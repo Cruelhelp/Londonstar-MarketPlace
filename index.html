@@ -6,6 +6,11 @@
     <title>London Marketplace - Shop Premium Products Online</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/footer-minimal.css">
     <style>
         /* Secondary Navigation */
         .secondary-nav {
@@ -1307,102 +1312,112 @@
         </div>
     </section>
 
-    <!-- Global Footer -->
-    <footer class="global-footer">
-        <div class="footer-container">
-            <div class="footer-main">
-                <!-- Shop Column -->
-                <div class="footer-column">
-                    <h3>Shop</h3>
-                    <ul>
-                        <li><a href="marketplace.html">Browse Products</a></li>
-                        <li><a href="marketplace.html?category=electronics">Electronics</a></li>
-                        <li><a href="marketplace.html?category=fashion">Fashion</a></li>
-                        <li><a href="marketplace.html?category=home">Home & Garden</a></li>
-                    </ul>
-                </div>
 
-                <!-- Sell Column -->
-                <div class="footer-column">
-                    <h3>Sell</h3>
-                    <ul>
-                        <li><a href="seller-registration.html">Become a Seller</a></li>
-                        <li><a href="seller.html">Seller Dashboard</a></li>
-                        <li><a href="seller-profile.html">My Shop</a></li>
-                    </ul>
+<!-- Minimalistic Global Footer -->
+<footer class="global-footer">
+    <div class="footer-container">
+        <!-- Footer Main: About + Navigation -->
+        <div class="footer-main">
+            <!-- About Column -->
+            <div class="footer-column footer-about">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Star Marketplace">
                 </div>
-
-                <!-- Account Column -->
-                <div class="footer-column">
-                    <h3>Account</h3>
-                    <ul>
-                        <li><a href="auth.html">Sign In / Register</a></li>
-                        <li><a href="orders.html">My Orders</a></li>
-                        <li><a href="cart.html">Shopping Cart</a></li>
-                        <li><a href="profile.html">Account Settings</a></li>
-                    </ul>
-                </div>
-
-                <!-- Support Column -->
-                <div class="footer-column">
-                    <h3>Support</h3>
-                    <ul>
-                        <li><a href="mailto:support@londonstarmarketplace.com">Contact Us</a></li>
-                        <li><a href="orders.html">Track Order</a></li>
-                        <li><a href="checkout.html">Checkout</a></li>
-                    </ul>
+                <p class="footer-about-text">
+                    Your premier destination for quality products from trusted sellers worldwide.
+                    Shop with confidence and discover amazing deals every day.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Twitter">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="YouTube">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
                 </div>
             </div>
 
-            <!-- Social & Bottom Section -->
-            <div class="footer-bottom">
-                <div class="footer-bottom-content">
-                    <div class="footer-logo-section">
-                        <img src="images/logo-new.svg" alt="London Marketplace" class="footer-logo">
-                        <p class="footer-tagline">Premium Marketplace for Quality Products</p>
-                    </div>
+            <!-- Shop Column -->
+            <div class="footer-column">
+                <h3>Shop</h3>
+                <ul>
+                    <li><a href="marketplace.html">All Products</a></li>
+                    <li><a href="marketplace.html?category=electronics">Electronics</a></li>
+                    <li><a href="marketplace.html?category=fashion">Fashion</a></li>
+                    <li><a href="marketplace.html?category=home">Home & Garden</a></li>
+                    <li><a href="marketplace.html?category=sports">Sports</a></li>
+                </ul>
+            </div>
 
-                    <div class="footer-social">
-                        <h4>Follow Us</h4>
-                        <div class="social-links">
-                            <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-                                </svg>
-                            </a>
-                            <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
-                                </svg>
-                            </a>
-                            <a href="https://twitter.com" target="_blank" rel="noopener" aria-label="Twitter">
-                                <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
-                                </svg>
-                            </a>
-                        </div>
-                    </div>
-                </div>
+            <!-- Sell Column -->
+            <div class="footer-column">
+                <h3>Sell</h3>
+                <ul>
+                    <li><a href="seller.html">Dashboard</a></li>
+                    <li><a href="seller-registration.html">Start Selling</a></li>
+                    <li><a href="seller-profile.html">Your Store</a></li>
+                    <li><a href="orders.html">Orders</a></li>
+                </ul>
+            </div>
 
-                <div class="footer-legal">
-                    <p class="footer-copyright">
-                        &copy; 2025 London Star Marketplace. All rights reserved.
-                    </p>
-                    <div style="margin: 25px 0 20px 0; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                        <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; color: rgba(255,255,255,0.9);">A SUBSIDIARY OF</span>
-                        <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
-                    </div>
-                    <div class="footer-legal-links">
-                        <a href="mailto:support@londonstarmarketplace.com">Contact</a>
-                        <span>•</span>
-                        <a href="index.html">Home</a>
-                        <span>•</span>
-                        <a href="marketplace.html">Shop</a>
-                    </div>
-                </div>
+            <!-- Account Column -->
+            <div class="footer-column">
+                <h3>Account</h3>
+                <ul>
+                    <li><a href="auth.html">Sign In</a></li>
+                    <li><a href="profile.html">My Profile</a></li>
+                    <li><a href="orders.html">My Orders</a></li>
+                    <li><a href="cart.html">Cart</a></li>
+                </ul>
+            </div>
+
+            <!-- Support Column -->
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="index.html">Help Center</a></li>
+                    <li><a href="index.html">Contact Us</a></li>
+                    <li><a href="index.html">Shipping Info</a></li>
+                    <li><a href="index.html">Returns</a></li>
+                </ul>
             </div>
         </div>
-    </footer>
+
+        <!-- Footer Bottom: Copyright & Legal -->
+        <div class="footer-bottom">
+            <div class="footer-copyright">
+                &copy; 2025 London Star Marketplace. All rights reserved.
+            </div>
+            <div class="footer-legal-links">
+                <a href="index.html">Privacy Policy</a>
+                <span>•</span>
+                <a href="index.html">Terms of Service</a>
+                <span>•</span>
+                <a href="index.html">Cookie Policy</a>
+            </div>
+        </div>
+
+        <!-- Parent Company Section -->
+        <div class="footer-parent">
+            <div class="footer-parent-label">A Subsidiary Of</div>
+            <img src="images/logols.png" alt="London Star Records" class="footer-parent-logo">
+        </div>
+    </div>
+</footer>
 
     <script src="js/demo-data.js"></script>
     <script>
@@ -1416,20 +1431,59 @@
             // Skip if mainCards element doesn't exist (section was removed)
             if (!mainCards) return;
 
-            mainCards.innerHTML = cardsData.map(card => `
-                <div class="content-card">
-                    <h3>${card.title}</h3>
-                    <div class="card-grid">
-                        ${card.tiles.map((tile, idx) => `
-                            <div class="card-tile" onclick="window.location.href='marketplace.html?category=${tile.category}'">
-                                ${tile.image ? `<img src="${tile.image}" alt="${tile.label}">` : ''}
-                                <div class="card-tile-label">${tile.label}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    <a href="${card.link}" class="card-link">${card.linkText}</a>
-                </div>
-            `).join('');
+            // Clear safely
+            mainCards.textContent = '';
+
+            cardsData.forEach(card => {
+                // Create content card (SAFE - using createElement to prevent XSS)
+                const contentCard = document.createElement('div');
+                contentCard.className = 'content-card';
+
+                // Card title (SAFE - textContent prevents XSS)
+                const title = document.createElement('h3');
+                title.textContent = card.title;
+                contentCard.appendChild(title);
+
+                // Card grid
+                const cardGrid = document.createElement('div');
+                cardGrid.className = 'card-grid';
+
+                card.tiles.forEach((tile, idx) => {
+                    // Card tile (SAFE - using createElement)
+                    const cardTile = document.createElement('div');
+                    cardTile.className = 'card-tile';
+                    cardTile.onclick = () => {
+                        window.location.href = `marketplace.html?category=${encodeURIComponent(tile.category)}`;
+                    };
+
+                    // Tile image if exists
+                    if (tile.image) {
+                        const img = document.createElement('img');
+                        img.src = tile.image;
+                        img.alt = tile.label;
+                        cardTile.appendChild(img);
+                    }
+
+                    // Tile label (SAFE - textContent prevents XSS)
+                    const label = document.createElement('div');
+                    label.className = 'card-tile-label';
+                    label.textContent = tile.label;
+                    cardTile.appendChild(label);
+
+                    cardGrid.appendChild(cardTile);
+                });
+
+                contentCard.appendChild(cardGrid);
+
+                // Card link (SAFE - createElement and textContent)
+                const link = document.createElement('a');
+                link.href = card.link;
+                link.className = 'card-link';
+                link.textContent = card.linkText;
+                contentCard.appendChild(link);
+
+                mainCards.appendChild(contentCard);
+            });
         }
 
         function getDefaultCards() {
@@ -1485,24 +1539,73 @@
                 const description = product.description || 'Check out this amazing product!';
                 const truncatedDesc = description.length > 60 ? description.substring(0, 60) + '...' : description;
 
-                promoItem.innerHTML = `
-                    <div class="promo-item-badge">${badges[index] || '🔥 HOT'}</div>
-                    <div class="promo-item-content">
-                        <div class="image-loading" style="position: relative;">
-                            <div class="image-loader"></div>
-                            <img src="${firstImage}"
-                                 alt="${product.name}"
-                                 class="promo-item-image"
-                                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.querySelector('.image-loader')?.remove();"
-                                 onerror="this.parentElement.querySelector('.image-loader')?.remove(); this.src='images/placeholder.png';">
-                        </div>
-                        <div class="promo-item-title">${product.name}</div>
-                        <div class="promo-item-price">J$${parseFloat(product.price).toFixed(2)}</div>
-                        <div class="promo-item-description">${truncatedDesc}</div>
-                        <div class="promo-item-cta">Shop Now →</div>
-                    </div>
-                `;
+                // Clear promo item safely
+                promoItem.textContent = '';
 
+                // Badge (SAFE - textContent prevents XSS)
+                const badge = document.createElement('div');
+                badge.className = 'promo-item-badge';
+                badge.textContent = badges[index] || '🔥 HOT';
+                promoItem.appendChild(badge);
+
+                // Content container
+                const content = document.createElement('div');
+                content.className = 'promo-item-content';
+
+                // Image loading container
+                const imageLoading = document.createElement('div');
+                imageLoading.className = 'image-loading';
+                imageLoading.style.position = 'relative';
+
+                const imageLoader = document.createElement('div');
+                imageLoader.className = 'image-loader';
+                imageLoading.appendChild(imageLoader);
+
+                // Image (SAFE - createElement, product.name used in alt attribute)
+                const img = document.createElement('img');
+                img.src = firstImage;
+                img.alt = product.name;
+                img.className = 'promo-item-image';
+                img.onload = function() {
+                    this.parentElement.classList.remove('image-loading');
+                    const loader = this.parentElement.querySelector('.image-loader');
+                    if (loader) loader.remove();
+                };
+                img.onerror = function() {
+                    const loader = this.parentElement.querySelector('.image-loader');
+                    if (loader) loader.remove();
+                    this.src = 'images/placeholder.png';
+                };
+                imageLoading.appendChild(img);
+                content.appendChild(imageLoading);
+
+                // Product title (SAFE - textContent prevents XSS)
+                const title = document.createElement('div');
+                title.className = 'promo-item-title';
+                title.textContent = product.name;
+                content.appendChild(title);
+
+                // Price (SAFE - textContent prevents XSS)
+                const price = document.createElement('div');
+                price.className = 'promo-item-price';
+                price.textContent = `J$${parseFloat(product.price).toFixed(2)}`;
+                content.appendChild(price);
+
+                // Description (SAFE - textContent prevents XSS)
+                const desc = document.createElement('div');
+                desc.className = 'promo-item-description';
+                desc.textContent = truncatedDesc;
+                content.appendChild(desc);
+
+                // CTA
+                const cta = document.createElement('div');
+                cta.className = 'promo-item-cta';
+                cta.textContent = 'Shop Now →';
+                content.appendChild(cta);
+
+                promoItem.appendChild(content);
+
+                // Add click handler
                 promoItem.onclick = () => {
                     window.location.href = `marketplace.html?productId=${product.id}`;
                 };
@@ -1518,7 +1621,7 @@
             const featuredGrid = document.getElementById('featuredProducts');
             const emptyState = document.getElementById('emptyState');
 
-            // Show loading spinner
+            // Show loading spinner (SAFE - static HTML)
             featuredGrid.innerHTML = `
                 <div class="spinner-container" style="grid-column: 1 / -1;">
                     <div class="spinner large"></div>
@@ -1541,28 +1644,75 @@
                 // Get the 8 most recent products
                 const products = allProducts.slice(0, 8);
 
-                featuredGrid.innerHTML = products.map(product => {
+                // Clear grid safely
+                featuredGrid.textContent = '';
+
+                products.forEach(product => {
                     const images = Array.isArray(product.images) ? product.images : [];
                     const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
 
-                    return `
-                    <div class="product-card scroll-fade" onclick="window.location.href='marketplace.html?productId=${product.id}'" style="cursor: pointer;">
-                        <div class="image-loading" style="position: relative;">
-                            <div class="image-loader"></div>
-                            <img src="${firstImage}"
-                                 alt="${product.name}"
-                                 class="product-image"
-                                 onload="this.parentElement.classList.remove('image-loading'); this.parentElement.querySelector('.image-loader')?.remove();">
-                        </div>
-                        <div class="product-title">${product.name}</div>
-                        <div class="product-price">J$${parseFloat(product.price).toFixed(2)}</div>
-                        <div class="product-description">${product.description}</div>
-                        <button class="btn btn-primary" style="width: 100%; margin-top: 12px;" onclick="event.stopPropagation(); window.location.href='marketplace.html?productId=${product.id}&action=addToCart'">
-                            Add to Cart
-                        </button>
-                    </div>
-                    `;
-                }).join('');
+                    // Product card (SAFE - using createElement to prevent XSS)
+                    const card = document.createElement('div');
+                    card.className = 'product-card scroll-fade';
+                    card.style.cursor = 'pointer';
+                    card.onclick = () => {
+                        window.location.href = `marketplace.html?productId=${product.id}`;
+                    };
+
+                    // Image loading container
+                    const imageLoading = document.createElement('div');
+                    imageLoading.className = 'image-loading';
+                    imageLoading.style.position = 'relative';
+
+                    const imageLoader = document.createElement('div');
+                    imageLoader.className = 'image-loader';
+                    imageLoading.appendChild(imageLoader);
+
+                    // Image (SAFE - createElement)
+                    const img = document.createElement('img');
+                    img.src = firstImage;
+                    img.alt = product.name;
+                    img.className = 'product-image';
+                    img.onload = function() {
+                        this.parentElement.classList.remove('image-loading');
+                        const loader = this.parentElement.querySelector('.image-loader');
+                        if (loader) loader.remove();
+                    };
+                    imageLoading.appendChild(img);
+                    card.appendChild(imageLoading);
+
+                    // Product title (SAFE - textContent prevents XSS)
+                    const title = document.createElement('div');
+                    title.className = 'product-title';
+                    title.textContent = product.name;
+                    card.appendChild(title);
+
+                    // Product price (SAFE - textContent prevents XSS)
+                    const price = document.createElement('div');
+                    price.className = 'product-price';
+                    price.textContent = `J$${parseFloat(product.price).toFixed(2)}`;
+                    card.appendChild(price);
+
+                    // Product description (SAFE - textContent prevents XSS)
+                    const description = document.createElement('div');
+                    description.className = 'product-description';
+                    description.textContent = product.description;
+                    card.appendChild(description);
+
+                    // Add to cart button (SAFE - createElement)
+                    const button = document.createElement('button');
+                    button.className = 'btn btn-primary';
+                    button.style.width = '100%';
+                    button.style.marginTop = '12px';
+                    button.textContent = 'Add to Cart';
+                    button.onclick = (event) => {
+                        event.stopPropagation();
+                        window.location.href = `marketplace.html?productId=${product.id}&action=addToCart`;
+                    };
+                    card.appendChild(button);
+
+                    featuredGrid.appendChild(card);
+                });
 
                 // Trigger scroll effects immediately
                 if (window.scrollEffects) {
@@ -1667,7 +1817,7 @@
             }
         }
 
-        // Load header navigation based on login status
+        // Load header navigation based on login status (SAFE - using createElement to prevent XSS)
         function loadHeaderNav() {
             const userId = localStorage.getItem('userId') || sessionStorage.getItem('userId');
             const userRole = localStorage.getItem('userRole');
@@ -1675,59 +1825,143 @@
             const userName = localStorage.getItem('userName') || sessionStorage.getItem('userName');
             const headerNav = document.getElementById('headerNav');
 
+            // Clear header nav safely
+            headerNav.textContent = '';
+
             if (userId) {
                 const displayName = userName || userEmail?.split('@')[0] || 'User';
 
-                // Admin panel link (only for admin users)
-                const adminLink = userRole === 'admin' ? `
-                    <a href="admin.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start; background: rgba(255, 153, 0, 0.1); border-radius: 4px; padding: 8px 12px;">
-                        <span style="font-size: 11px; font-weight: 400;">Admin</span>
-                        <span style="font-size: 13px; font-weight: 600;">Panel</span>
-                    </a>
-                ` : '';
+                // Welcome message with displayName (SAFE - textContent prevents XSS)
+                const welcomeSpan = document.createElement('span');
+                welcomeSpan.className = 'nav-link';
+                welcomeSpan.style.cssText = 'color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;';
 
-                // Logged in user nav
-                headerNav.innerHTML = `
-                    <span class="nav-link" style="color: var(--accent-color); font-weight: 600; pointer-events: none; display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Welcome</span>
-                        <span style="font-size: 13px; font-weight: 600;">${displayName}</span>
-                    </span>
-                    ${adminLink}
-                    <a href="marketplace.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">Today's</span>
-                        <span style="font-size: 13px; font-weight: 600;">Deals</span>
-                    </a>
-                    <a href="orders.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
-                        <span style="font-size: 11px; font-weight: 400;">My</span>
-                        <span style="font-size: 13px; font-weight: 600;">Orders</span>
-                    </a>
-                    <a href="cart.html" class="nav-icon-btn" style="position: relative;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="9" cy="21" r="1"/>
-                            <circle cx="20" cy="21" r="1"/>
-                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 600;">Cart</span>
-                        <span id="cartBadge" style="position: absolute; top: -5px; right: -5px; background: var(--accent-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; font-weight: 700; display: none; align-items: center; justify-content: center;">0</span>
-                    </a>
-                    <a href="profile.html" class="nav-icon-btn">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
-                            <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 500;">Profile</span>
-                    </a>
-                    <button class="nav-icon-btn" onclick="handleLogout()" style="background: transparent; border: none; cursor: pointer;">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
-                            <polyline points="16 17 21 12 16 7"/>
-                            <line x1="21" y1="12" x2="9" y2="12"/>
-                        </svg>
-                        <span style="font-size: 12px; font-weight: 500;">Logout</span>
-                    </button>
+                const welcomeLabel = document.createElement('span');
+                welcomeLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+                welcomeLabel.textContent = 'Welcome';
+                welcomeSpan.appendChild(welcomeLabel);
+
+                const displayNameSpan = document.createElement('span');
+                displayNameSpan.style.cssText = 'font-size: 13px; font-weight: 600;';
+                displayNameSpan.textContent = displayName; // SAFE - textContent prevents XSS
+                welcomeSpan.appendChild(displayNameSpan);
+                headerNav.appendChild(welcomeSpan);
+
+                // Admin panel link (only for admin users)
+                if (userRole === 'admin') {
+                    const adminLink = document.createElement('a');
+                    adminLink.href = 'admin.html';
+                    adminLink.className = 'nav-link';
+                    adminLink.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start; background: rgba(255, 153, 0, 0.1); border-radius: 4px; padding: 8px 12px;';
+
+                    const adminLabel = document.createElement('span');
+                    adminLabel.style.cssText = 'font-size: 11px; font-weight: 400;';
+                    adminLabel.textContent = 'Admin';
+                    adminLink.appendChild(adminLabel);
+
+                    const panelLabel = document.createElement('span');
+                    panelLabel.style.cssText = 'font-size: 13px; font-weight: 600;';
+                    panelLabel.textContent = 'Panel';
+                    adminLink.appendChild(panelLabel);
+                    headerNav.appendChild(adminLink);
+                }
+
+                // Today's Deals link
+                const dealsLink = document.createElement('a');
+                dealsLink.href = 'marketplace.html';
+                dealsLink.className = 'nav-link';
+                dealsLink.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start;';
+
+                const dealsLabel1 = document.createElement('span');
+                dealsLabel1.style.cssText = 'font-size: 11px; font-weight: 400;';
+                dealsLabel1.textContent = "Today's";
+                dealsLink.appendChild(dealsLabel1);
+
+                const dealsLabel2 = document.createElement('span');
+                dealsLabel2.style.cssText = 'font-size: 13px; font-weight: 600;';
+                dealsLabel2.textContent = 'Deals';
+                dealsLink.appendChild(dealsLabel2);
+                headerNav.appendChild(dealsLink);
+
+                // My Orders link
+                const ordersLink = document.createElement('a');
+                ordersLink.href = 'orders.html';
+                ordersLink.className = 'nav-link';
+                ordersLink.style.cssText = 'display: flex; flex-direction: column; align-items: flex-start;';
+
+                const ordersLabel1 = document.createElement('span');
+                ordersLabel1.style.cssText = 'font-size: 11px; font-weight: 400;';
+                ordersLabel1.textContent = 'My';
+                ordersLink.appendChild(ordersLabel1);
+
+                const ordersLabel2 = document.createElement('span');
+                ordersLabel2.style.cssText = 'font-size: 13px; font-weight: 600;';
+                ordersLabel2.textContent = 'Orders';
+                ordersLink.appendChild(ordersLabel2);
+                headerNav.appendChild(ordersLink);
+
+                // Cart link (SAFE - using innerHTML only for SVG which is static)
+                const cartLink = document.createElement('a');
+                cartLink.href = 'cart.html';
+                cartLink.className = 'nav-icon-btn';
+                cartLink.style.position = 'relative';
+                cartLink.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="9" cy="21" r="1"/>
+                        <circle cx="20" cy="21" r="1"/>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+                    </svg>
                 `;
+
+                const cartLabel = document.createElement('span');
+                cartLabel.style.cssText = 'font-size: 12px; font-weight: 600;';
+                cartLabel.textContent = 'Cart';
+                cartLink.appendChild(cartLabel);
+
+                const cartBadge = document.createElement('span');
+                cartBadge.id = 'cartBadge';
+                cartBadge.style.cssText = 'position: absolute; top: -5px; right: -5px; background: var(--accent-color); color: white; border-radius: 50%; width: 20px; height: 20px; font-size: 11px; font-weight: 700; display: none; align-items: center; justify-content: center;';
+                cartBadge.textContent = '0';
+                cartLink.appendChild(cartBadge);
+                headerNav.appendChild(cartLink);
+
+                // Profile link (SAFE - using innerHTML only for SVG which is static)
+                const profileLink = document.createElement('a');
+                profileLink.href = 'profile.html';
+                profileLink.className = 'nav-icon-btn';
+                profileLink.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <circle cx="12" cy="9" r="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                        <path d="M6 19c0-3.3 2.7-6 6-6s6 2.7 6 6" stroke="currentColor" stroke-width="2" fill="none"/>
+                    </svg>
+                `;
+
+                const profileLabel = document.createElement('span');
+                profileLabel.style.cssText = 'font-size: 12px; font-weight: 500;';
+                profileLabel.textContent = 'Profile';
+                profileLink.appendChild(profileLabel);
+                headerNav.appendChild(profileLink);
+
+                // Logout button (SAFE - using innerHTML only for SVG which is static)
+                const logoutBtn = document.createElement('button');
+                logoutBtn.className = 'nav-icon-btn';
+                logoutBtn.style.cssText = 'background: transparent; border: none; cursor: pointer;';
+                logoutBtn.onclick = handleLogout;
+                logoutBtn.innerHTML = `
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                `;
+
+                const logoutLabel = document.createElement('span');
+                logoutLabel.style.cssText = 'font-size: 12px; font-weight: 500;';
+                logoutLabel.textContent = 'Logout';
+                logoutBtn.appendChild(logoutLabel);
+                headerNav.appendChild(logoutBtn);
             } else {
-                // Not logged in nav
+                // Not logged in nav (SAFE - static content, no user data)
                 headerNav.innerHTML = `
                     <a href="marketplace.html" class="nav-link" style="display: flex; flex-direction: column; align-items: flex-start;">
                         <span style="font-size: 11px; font-weight: 400;">Browse</span>
@@ -1747,10 +1981,13 @@
                 `;
             }
 
-            // Also populate mobile menu
+            // Also populate mobile menu (SAFE - clone DOM nodes instead of copying innerHTML)
             const mobileMenuContent = document.getElementById('mobileMenuContent');
             if (mobileMenuContent) {
-                mobileMenuContent.innerHTML = headerNav.innerHTML;
+                mobileMenuContent.textContent = '';
+                Array.from(headerNav.childNodes).forEach(node => {
+                    mobileMenuContent.appendChild(node.cloneNode(true));
+                });
             }
         }
 
@@ -1864,6 +2101,17 @@
     <script src="js/cache-manager.js"></script>
     <script src="js/global-preloader.js"></script>
     <script src="js/scroll-effects.js"></script>
+
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
+    <!-- Premium UI Components -->
+    <script src="js/skeleton-loader.js"></script>
+    <script src="js/image-loader.js"></script>
+    <script src="js/rating-component.js"></script>
+    <script src="js/lightbox.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

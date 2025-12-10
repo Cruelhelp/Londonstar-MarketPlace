@@ -31,6 +31,82 @@ body {
     overflow-x: hidden;
 }
 
+/* ========================================
+   CUSTOM SCROLLBAR - Site Theme Colors
+   ======================================== */
+
+/* Firefox */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(249, 115, 22, 0.4) transparent;
+}
+
+/* Chrome, Safari, Edge */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(249, 115, 22, 0.05);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.2);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--accent-hover) 0%, var(--accent-dark) 100%);
+    box-shadow: 0 3px 6px rgba(249, 115, 22, 0.3);
+    transform: scaleX(1.2);
+}
+
+::-webkit-scrollbar-thumb:active {
+    background: var(--accent-dark);
+}
+
+/* Scrollbar for dark backgrounds (header, footer, modals) */
+.dark-scrollbar::-webkit-scrollbar-track,
+.header::-webkit-scrollbar-track,
+.footer::-webkit-scrollbar-track,
+.modal::-webkit-scrollbar-track,
+[style*="background: #131921"]::-webkit-scrollbar-track,
+[style*="background: #111827"]::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb,
+.header::-webkit-scrollbar-thumb,
+.footer::-webkit-scrollbar-thumb,
+.modal::-webkit-scrollbar-thumb,
+[style*="background: #131921"]::-webkit-scrollbar-thumb,
+[style*="background: #111827"]::-webkit-scrollbar-thumb {
+    background: linear-gradient(180deg, rgba(249, 115, 22, 0.9) 0%, rgba(234, 88, 12, 0.9) 100%);
+    box-shadow: 0 2px 4px rgba(249, 115, 22, 0.3);
+}
+
+.dark-scrollbar::-webkit-scrollbar-thumb:hover,
+.header::-webkit-scrollbar-thumb:hover,
+.footer::-webkit-scrollbar-thumb:hover,
+.modal::-webkit-scrollbar-thumb:hover,
+[style*="background: #131921"]::-webkit-scrollbar-thumb:hover,
+[style*="background: #111827"]::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(180deg, var(--accent-color) 0%, var(--accent-hover) 100%);
+    box-shadow: 0 3px 6px rgba(249, 115, 22, 0.4);
+}
+
+/* Firefox - Dark sections */
+.dark-scrollbar,
+.header,
+.footer,
+.modal {
+    scrollbar-color: rgba(249, 115, 22, 0.9) rgba(255, 255, 255, 0.05);
+}
+
 /* Loading Screen */
 .loading-screen {
     position: fixed;

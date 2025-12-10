@@ -6,6 +6,11 @@
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <title>Admin Panel - London Marketplace</title>
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/toast-notifications.css">
     <style>
         .admin-sidebar {
             position: fixed;
@@ -111,8 +116,54 @@
 
         .loading-row {
             text-align: center;
-            padding: 20px;
+            padding: 40px 20px;
             color: var(--text-secondary);
+        }
+
+        /* Loading Spinner */
+        .admin-spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(249, 115, 22, 0.1);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .loading-row .admin-spinner {
+            margin: 0 auto 12px;
+        }
+
+        .loading-text {
+            display: block;
+            color: var(--text-secondary);
+            font-size: 14px;
+            margin-top: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Dashboard stat card loading */
+        .stat-card.loading {
+            position: relative;
+            opacity: 0.6;
+        }
+
+        .stat-card.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 24px;
+            height: 24px;
+            border: 3px solid rgba(249, 115, 22, 0.1);
+            border-top-color: var(--accent-color);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
         }
 
         .action-buttons {
@@ -1305,6 +1356,11 @@
     <script src="js/supabase-homepage.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/toast.js"></script>
+
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         // ============================================
         // ADMIN SESSION PROTECTION
@@ -1317,6 +1373,28 @@
         if (!isAdmin && userRole !== 'admin') {
             alert('Access denied. Admin privileges required.');
             window.location.href = 'auth.html';
+        }
+
+        // ============================================
+        // LOADING SPINNER HELPER
+        // ============================================
+
+        function createLoadingSpinner(text = 'Loading...') {
+            const container = document.createElement('div');
+            container.style.textAlign = 'center';
+            container.style.padding = '40px 20px';
+
+            const spinner = document.createElement('div');
+            spinner.className = 'admin-spinner';
+
+            const loadingText = document.createElement('span');
+            loadingText.className = 'loading-text';
+            loadingText.textContent = text;
+
+            container.appendChild(spinner);
+            container.appendChild(loadingText);
+
+            return container;
         }
 
         // ============================================
@@ -1442,6 +1520,10 @@
         // ============================================
 
         async function loadDashboard() {
+            // Show loading state on all stat cards
+            const statCards = document.querySelectorAll('.stat-card');
+            statCards.forEach(card => card.classList.add('loading'));
+
             try {
                 // Get total users count
                 const { count: usersCount, error: usersError } = await supabase
@@ -1479,9 +1561,17 @@
                 document.getElementById('totalOrders').textContent = ordersCount || 0;
                 document.getElementById('totalRevenue').textContent = totalRevenue.toFixed(2);
 
+                // Remove loading state
+                const statCards = document.querySelectorAll('.stat-card');
+                statCards.forEach(card => card.classList.remove('loading'));
+
             } catch (error) {
                 console.error('Error loading dashboard:', error);
                 alert('Error loading dashboard statistics: ' + error.message);
+
+                // Remove loading state on error
+                const statCards = document.querySelectorAll('.stat-card');
+                statCards.forEach(card => card.classList.remove('loading'));
             }
         }
 
@@ -1491,7 +1581,17 @@
 
         async function loadProducts() {
             const tbody = document.getElementById('productsTableBody');
-            tbody.innerHTML = '<tr><td colspan="8" class="loading-row">Loading products...</td></tr>';
+
+            // Loading state with spinner
+            tbody.textContent = '';
+            const loadingRow = DOMBuilder.tr({});
+            const loadingCell = DOMBuilder.td({
+                attrs: { colspan: '8' },
+                className: 'loading-row'
+            });
+            loadingCell.appendChild(createLoadingSpinner('Loading products...'));
+            loadingRow.appendChild(loadingCell);
+            tbody.appendChild(loadingRow);
 
             try {
                 const { data: products, error } = await supabase
@@ -1516,56 +1616,144 @@
 
                 if (error) throw error;
 
+                // Clear loading message
+                tbody.textContent = '';
+
                 if (!products || products.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: var(--text-secondary);">No products found</td></tr>';
+                    const emptyRow = DOMBuilder.tr({});
+                    const emptyCell = DOMBuilder.td({
+                        attrs: { colspan: '8' },
+                        style: { textAlign: 'center', color: 'var(--text-secondary)' },
+                        text: 'No products found'
+                    });
+                    emptyRow.appendChild(emptyCell);
+                    tbody.appendChild(emptyRow);
                     return;
                 }
 
-                tbody.innerHTML = products.map(product => {
+                // Render products using safe DOM manipulation
+                products.forEach(product => {
                     const images = Array.isArray(product.images) ? product.images : [];
                     const firstImage = images.length > 0 ? images[0] : 'images/placeholder.png';
-                    const imageCount = images.length > 1 ? `<small style="color: #6b7280; display: block; margin-top: 2px;">📷 ${images.length} images</small>` : '';
-                    const skuBadge = product.sku ? `<small style="color: #6b7280; display: block; margin-top: 2px;">SKU: ${product.sku}</small>` : '';
-                    const featuredBadge = product.featured ? `<span class="badge" style="background: var(--accent-color); color: #111; font-size: 10px; margin-left: 4px;">⭐ FEATURED</span>` : '';
 
-                    return `
-                    <tr>
-                        <td>
-                            <img src="${firstImage}" alt="${product.name}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px;">
-                            ${imageCount}
-                        </td>
-                        <td>
-                            ${product.name}${featuredBadge}
-                            ${skuBadge}
-                        </td>
-                        <td>${product.category}</td>
-                        <td>J$${parseFloat(product.price).toFixed(2)}</td>
-                        <td>${product.stock}</td>
-                        <td>${product.seller?.email || 'Unknown'}</td>
-                        <td><span class="badge ${product.status === 'active' ? 'badge-success' : product.status === 'draft' ? 'badge-warning' : 'badge-secondary'}">${product.status || 'active'}</span></td>
-                        <td>
-                            <div class="action-buttons" style="display: flex; gap: 6px; flex-wrap: wrap;">
-                                <button class="btn btn-primary btn-sm" onclick="editAdminProduct('${product.id}')" title="Edit product">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;">
-                                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-                                    </svg>
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="deleteProduct('${product.id}')" title="Delete product">
-                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;">
-                                        <polyline points="3 6 5 6 21 6"/>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-                                    </svg>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-                }).join('');
+                    const row = DOMBuilder.tr({});
+
+                    // Image column
+                    const imgCell = DOMBuilder.td({});
+                    const img = DOMBuilder.img({
+                        attrs: {
+                            src: firstImage,
+                            alt: product.name
+                        },
+                        style: {
+                            width: '50px',
+                            height: '50px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                        }
+                    });
+                    imgCell.appendChild(img);
+
+                    if (images.length > 1) {
+                        const imageCount = document.createElement('small');
+                        imageCount.style.cssText = 'color: #6b7280; display: block; margin-top: 2px;';
+                        imageCount.textContent = `📷 ${images.length} images`;
+                        imgCell.appendChild(imageCount);
+                    }
+                    row.appendChild(imgCell);
+
+                    // Name column (SAFE - textContent prevents XSS)
+                    const nameCell = DOMBuilder.td({});
+                    const nameText = document.createTextNode(product.name);
+                    nameCell.appendChild(nameText);
+
+                    // Featured badge
+                    if (product.featured) {
+                        const featuredBadge = document.createElement('span');
+                        featuredBadge.className = 'badge';
+                        featuredBadge.style.cssText = 'background: var(--accent-color); color: #111; font-size: 10px; margin-left: 4px;';
+                        featuredBadge.textContent = '⭐ FEATURED';
+                        nameCell.appendChild(featuredBadge);
+                    }
+
+                    // SKU badge (SAFE - textContent prevents XSS)
+                    if (product.sku) {
+                        const skuBadge = document.createElement('small');
+                        skuBadge.style.cssText = 'color: #6b7280; display: block; margin-top: 2px;';
+                        skuBadge.textContent = `SKU: ${product.sku}`;
+                        nameCell.appendChild(skuBadge);
+                    }
+                    row.appendChild(nameCell);
+
+                    // Category (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: product.category }));
+
+                    // Price
+                    row.appendChild(DOMBuilder.td({ text: `J$${parseFloat(product.price).toFixed(2)}` }));
+
+                    // Stock
+                    row.appendChild(DOMBuilder.td({ text: product.stock }));
+
+                    // Seller email (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: product.seller?.email || 'Unknown' }));
+
+                    // Status badge
+                    const statusCell = DOMBuilder.td({});
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = 'badge';
+                    if (product.status === 'active') {
+                        statusBadge.classList.add('badge-success');
+                    } else if (product.status === 'draft') {
+                        statusBadge.classList.add('badge-warning');
+                    } else {
+                        statusBadge.classList.add('badge-secondary');
+                    }
+                    statusBadge.textContent = product.status || 'active';
+                    statusCell.appendChild(statusBadge);
+                    row.appendChild(statusCell);
+
+                    // Action buttons
+                    const actionsCell = DOMBuilder.td({});
+                    const actionsDiv = DOMBuilder.div({
+                        className: 'action-buttons',
+                        style: { display: 'flex', gap: '6px', flexWrap: 'wrap' }
+                    });
+
+                    // Edit button with SVG
+                    const editBtn = document.createElement('button');
+                    editBtn.className = 'btn btn-primary btn-sm';
+                    editBtn.title = 'Edit product';
+                    editBtn.onclick = () => editAdminProduct(product.id);
+                    editBtn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>';
+                    actionsDiv.appendChild(editBtn);
+
+                    // Delete button with SVG
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.className = 'btn btn-danger btn-sm';
+                    deleteBtn.title = 'Delete product';
+                    deleteBtn.onclick = () => deleteProduct(product.id);
+                    deleteBtn.innerHTML = '<svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align: middle;"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+                    actionsDiv.appendChild(deleteBtn);
+
+                    actionsCell.appendChild(actionsDiv);
+                    row.appendChild(actionsCell);
+
+                    tbody.appendChild(row);
+                });
 
             } catch (error) {
                 console.error('Error loading products:', error);
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: red;">Error loading products: ${error.message}</td></tr>`;
+                tbody.textContent = '';
+
+                const errorRow = DOMBuilder.tr({});
+                const errorCell = DOMBuilder.td({
+                    attrs: { colspan: '8' },
+                    style: { textAlign: 'center', color: 'red' }
+                });
+                // SAFE - error messages are sanitized through textContent
+                errorCell.textContent = `Error loading products: ${error.message}`;
+                errorRow.appendChild(errorCell);
+                tbody.appendChild(errorRow);
             }
         }
 
@@ -1675,8 +1863,23 @@
 
                 if (!error && sellers) {
                     const sellerSelect = document.getElementById('productSeller');
-                    sellerSelect.innerHTML = '<option value="">Admin Account</option>' +
-                        sellers.map(seller => `<option value="${seller.id}">${seller.full_name || seller.email}</option>`).join('');
+
+                    // Clear and rebuild dropdown safely
+                    sellerSelect.textContent = '';
+
+                    // Add default option
+                    const adminOption = document.createElement('option');
+                    adminOption.value = '';
+                    adminOption.textContent = 'Admin Account';
+                    sellerSelect.appendChild(adminOption);
+
+                    // Add seller options (SAFE - textContent prevents XSS)
+                    sellers.forEach(seller => {
+                        const option = document.createElement('option');
+                        option.value = seller.id;
+                        option.textContent = seller.full_name || seller.email;
+                        sellerSelect.appendChild(option);
+                    });
                 }
             } catch (error) {
                 console.error('Error loading sellers:', error);
@@ -1884,8 +2087,24 @@
 
                 if (!sellersError && sellers) {
                     const sellerSelect = document.getElementById('productSeller');
-                    sellerSelect.innerHTML = '<option value="">Admin Account</option>' +
-                        sellers.map(seller => `<option value="${seller.id}">${seller.full_name || seller.email}</option>`).join('');
+
+                    // Clear and rebuild dropdown safely
+                    sellerSelect.textContent = '';
+
+                    // Add default option
+                    const adminOption = document.createElement('option');
+                    adminOption.value = '';
+                    adminOption.textContent = 'Admin Account';
+                    sellerSelect.appendChild(adminOption);
+
+                    // Add seller options (SAFE - textContent prevents XSS)
+                    sellers.forEach(seller => {
+                        const option = document.createElement('option');
+                        option.value = seller.id;
+                        option.textContent = seller.full_name || seller.email;
+                        sellerSelect.appendChild(option);
+                    });
+
                     sellerSelect.value = product.seller_id || '';
                 }
 
@@ -2401,7 +2620,17 @@
 
         async function loadUsers() {
             const tbody = document.getElementById('usersTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-row">Loading users...</td></tr>';
+
+            // Loading state with spinner
+            tbody.textContent = '';
+            const loadingRow = DOMBuilder.tr({});
+            const loadingCell = DOMBuilder.td({
+                attrs: { colspan: '5' },
+                className: 'loading-row'
+            });
+            loadingCell.appendChild(createLoadingSpinner('Loading users...'));
+            loadingRow.appendChild(loadingCell);
+            tbody.appendChild(loadingRow);
 
             try {
                 const { data: users, error } = await supabase
@@ -2411,35 +2640,83 @@
 
                 if (error) throw error;
 
+                // Clear loading message
+                tbody.textContent = '';
+
                 if (!users || users.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No users found</td></tr>';
+                    const emptyRow = DOMBuilder.tr({});
+                    const emptyCell = DOMBuilder.td({
+                        attrs: { colspan: '5' },
+                        style: { textAlign: 'center', color: 'var(--text-secondary)' },
+                        text: 'No users found'
+                    });
+                    emptyRow.appendChild(emptyCell);
+                    tbody.appendChild(emptyRow);
                     return;
                 }
 
-                tbody.innerHTML = users.map(user => {
+                // Render users using safe DOM manipulation
+                users.forEach(user => {
                     const roleClass = user.role === 'admin' ? 'badge-danger' :
                                      user.role === 'seller' ? 'badge-warning' : 'badge-success';
                     const createdDate = new Date(user.created_at).toLocaleDateString();
 
-                    return `
-                        <tr>
-                            <td>${user.email}</td>
-                            <td>${user.full_name || 'N/A'}</td>
-                            <td><span class="badge ${roleClass}">${user.role}</span></td>
-                            <td>${createdDate}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="btn btn-secondary btn-sm" onclick="changeUserRole('${user.id}', '${user.role}')">Change Role</button>
-                                    <button class="btn btn-danger btn-sm" onclick="deleteUser('${user.id}')">Delete</button>
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                    const row = DOMBuilder.tr({});
+
+                    // Email (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: user.email }));
+
+                    // Full name (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: user.full_name || 'N/A' }));
+
+                    // Role badge
+                    const roleCell = DOMBuilder.td({});
+                    const roleBadge = document.createElement('span');
+                    roleBadge.className = `badge ${roleClass}`;
+                    roleBadge.textContent = user.role; // SAFE - textContent prevents XSS
+                    roleCell.appendChild(roleBadge);
+                    row.appendChild(roleCell);
+
+                    // Created date
+                    row.appendChild(DOMBuilder.td({ text: createdDate }));
+
+                    // Action buttons
+                    const actionsCell = DOMBuilder.td({});
+                    const actionsDiv = DOMBuilder.div({ className: 'action-buttons' });
+
+                    const changeRoleBtn = DOMBuilder.button({
+                        className: 'btn btn-secondary btn-sm',
+                        text: 'Change Role',
+                        onClick: () => changeUserRole(user.id, user.role)
+                    });
+                    actionsDiv.appendChild(changeRoleBtn);
+
+                    const deleteBtn = DOMBuilder.button({
+                        className: 'btn btn-danger btn-sm',
+                        text: 'Delete',
+                        onClick: () => deleteUser(user.id)
+                    });
+                    actionsDiv.appendChild(deleteBtn);
+
+                    actionsCell.appendChild(actionsDiv);
+                    row.appendChild(actionsCell);
+
+                    tbody.appendChild(row);
+                });
 
             } catch (error) {
                 console.error('Error loading users:', error);
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error loading users: ${error.message}</td></tr>`;
+                tbody.textContent = '';
+
+                const errorRow = DOMBuilder.tr({});
+                const errorCell = DOMBuilder.td({
+                    attrs: { colspan: '5' },
+                    style: { textAlign: 'center', color: 'red' }
+                });
+                // SAFE - error messages are sanitized through textContent
+                errorCell.textContent = `Error loading users: ${error.message}`;
+                errorRow.appendChild(errorCell);
+                tbody.appendChild(errorRow);
             }
         }
 
@@ -2473,21 +2750,44 @@
 
             const newRole = selectedRole.value;
 
+            console.log('🔄 Attempting to change role:', {
+                userId: currentUserIdForRoleChange,
+                newRole: newRole
+            });
+
             try {
-                const { error } = await supabase
+                // Update the users table
+                const { data, error } = await supabase
                     .from('users')
                     .update({ role: newRole })
-                    .eq('id', currentUserIdForRoleChange);
+                    .eq('id', currentUserIdForRoleChange)
+                    .select();
 
-                if (error) throw error;
+                console.log('📝 Update response:', { data, error });
 
+                if (error) {
+                    console.error('❌ Supabase error:', error);
+                    throw error;
+                }
+
+                if (!data || data.length === 0) {
+                    console.error('⚠️ No rows updated. This is likely a Row Level Security (RLS) issue.');
+
+                    throw new Error(
+                        'Permission denied: Unable to update user role. ' +
+                        'This is likely due to Supabase Row Level Security (RLS) policies. ' +
+                        'Please run the RLS fix SQL in your Supabase SQL Editor (check console for SQL).'
+                    );
+                }
+
+                console.log('✅ Role updated successfully - ' + data.length + ' row(s) affected');
                 showSuccess(`User role changed to ${newRole} successfully!`);
                 closeRoleModal();
                 loadUsers();
 
             } catch (error) {
-                console.error('Error changing user role:', error);
-                showError('Error changing user role: ' + error.message);
+                console.error('❌ Error changing user role:', error);
+                showError('Error changing user role: ' + (error.message || 'Unknown error'));
             }
         }
 
@@ -2516,7 +2816,17 @@
         // Load pending sellers
         async function loadSellers() {
             const tbody = document.getElementById('sellersTableBody');
-            tbody.innerHTML = '<tr><td colspan="5" class="loading-row">Loading sellers...</td></tr>';
+
+            // Loading state with spinner
+            tbody.textContent = '';
+            const loadingRow = DOMBuilder.tr({});
+            const loadingCell = DOMBuilder.td({
+                attrs: { colspan: '5' },
+                className: 'loading-row'
+            });
+            loadingCell.appendChild(createLoadingSpinner('Loading sellers...'));
+            loadingRow.appendChild(loadingCell);
+            tbody.appendChild(loadingRow);
 
             try {
                 console.log('Loading sellers from database...');
@@ -2534,51 +2844,100 @@
 
                 console.log('Sellers loaded:', sellers?.length || 0, sellers);
 
+                // Clear loading message
+                tbody.textContent = '';
+
                 if (!sellers || sellers.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: var(--text-secondary);">No seller accounts found</td></tr>';
+                    const emptyRow = DOMBuilder.tr({});
+                    const emptyCell = DOMBuilder.td({
+                        attrs: { colspan: '5' },
+                        style: { textAlign: 'center', color: 'var(--text-secondary)' },
+                        text: 'No seller accounts found'
+                    });
+                    emptyRow.appendChild(emptyCell);
+                    tbody.appendChild(emptyRow);
                     return;
                 }
 
-                tbody.innerHTML = sellers.map(seller => {
+                // Render sellers using safe DOM manipulation
+                sellers.forEach(seller => {
                     const status = seller.status || 'pending';
                     const statusClass = status === 'approved' ? 'badge-success' :
                                        status === 'rejected' ? 'badge-danger' : 'badge-warning';
                     const createdDate = new Date(seller.created_at).toLocaleDateString();
 
-                    let actionButtons = '';
+                    const row = DOMBuilder.tr({});
+
+                    // Email (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: seller.email }));
+
+                    // Full name (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: seller.full_name || 'N/A' }));
+
+                    // Status badge (SAFE - textContent prevents XSS)
+                    const statusCell = DOMBuilder.td({});
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = `badge ${statusClass}`;
+                    statusBadge.textContent = status;
+                    statusCell.appendChild(statusBadge);
+                    row.appendChild(statusCell);
+
+                    // Created date
+                    row.appendChild(DOMBuilder.td({ text: createdDate }));
+
+                    // Action buttons
+                    const actionsCell = DOMBuilder.td({});
+                    const actionsDiv = DOMBuilder.div({ className: 'action-buttons' });
+
                     if (status === 'pending') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-sm" onclick="approveSeller('${seller.id}')">Approve</button>
-                            <button class="btn btn-danger btn-sm" onclick="rejectSeller('${seller.id}')">Reject</button>
-                        `;
+                        const approveBtn = DOMBuilder.button({
+                            className: 'btn btn-success btn-sm',
+                            text: 'Approve',
+                            onClick: () => approveSeller(seller.id)
+                        });
+                        actionsDiv.appendChild(approveBtn);
+
+                        const rejectBtn = DOMBuilder.button({
+                            className: 'btn btn-danger btn-sm',
+                            text: 'Reject',
+                            onClick: () => rejectSeller(seller.id)
+                        });
+                        actionsDiv.appendChild(rejectBtn);
                     } else if (status === 'rejected') {
-                        actionButtons = `
-                            <button class="btn btn-success btn-sm" onclick="approveSeller('${seller.id}')">Approve</button>
-                        `;
+                        const approveBtn = DOMBuilder.button({
+                            className: 'btn btn-success btn-sm',
+                            text: 'Approve',
+                            onClick: () => approveSeller(seller.id)
+                        });
+                        actionsDiv.appendChild(approveBtn);
                     } else {
-                        actionButtons = `
-                            <button class="btn btn-danger btn-sm" onclick="rejectSeller('${seller.id}')">Revoke</button>
-                        `;
+                        const revokeBtn = DOMBuilder.button({
+                            className: 'btn btn-danger btn-sm',
+                            text: 'Revoke',
+                            onClick: () => rejectSeller(seller.id)
+                        });
+                        actionsDiv.appendChild(revokeBtn);
                     }
 
-                    return `
-                        <tr>
-                            <td>${seller.email}</td>
-                            <td>${seller.full_name || 'N/A'}</td>
-                            <td><span class="badge ${statusClass}">${status}</span></td>
-                            <td>${createdDate}</td>
-                            <td>
-                                <div class="action-buttons">
-                                    ${actionButtons}
-                                </div>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                    actionsCell.appendChild(actionsDiv);
+                    row.appendChild(actionsCell);
+
+                    tbody.appendChild(row);
+                });
 
             } catch (error) {
                 console.error('Error loading sellers:', error);
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: red;">Error loading sellers: ${error.message}</td></tr>`;
+                tbody.textContent = '';
+
+                const errorRow = DOMBuilder.tr({});
+                const errorCell = DOMBuilder.td({
+                    attrs: { colspan: '5' },
+                    style: { textAlign: 'center', color: 'red' }
+                });
+                // SAFE - error messages are sanitized through textContent
+                errorCell.textContent = `Error loading sellers: ${error.message}`;
+                errorRow.appendChild(errorCell);
+                tbody.appendChild(errorRow);
             }
         }
 
@@ -2697,7 +3056,17 @@ CREATE POLICY "Admins can delete any user"
 
         async function loadOrders() {
             const tbody = document.getElementById('ordersTableBody');
-            tbody.innerHTML = '<tr><td colspan="6" class="loading-row">Loading orders...</td></tr>';
+
+            // Loading state with spinner
+            tbody.textContent = '';
+            const loadingRow = DOMBuilder.tr({});
+            const loadingCell = DOMBuilder.td({
+                attrs: { colspan: '6' },
+                className: 'loading-row'
+            });
+            loadingCell.appendChild(createLoadingSpinner('Loading orders...'));
+            loadingRow.appendChild(loadingCell);
+            tbody.appendChild(loadingRow);
 
             try {
                 const { data: orders, error } = await supabase
@@ -2717,41 +3086,92 @@ CREATE POLICY "Admins can delete any user"
 
                 if (error) throw error;
 
+                // Clear loading message
+                tbody.textContent = '';
+
                 if (!orders || orders.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--text-secondary);">No orders found</td></tr>';
+                    const emptyRow = DOMBuilder.tr({});
+                    const emptyCell = DOMBuilder.td({
+                        attrs: { colspan: '6' },
+                        style: { textAlign: 'center', color: 'var(--text-secondary)' },
+                        text: 'No orders found'
+                    });
+                    emptyRow.appendChild(emptyCell);
+                    tbody.appendChild(emptyRow);
                     return;
                 }
 
-                tbody.innerHTML = orders.map(order => {
+                // Render orders using safe DOM manipulation
+                orders.forEach(order => {
                     const statusClass = order.status === 'delivered' ? 'badge-success' :
                                        order.status === 'cancelled' ? 'badge-danger' :
                                        order.status === 'shipped' ? 'badge-info' : 'badge-warning';
                     const orderDate = new Date(order.created_at).toLocaleDateString();
 
-                    return `
-                        <tr>
-                            <td>${order.id.substring(0, 8)}...</td>
-                            <td>${order.users?.email || 'Unknown'}</td>
-                            <td>J$${parseFloat(order.total).toFixed(2)}</td>
-                            <td><span class="badge ${statusClass}">${order.status}</span></td>
-                            <td>${orderDate}</td>
-                            <td>
-                                <select class="form-control" onchange="updateOrderStatus('${order.id}', this.value)" style="padding: 6px; font-size: 13px;">
-                                    <option value="">Update Status...</option>
-                                    <option value="pending" ${order.status === 'pending' ? 'disabled' : ''}>Pending</option>
-                                    <option value="processing" ${order.status === 'processing' ? 'disabled' : ''}>Processing</option>
-                                    <option value="shipped" ${order.status === 'shipped' ? 'disabled' : ''}>Shipped</option>
-                                    <option value="delivered" ${order.status === 'delivered' ? 'disabled' : ''}>Delivered</option>
-                                    <option value="cancelled" ${order.status === 'cancelled' ? 'disabled' : ''}>Cancelled</option>
-                                </select>
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                    const row = DOMBuilder.tr({});
+
+                    // Order ID (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: `${order.id.substring(0, 8)}...` }));
+
+                    // Buyer email (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: order.users?.email || 'Unknown' }));
+
+                    // Total
+                    row.appendChild(DOMBuilder.td({ text: `J$${parseFloat(order.total).toFixed(2)}` }));
+
+                    // Status badge (SAFE - textContent prevents XSS)
+                    const statusCell = DOMBuilder.td({});
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = `badge ${statusClass}`;
+                    statusBadge.textContent = order.status;
+                    statusCell.appendChild(statusBadge);
+                    row.appendChild(statusCell);
+
+                    // Order date
+                    row.appendChild(DOMBuilder.td({ text: orderDate }));
+
+                    // Status update dropdown
+                    const selectCell = DOMBuilder.td({});
+                    const select = document.createElement('select');
+                    select.className = 'form-control';
+                    select.style.cssText = 'padding: 6px; font-size: 13px;';
+                    select.onchange = (e) => updateOrderStatus(order.id, e.target.value);
+
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Update Status...';
+                    select.appendChild(defaultOption);
+
+                    const statuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+                    statuses.forEach(status => {
+                        const option = document.createElement('option');
+                        option.value = status;
+                        option.textContent = status.charAt(0).toUpperCase() + status.slice(1);
+                        if (order.status === status) {
+                            option.disabled = true;
+                        }
+                        select.appendChild(option);
+                    });
+
+                    selectCell.appendChild(select);
+                    row.appendChild(selectCell);
+
+                    tbody.appendChild(row);
+                });
 
             } catch (error) {
                 console.error('Error loading orders:', error);
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: red;">Error loading orders: ${error.message}</td></tr>`;
+                tbody.textContent = '';
+
+                const errorRow = DOMBuilder.tr({});
+                const errorCell = DOMBuilder.td({
+                    attrs: { colspan: '6' },
+                    style: { textAlign: 'center', color: 'red' }
+                });
+                // SAFE - error messages are sanitized through textContent
+                errorCell.textContent = `Error loading orders: ${error.message}`;
+                errorRow.appendChild(errorCell);
+                tbody.appendChild(errorRow);
             }
         }
 
@@ -3715,7 +4135,17 @@ CREATE POLICY "Admins can delete any user"
 
         async function loadBanners() {
             const tbody = document.getElementById('bannersTableBody');
-            tbody.innerHTML = '<tr><td colspan="7" class="loading-row">Loading banners...</td></tr>';
+
+            // Loading state with spinner
+            tbody.textContent = '';
+            const loadingRow = DOMBuilder.tr({});
+            const loadingCell = DOMBuilder.td({
+                attrs: { colspan: '7' },
+                className: 'loading-row'
+            });
+            loadingCell.appendChild(createLoadingSpinner('Loading banners...'));
+            loadingRow.appendChild(loadingCell);
+            tbody.appendChild(loadingRow);
 
             try {
                 const { data: banners, error } = await supabase
@@ -3725,36 +4155,101 @@ CREATE POLICY "Admins can delete any user"
 
                 if (error) throw error;
 
+                // Clear loading message
+                tbody.textContent = '';
+
                 if (!banners || banners.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #9ca3af;">No banners found. Click "Add Banner" to create one.</td></tr>';
+                    const emptyRow = DOMBuilder.tr({});
+                    const emptyCell = DOMBuilder.td({
+                        attrs: { colspan: '7' },
+                        style: { textAlign: 'center', padding: '40px', color: '#9ca3af' },
+                        text: 'No banners found. Click "Add Banner" to create one.'
+                    });
+                    emptyRow.appendChild(emptyCell);
+                    tbody.appendChild(emptyRow);
                     return;
                 }
 
-                tbody.innerHTML = banners.map(banner => `
-                    <tr>
-                        <td>
-                            <img src="${banner.image_url}" alt="${banner.title}"
-                                style="width: 120px; height: 40px; object-fit: cover; border-radius: 4px;">
-                        </td>
-                        <td><strong>${banner.category}</strong></td>
-                        <td>${banner.title}</td>
-                        <td>${banner.description || '-'}</td>
-                        <td>
-                            <span class="badge ${banner.is_active ? 'badge-success' : 'badge-warning'}">
-                                ${banner.is_active ? 'Active' : 'Inactive'}
-                            </span>
-                        </td>
-                        <td>${banner.display_order}</td>
-                        <td>
-                            <button class="btn btn-secondary btn-sm" onclick="editBanner('${banner.id}')">Edit</button>
-                            <button class="btn btn-danger btn-sm" onclick="deleteBanner('${banner.id}')">Delete</button>
-                        </td>
-                    </tr>
-                `).join('');
+                // Render banners using safe DOM manipulation
+                banners.forEach(banner => {
+                    const row = DOMBuilder.tr({});
+
+                    // Image column
+                    const imgCell = DOMBuilder.td({});
+                    const img = DOMBuilder.img({
+                        attrs: {
+                            src: banner.image_url,
+                            alt: banner.title  // SAFE - alt attribute
+                        },
+                        style: {
+                            width: '120px',
+                            height: '40px',
+                            objectFit: 'cover',
+                            borderRadius: '4px'
+                        }
+                    });
+                    imgCell.appendChild(img);
+                    row.appendChild(imgCell);
+
+                    // Category (SAFE - textContent prevents XSS)
+                    const categoryCell = DOMBuilder.td({});
+                    const categoryStrong = document.createElement('strong');
+                    categoryStrong.textContent = banner.category;
+                    categoryCell.appendChild(categoryStrong);
+                    row.appendChild(categoryCell);
+
+                    // Title (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: banner.title }));
+
+                    // Description (SAFE - textContent prevents XSS)
+                    row.appendChild(DOMBuilder.td({ text: banner.description || '-' }));
+
+                    // Status badge
+                    const statusCell = DOMBuilder.td({});
+                    const statusBadge = document.createElement('span');
+                    statusBadge.className = banner.is_active ? 'badge badge-success' : 'badge badge-warning';
+                    statusBadge.textContent = banner.is_active ? 'Active' : 'Inactive';
+                    statusCell.appendChild(statusBadge);
+                    row.appendChild(statusCell);
+
+                    // Display order
+                    row.appendChild(DOMBuilder.td({ text: banner.display_order }));
+
+                    // Action buttons
+                    const actionsCell = DOMBuilder.td({});
+                    const editBtn = DOMBuilder.button({
+                        className: 'btn btn-secondary btn-sm',
+                        text: 'Edit',
+                        onClick: () => editBanner(banner.id)
+                    });
+                    actionsCell.appendChild(editBtn);
+
+                    actionsCell.appendChild(document.createTextNode(' '));
+
+                    const deleteBtn = DOMBuilder.button({
+                        className: 'btn btn-danger btn-sm',
+                        text: 'Delete',
+                        onClick: () => deleteBanner(banner.id)
+                    });
+                    actionsCell.appendChild(deleteBtn);
+
+                    row.appendChild(actionsCell);
+                    tbody.appendChild(row);
+                });
 
             } catch (error) {
                 console.error('Error loading banners:', error);
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: red;">Error loading banners: ${error.message}</td></tr>`;
+                tbody.textContent = '';
+
+                const errorRow = DOMBuilder.tr({});
+                const errorCell = DOMBuilder.td({
+                    attrs: { colspan: '7' },
+                    style: { textAlign: 'center', color: 'red' }
+                });
+                // SAFE - error messages are sanitized through textContent
+                errorCell.textContent = `Error loading banners: ${error.message}`;
+                errorRow.appendChild(errorCell);
+                tbody.appendChild(errorRow);
             }
         }
 
@@ -3975,21 +4470,66 @@ CREATE POLICY "Admins can delete any user"
             const container = document.getElementById('homepageCardsContainer');
             if (!container) return;
 
-            container.innerHTML = homepageCardsData.map((card, idx) => `
-                <div style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-                    <h4 style="margin-bottom: 15px;">Card ${idx + 1}: ${card.title}</h4>
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px;">
-                        ${card.tiles.map(tile => `
-                            <div style="background: white; border: 1px solid #e5e7eb; border-radius: 6px; padding: 12px; text-align: center;">
-                                ${tile.label}
-                            </div>
-                        `).join('')}
-                    </div>
-                    <div style="color: #6b7280; font-size: 13px;">
-                        Link: ${card.link} | Text: "${card.linkText}"
-                    </div>
-                </div>
-            `).join('');
+            // Clear container safely
+            container.textContent = '';
+
+            // Render cards using safe DOM manipulation
+            homepageCardsData.forEach((card, idx) => {
+                const cardDiv = DOMBuilder.div({
+                    style: {
+                        background: '#f9fafb',
+                        border: '1px solid #e5e7eb',
+                        borderRadius: '8px',
+                        padding: '20px',
+                        marginBottom: '20px'
+                    }
+                });
+
+                // Card title (SAFE - textContent prevents XSS)
+                const titleH4 = document.createElement('h4');
+                titleH4.style.marginBottom = '15px';
+                titleH4.textContent = `Card ${idx + 1}: ${card.title}`;
+                cardDiv.appendChild(titleH4);
+
+                // Tiles grid
+                const tilesGrid = DOMBuilder.div({
+                    style: {
+                        display: 'grid',
+                        gridTemplateColumns: 'repeat(2, 1fr)',
+                        gap: '10px',
+                        marginBottom: '15px'
+                    }
+                });
+
+                // Render tiles (SAFE - textContent prevents XSS)
+                card.tiles.forEach(tile => {
+                    const tileDiv = DOMBuilder.div({
+                        style: {
+                            background: 'white',
+                            border: '1px solid #e5e7eb',
+                            borderRadius: '6px',
+                            padding: '12px',
+                            textAlign: 'center'
+                        },
+                        text: tile.label  // SAFE
+                    });
+                    tilesGrid.appendChild(tileDiv);
+                });
+
+                cardDiv.appendChild(tilesGrid);
+
+                // Link info (SAFE - textContent prevents XSS)
+                const linkInfo = DOMBuilder.div({
+                    style: {
+                        color: '#6b7280',
+                        fontSize: '13px'
+                    }
+                });
+                linkInfo.textContent = `Link: ${card.link} | Text: "${card.linkText}"`;
+                cardDiv.appendChild(linkInfo);
+
+                container.appendChild(cardDiv);
+            });
         }
 
         async function saveHomepageCards() {
@@ -4059,6 +4599,11 @@ CREATE POLICY "Admins can delete any user"
             loadDashboard();
         });
     </script>
+
+    <!-- Premium UI Components -->
+    <script src="js/toast-notifications.js"></script>
+    <script src="js/skeleton-loader.js"></script>
+    <script src="js/ripple.js"></script>
 
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>

@@ -6,6 +6,11 @@
     <title>Seller Profile - London Marketplace</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="css/main.css">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="css/premium-design.css">
+    <link rel="stylesheet" href="css/animations.css">
+    <link rel="stylesheet" href="css/skeleton.css">
+    <link rel="stylesheet" href="css/footer-minimal.css">
 </head>
 <body>
     <!-- Header -->
@@ -184,6 +189,11 @@
     <script src="js/supabase-init.js"></script>
     <script src="js/session-manager.js"></script>
     <script src="js/auth.js"></script>
+
+    <!-- Security & Validation -->
+    <script src="js/security.js"></script>
+    <script src="js/dom-builder.js"></script>
+
     <script>
         // Check authentication on page load
         if (!sessionManager.requireAuth()) {
@@ -422,10 +432,46 @@
         });
     </script>
 
-    <!-- Global Footer -->
+
+<!-- Minimalistic Global Footer -->
 <footer class="global-footer">
     <div class="footer-container">
+        <!-- Footer Main: About + Navigation -->
         <div class="footer-main">
+            <!-- About Column -->
+            <div class="footer-column footer-about">
+                <div class="footer-logo">
+                    <img src="images/logo-new.svg" alt="London Star Marketplace">
+                </div>
+                <p class="footer-about-text">
+                    Your premier destination for quality products from trusted sellers worldwide.
+                    Shop with confidence and discover amazing deals every day.
+                </p>
+                <div class="footer-social">
+                    <a href="#" class="social-icon" aria-label="Facebook">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Twitter">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="Instagram">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+                        </svg>
+                    </a>
+                    <a href="#" class="social-icon" aria-label="YouTube">
+                        <svg fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Shop Column -->
             <div class="footer-column">
                 <h3>Shop</h3>
                 <ul>
@@ -433,108 +479,71 @@
                     <li><a href="marketplace.html?category=electronics">Electronics</a></li>
                     <li><a href="marketplace.html?category=fashion">Fashion</a></li>
                     <li><a href="marketplace.html?category=home">Home & Garden</a></li>
-                    <li><a href="marketplace.html?category=sports">Sports & Outdoors</a></li>
-                    <li><a href="marketplace.html?category=books">Books</a></li>
-                    <li><a href="marketplace.html?category=toys">Toys & Games</a></li>
-                    <li><a href="marketplace.html?category=beauty">Beauty & Personal Care</a></li>
+                    <li><a href="marketplace.html?category=sports">Sports</a></li>
                 </ul>
             </div>
 
+            <!-- Sell Column -->
             <div class="footer-column">
                 <h3>Sell</h3>
                 <ul>
-                    <li><a href="seller.html">Seller Dashboard</a></li>
-                    <li><a href="index.html">Start Selling</a></li>
-                    <li><a href="seller-profile.html">Seller Profile</a></li>
-                    <li><a href="#">Seller Tools</a></li>
-                    <li><a href="#">Seller University</a></li>
-                    <li><a href="#">Advertising</a></li>
-                    <li><a href="#">Pricing</a></li>
-                    <li><a href="#">Resources</a></li>
+                    <li><a href="seller.html">Dashboard</a></li>
+                    <li><a href="seller-registration.html">Start Selling</a></li>
+                    <li><a href="seller-profile.html">Your Store</a></li>
+                    <li><a href="orders.html">Orders</a></li>
                 </ul>
             </div>
 
-            <div class="footer-column">
-                <h3>Customer Service</h3>
-                <ul>
-                    <li><a href="#">Help Center</a></li>
-                    <li><a href="#">Track Your Order</a></li>
-                    <li><a href="#">Returns & Refunds</a></li>
-                    <li><a href="#">Shipping Info</a></li>
-                    <li><a href="#">Payment Methods</a></li>
-                    <li><a href="#">Contact Us</a></li>
-                    <li><a href="#">FAQs</a></li>
-                    <li><a href="#">Report an Issue</a></li>
-                </ul>
-            </div>
-
-            <div class="footer-column">
-                <h3>About Us</h3>
-                <ul>
-                    <li><a href="#">About London Marketplace</a></li>
-                    <li><a href="#">Careers</a></li>
-                    <li><a href="#">Press Center</a></li>
-                    <li><a href="#">Investor Relations</a></li>
-                    <li><a href="#">Sustainability</a></li>
-                    <li><a href="#">Community Impact</a></li>
-                    <li><a href="#">Blog</a></li>
-                    <li><a href="#">Success Stories</a></li>
-                </ul>
-            </div>
-
+            <!-- Account Column -->
             <div class="footer-column">
                 <h3>Account</h3>
                 <ul>
-                    <li><a href="index.html">Sign In</a></li>
-                    <li><a href="index.html">Create Account</a></li>
-                    <li><a href="#">My Orders</a></li>
-                    <li><a href="#">Wishlist</a></li>
-                    <li><a href="#">Account Settings</a></li>
-                    <li><a href="#">Gift Cards</a></li>
-                    <li><a href="#">Subscriptions</a></li>
-                    <li><a href="#">Notifications</a></li>
+                    <li><a href="auth.html">Sign In</a></li>
+                    <li><a href="profile.html">My Profile</a></li>
+                    <li><a href="orders.html">My Orders</a></li>
+                    <li><a href="cart.html">Cart</a></li>
                 </ul>
             </div>
 
+            <!-- Support Column -->
             <div class="footer-column">
-                <h3>Resources</h3>
+                <h3>Support</h3>
                 <ul>
-                    <li><a href="#">Buyer Protection</a></li>
-                    <li><a href="#">Trust & Safety</a></li>
-                    <li><a href="#">Privacy Policy</a></li>
-                    <li><a href="#">Terms of Service</a></li>
-                    <li><a href="#">Cookie Policy</a></li>
-                    <li><a href="#">Accessibility</a></li>
-                    <li><a href="#">Sitemap</a></li>
-                    <li><a href="#">Mobile App</a></li>
+                    <li><a href="index.html">Help Center</a></li>
+                    <li><a href="index.html">Contact Us</a></li>
+                    <li><a href="index.html">Shipping Info</a></li>
+                    <li><a href="index.html">Returns</a></li>
                 </ul>
             </div>
         </div>
 
+        <!-- Footer Bottom: Copyright & Legal -->
         <div class="footer-bottom">
-            <div class="footer-logo">
-                <img src="images/logo-new.svg" alt="London Marketplace">
-            </div>
-
-            <div class="footer-links">
-                <a href="#">Privacy</a>
-                <a href="#">Terms</a>
-                <a href="#">Cookie Policy</a>
-                <a href="#">Accessibility</a>
-                <a href="#">Do Not Sell My Personal Information</a>
-                <a href="#">Interest-Based Ads</a>
-            </div>
-
             <div class="footer-copyright">
-                &copy; 2025 London Marketplace. All rights reserved. | A premium e-commerce experience
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; gap: 12px;">
-                    <span style="font-size: 14px; font-weight: 500; letter-spacing: 0.5px; opacity: 0.9;">A SUBSIDIARY OF</span>
-                    <img src="images/logols.png" alt="Parent Company" style="height: 70px; filter: brightness(0) invert(1); opacity: 0.95;">
-                </div>
+                &copy; 2025 London Star Marketplace. All rights reserved.
             </div>
+            <div class="footer-legal-links">
+                <a href="index.html">Privacy Policy</a>
+                <span>•</span>
+                <a href="index.html">Terms of Service</a>
+                <span>•</span>
+                <a href="index.html">Cookie Policy</a>
+            </div>
+        </div>
+
+        <!-- Parent Company Section -->
+        <div class="footer-parent">
+            <div class="footer-parent-label">A Subsidiary Of</div>
+            <img src="images/logols.png" alt="London Star Records" class="footer-parent-logo">
         </div>
     </div>
 </footer>
+
+<!-- Premium UI Components -->
+<script src="js/image-loader.js"></script>
+<script src="js/rating-component.js"></script>
+<script src="js/lightbox.js"></script>
+<script src="js/ripple.js"></script>
 
 <!-- Vercel Analytics -->
 <script defer src="/_vercel/insights/script.js"></script>
