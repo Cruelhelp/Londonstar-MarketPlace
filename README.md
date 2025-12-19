@@ -4,8 +4,36 @@ A premium e-commerce marketplace built with vanilla JavaScript, HTML5, and CSS3.
 
 ## 🚀 Quick Start
 
+### 1. Clone the Repository
+```bash
+git clone https://github.com/yourusername/london-star-marketplace.git
+cd london-star-marketplace
+```
+
+### 2. Install Dependencies
 ```bash
 npm install
+```
+
+### 3. Configure Supabase
+1. Create a Supabase project at [supabase.com](https://supabase.com)
+2. Copy `.env.example` to create your own `.env` file (optional)
+3. Update your Supabase credentials in `js/supabase-config.js`:
+   - `SUPABASE_URL`: Your project URL
+   - `SUPABASE_ANON_KEY`: Your anon/public key
+
+### 4. Run Database Migrations
+In your Supabase SQL Editor, run:
+```sql
+-- Run the main schema
+migrations/supabase-schema.sql
+
+-- Apply additional migrations
+migrations/migration-*.sql
+```
+
+### 5. Start the Server
+```bash
 npm start
 ```
 
@@ -63,9 +91,15 @@ Apply product feature migrations:
 migrations/migration-*.sql
 ```
 
-### Environment
+### Environment Variables
 
-No `.env` file needed - Supabase config is in `js/supabase-config.js`
+**IMPORTANT**: Never commit your actual Supabase credentials to Git!
+
+1. Copy `.env.example` to `.env` (optional)
+2. Update `js/supabase-config.js` with your credentials
+3. The `.env` file is automatically ignored by Git
+
+**Security Note**: Before pushing to GitHub, ensure your Supabase credentials in `js/supabase-config.js` are replaced with placeholders or use environment variables.
 
 ## 🎨 Tech Stack
 
